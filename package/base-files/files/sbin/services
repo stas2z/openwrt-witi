@@ -1,0 +1,37 @@
+#!/bin/sh
+
+sleep 10 # wait a little bit
+
+#mknod /dev/gpio c 252 0
+btnd wps 18&
+mknod /dev/hwnat0 c 220 0
+hwnat -d 0 & #disabling annoying dmesg hwnat table messages
+hwnat -O 16383 16383 16383 & #HNAT Max entries allowed build when Free Entries
+hwnat -Z 2 & #Both direction offload
+
+
+######## vsftpd workaround for "500: munmap" start fail ########
+if ls /etc/rc.d/*vsftpd*;              #only if it's enabled
+    then
+    while [ "$(pidof vsftpd)" == "" ]; # is it started?
+        do                             # nope
+        logger "VSFTPD is not running, trying to reload";
+        /etc/init.d/vsftpd restart;    # restarting
+        sleep 3;                       # wait a little bit
+        done;                          # try again
+    fi
+################################################################
+
+##################### samba4 workaround ########################
+if ls /etc/rc.d/*samba4*;              #only if it's enabled
+    then
+    while [ "$(pidof smbd)" == "" ]; # is it started?
+        do                             # nope
+        logger "Samba4 is not running, trying to reload";
+        /etc/init.d/samba4 restart;    # restarting
+        sleep 3;                       # wait a little bit
+        done;                          # try again
+    fi
+################################################################
+
+exit 0;

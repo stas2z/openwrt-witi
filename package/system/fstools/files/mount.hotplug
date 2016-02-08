@@ -1,0 +1,2 @@
+/sbin/block hotplug
+chmod 777 /mnt/*

@@ -1,0 +1,16 @@
+--- a/CMakeLists.txt	2015-12-05 19:24:46.000000000 +0300
++++ b/CMakeLists.txt	2015-12-05 19:30:39.000000000 +0300
+@@ -10,5 +10,5 @@
+ 
+ INCLUDE(FindPkgConfig)
+-PKG_SEARCH_MODULE(JSONC json-c)
++PKG_SEARCH_MODULE(JSONC json-c json)
+ IF(JSONC_FOUND)
+   ADD_DEFINITIONS(-DJSONC)
+@@ -43,5 +43,5 @@
+ ADD_SUBDIRECTORY(examples)
+ 
+-find_library(json NAMES json-c)
++find_library(json NAMES json-c json)
+ IF(EXISTS ${json})
+ 	ADD_LIBRARY(blobmsg_json SHARED blobmsg_json.c)

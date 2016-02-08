@@ -1,0 +1,10 @@
+#!/bin/sh
+
+while true; do
+    cached=`cat /proc/meminfo | grep ^Cached | sed -r 's/[^0-9]*//gi'`;
+    if [ $cached -gt 50000 ]; then 
+        logger 'Dropping caches...';
+        echo 3 > /proc/sys/vm/drop_caches;
+    fi
+    sleep 100;
+done

@@ -1,0 +1,13 @@
+--- ./programs/pluto/Makefile.orig	2016-02-03 22:56:05.278781365 +0300
++++ ./programs/pluto/Makefile	2016-02-03 22:58:57.882799104 +0300
+@@ -64,10 +64,6 @@
+ 
+ ALLFLAGS = $(CPPFLAGS) $(CFLAGS) ${CROSSFLAGS}
+ 
+-ifneq ($(LD_LIBRARY_PATH),)
+-LDFLAGS+=-L$(LD_LIBRARY_PATH)
+-endif
+-
+ LIBSADNS = ${LIBOPENSWAN} ${LIBOSWLOG} ${LIBOPENSWAN}
+ LIBSADNS += -lresolv # ${LIBEFENCE}
+ 

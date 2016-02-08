@@ -1,0 +1,11 @@
+--- a/CMakeLists.txt	2014-12-10 19:30:34.000000000 +0800
++++ b/CMakeLists.txt	2015-11-28 13:56:53.223065929 +0800
+@@ -4,7 +4,7 @@ cmake_policy(SET CMP0015 NEW)
+ # Project Definition
+ project(odhcp6c C)
+ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -std=c99")
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+ add_definitions(-D_GNU_SOURCE -Wall -Werror -Wextra -pedantic)
+ 
+ if(${EXT_PREFIX_CLASS})

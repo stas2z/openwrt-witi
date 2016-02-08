@@ -1,0 +1,98 @@
+--- fstools-2015-11-22/libblkid-tiny/libblkid-tiny.c
++++ fstools-2015-11-22/libblkid-tiny/libblkid-tiny.c
+@@ -11,10 +11,14 @@
+ #define DEBUG(fmt, ...)
+ #endif
+ 
++#define isspace(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))
++
+ int blkid_debug_mask = 0;
+ 
+ static unsigned char *probe_buffer;
+ static unsigned int probe_buffer_size = 0;
++
++extern __off64_t lseek64 (int __fd, __off64_t __offset, int __whence) __THROW;
+ 
+ int get_linux_version (void)
+ {
+@@ -100,7 +104,7 @@
+ 
+ 	memset(probe_buffer, 0, probe_buffer_size);
+ 
+-	lseek(pr->fd, off, SEEK_SET);
++	lseek64(pr->fd, off, SEEK_SET);
+ 	ret = read(pr->fd, probe_buffer, len);
+ 
+ 	if (ret != len)
+@@ -150,6 +154,61 @@
+ 	vsnprintf(pr->uuid, sizeof(pr->uuid), fmt, ap);
+ 	va_end(ap);
+ 
++	return 0;
++}
++
++size_t blkid_encode_to_utf8(int enc, unsigned char *dest, size_t len,
++			const unsigned char *src, size_t count)
++{
++	size_t i, j;
++	uint16_t c;
++
++	for (j = i = 0; i + 2 <= count; i += 2) {
++		if (enc == BLKID_ENC_UTF16LE)
++			c = (src[i+1] << 8) | src[i];
++		else /* BLKID_ENC_UTF16BE */
++			c = (src[i] << 8) | src[i+1];
++		if (c == 0) {
++			dest[j] = '\0';
++			break;
++		} else if (c < 0x80) {
++			if (j+1 >= len)
++				break;
++			dest[j++] = (uint8_t) c;
++		} else if (c < 0x800) {
++			if (j+2 >= len)
++				break;
++			dest[j++] = (uint8_t) (0xc0 | (c >> 6));
++			dest[j++] = (uint8_t) (0x80 | (c & 0x3f));
++		} else {
++			if (j+3 >= len)
++				break;
++			dest[j++] = (uint8_t) (0xe0 | (c >> 12));
++			dest[j++] = (uint8_t) (0x80 | ((c >> 6) & 0x3f));
++			dest[j++] = (uint8_t) (0x80 | (c & 0x3f));
++		}
++	}
++	dest[j] = '\0';
++	return j;
++}
++
++size_t blkid_rtrim_whitespace(unsigned char *str)
++{
++	size_t i = strlen((char *) str);
++
++	while (i--) {
++		if (!isspace(str[i]))
++			break;
++	}
++	str[++i] = '\0';
++	return i;
++}
++
++int blkid_probe_set_utf8label(blkid_probe pr, unsigned char *label,
++				size_t len, int enc)
++{
++	blkid_encode_to_utf8(enc, (unsigned char *) pr->label, sizeof(pr->label), label, len);
++	blkid_rtrim_whitespace((unsigned char *) pr->label);
+ 	return 0;
+ }
+ 
+@@ -170,6 +229,8 @@
+ 	&hfs_idinfo,
+ 	&btrfs_idinfo,
+ 	&f2fs_idinfo,
++	&ntfs_idinfo,
++	&exfat_idinfo,
+ };
+ 
+ int probe_block(char *block, struct blkid_struct_probe *pr)
+

@@ -1,0 +1,24 @@
+--- a/libblkid-tiny/hfs.c	2015-11-27 14:24:54.000000000 +0300
++++ a/libblkid-tiny/hfs.c	2015-12-27 00:50:33.407871573 +0300
+@@ -14,7 +14,5 @@
+ #include "superblocks.h"
+ 
+-#if 0
+ #include "md5.h"
+-#endif
+ 
+ /* HFS / HFS+ */
+@@ -134,5 +132,4 @@
+ static int hfs_set_uuid(blkid_probe pr, unsigned char const *hfs_info, size_t len)
+ {
+-#if 0
+ 	static unsigned char const hash_init[MD5LENGTH] = {
+ 		0xb3, 0xe2, 0x0f, 0x39, 0xf2, 0x92, 0x11, 0xd6,
+@@ -151,7 +148,4 @@
+ 	uuid[8] = 0x80 | (uuid[8] & 0x3f);
+ 	return blkid_probe_set_uuid(pr, uuid);
+-#else
+-	return -ENOSYS;
+-#endif
+ }
+ 

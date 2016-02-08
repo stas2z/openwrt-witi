@@ -1,0 +1,101 @@
+--- a/smartmontools.cpp
++++ b/smartmontools.cpp
+@@ -0,0 +1,98 @@
++#include <stdio.h>
++#include <string.h>
++#include <syslog.h>
++#include <stdarg.h>
++#include <unistd.h>
++#include <limits.h>
++#include <stdlib.h>
++
++extern int smartd_main(int argc, char **argv);
++extern int smartctl_main(int argc, char **argv);
++
++int pout_variant;
++
++static struct {
++	const char *name;
++	int (*func_main)(int argc, char **argv);
++} multicall[] = {
++	{ "smartd", smartd_main },
++	{ "smartctl", smartctl_main },
++};
++
++#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
++
++int main(int argc, char **argv)
++{
++	unsigned int i, len;
++	extern char *__progname;
++	char path[PATH_MAX], *self;
++
++	len = readlink("/proc/self/exe", path, sizeof(path));
++	path[len] = 0;
++	for (i=len-2; i>0 && path[i] != '/'; --i);
++	self = path + i + 1;
++
++	if (0 == strcmp(__progname, self)) {
++		if (argc == 1) goto usage;
++		argv++;
++		--argc;
++		__progname = argv[0];
++	}
++
++	for (i = 0; i < ARRAY_SIZE(multicall); i++) {
++		if (0 == strcmp(__progname, multicall[i].name)) {
++			pout_variant = i;
++			return multicall[i].func_main(argc, argv);
++		}
++	}
++
++usage:
++	fprintf(stderr, "%s multicall binary\nAvailable commands:\n\n", self);
++	for (i = 0; i < ARRAY_SIZE(multicall); i++) {
++		fprintf(stderr, "%s", multicall[i].name);
++		if (i != 0 && i != ARRAY_SIZE(multicall)-1)
++			fprintf(stderr, ", ");
++	}
++	fprintf(stderr, "\n");
++
++	return 1;
++}
++
++extern bool printing_is_off;
++extern void FixGlibcTimeZoneBug();
++extern unsigned char debugmode;
++extern unsigned char ata_debugmode;
++extern unsigned char scsi_debugmode;
++extern int facility;
++void vsyslog_lines(int priority, const char * fmt, va_list ap);
++
++void pout(const char *fmt, ...){
++  va_list ap;
++  va_start(ap,fmt);
++
++  if (pout_variant == 0) {
++    // get the correct time in syslog()
++    FixGlibcTimeZoneBug();
++    // in debugmode==1 mode we will print the output from the ataprint.o functions!
++    if (debugmode && debugmode != 2) {
++      vprintf(fmt, ap);
++      fflush(stdout);
++    }
++    // in debugmode==2 mode we print output from knowndrives.o functions
++    else if (debugmode==2 || ata_debugmode || scsi_debugmode) {
++      openlog("smartd", LOG_PID, facility);
++      vsyslog_lines(LOG_INFO, fmt, ap);
++      closelog();
++    }
++  } else if (pout_variant == 1) {
++    if (printing_is_off) {
++      va_end(ap);
++      return;
++    }
++    vprintf(fmt,ap);
++    fflush(stdout);
++  }
++
++  va_end(ap);
++  return;
++}

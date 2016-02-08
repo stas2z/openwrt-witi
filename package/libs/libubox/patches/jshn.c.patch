@@ -1,0 +1,12 @@
+--- a/jshn.c	2015-12-05 19:24:46.000000000 +0300
++++ b/jshn.c	2015-12-05 19:35:56.617636916 +0300
+@@ -14,9 +14,5 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+-#ifdef JSONC
+-        #include <json.h>
+-#else
+         #include <json/json.h>
+-#endif
+ 
+ #include <string.h>

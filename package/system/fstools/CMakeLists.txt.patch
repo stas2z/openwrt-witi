@@ -1,0 +1,10 @@
+--- a/CMakeLists.txt	2015-12-26 18:08:53.000000000 +0300
++++ b/CMakeLists.txt	2015-12-26 18:17:08.267746971 +0300
+@@ -24,6 +24,7 @@
+ 		libblkid-tiny/jffs2.c
+ 		libblkid-tiny/vfat.c
+ 		libblkid-tiny/hfs.c
++		libblkid-tiny/md5.c
+ 		libblkid-tiny/swap.c
+ 		libblkid-tiny/ubifs.c
+ 		libblkid-tiny/squashfs.c

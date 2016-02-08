@@ -1,0 +1,42 @@
+--- vsftpd-3.0.3/sysdeputil.c.o	2016-01-22 15:04:31.000000000 +0300
++++ vsftpd-3.0.3/sysdeputil.c	2016-01-22 15:11:28.654989583 +0300
+@@ -58,9 +58,9 @@
+ #define VSF_SYSDEP_HAVE_SHADOW
+ #define VSF_SYSDEP_HAVE_USERSHELL
+ #define VSF_SYSDEP_HAVE_LIBCAP
+-#if defined(__GLIBC__) || defined(__UCLIBC__)
++//#if defined(__GLIBC__) || defined(__UCLIBC__)
+   #define VSF_SYSDEP_HAVE_UTMPX
+-#endif
++//#endif
+ 
+ #define __USE_GNU
+ #include <utmpx.h>
+@@ -166,9 +166,10 @@
+   #define VSF_SYSDEP_HAVE_SOLARIS_SENDFILE
+ #endif
+ /* END config */
+-
++/*
+ #undef VSF_SYSDEP_HAVE_CAPABILITIES
+ #undef VSF_SYSDEP_HAVE_LIBCAP
++*/
+ 
+ /* PAM support - we include our own dummy version if the system lacks this */
+ #include <security/pam_appl.h>
+@@ -247,6 +248,7 @@
+                       const struct mystr* p_pass_str,
+                       const struct mystr* p_remote_host)
+ {
++#if 0
+   const char* p_crypted;
+   const struct passwd* p_pwd = getpwnam(str_getbuf(p_user_str));
+   (void) p_remote_host;
+@@ -303,6 +305,7 @@
+     return 1;
+   }
+   return 0;
++#endif
+ }
+ 
+ #else /* VSF_SYSDEP_HAVE_PAM */

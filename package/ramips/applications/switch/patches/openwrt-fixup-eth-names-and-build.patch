@@ -1,0 +1,168 @@
+diff -U3 -rNp srcnew/Makefile src/Makefile
+--- srcnew/Makefile	2015-12-01 21:31:09.000000000 +0300
++++ src/Makefile	2016-01-23 17:26:08.227014654 +0300
+@@ -1,5 +1,5 @@
+-EXEC = switch mii_mgr mii_mgr_cl45
+-CFLAGS += -I$(ROOTDIR)/$(LINUXDIR)/drivers/net/raeth
++EXEC = switch
++#CFLAGS += -I$(ROOTDIR)/$(LINUXDIR)/drivers/net/raeth
+ 
+ ifdef CONFIG_RALINK_MT7628
+ SRC = switch.c
+diff -U3 -rNp srcnew/mii_mgr.c src/mii_mgr.c
+--- srcnew/mii_mgr.c	2015-12-01 21:31:09.000000000 +0300
++++ src/mii_mgr.c	2016-01-23 17:37:11.728082843 +0300
+@@ -49,10 +49,10 @@ int main(int argc, char *argv[])
+ 		return -1;
+ 	}
+ 
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &mii;
+ #if defined (CONFIG_RALINK_MT7628)
+-	strncpy(ifr2.ifr_name, "eth2", 5);
++	strncpy(ifr2.ifr_name, "eth0", 5);
+ 	ifr2.ifr_data = &mii2;
+ #endif
+ 
+diff -U3 -rNp srcnew/mii_mgr_cl45.c src/mii_mgr_cl45.c
+--- srcnew/mii_mgr_cl45.c	2015-12-01 21:31:09.000000000 +0300
++++ src/mii_mgr_cl45.c	2016-01-23 17:37:11.728082843 +0300
+@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
+ 		return -1;
+ 	}
+ 
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &mii;
+ 
+ 	while ((opt = getopt(argc, argv, options)) != -1) {
+diff -U3 -rNp srcnew/switch.c src/switch.c
+--- srcnew/switch.c	2016-01-23 17:43:25.000000000 +0300
++++ src/switch.c	2016-01-23 17:37:11.747082845 +0300
+@@ -87,7 +85,7 @@ int reg_read(int offset, int *value)
+ 	if (value == NULL)
+ 		return -1;
+ 	reg.off = offset;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_REG_READ, &ifr)) {
+ 		perror("ioctl");
+@@ -105,7 +103,7 @@ int reg_write(int offset, int value)
+ 
+ 	reg.off = offset;
+ 	reg.val = value;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_REG_WRITE, &ifr)) {
+ 		perror("ioctl");
+@@ -121,7 +119,7 @@ int phy_dump(int phy_addr)
+ 	esw_reg reg;
+ 
+ 	reg.val = phy_addr;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_PHY_DUMP, &ifr)) {
+ 		perror("ioctl");
+@@ -140,7 +138,7 @@ int ingress_rate_set(int on_off, int por
+ 	reg.on_off = on_off;
+ 	reg.port = port;
+ 	reg.bw = bw;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_INGRESS_RATE, &ifr)) {
+ 		perror("ioctl");
+@@ -160,7 +158,7 @@ int egress_rate_set(int on_off, int port
+ 	reg.on_off = on_off;
+ 	reg.port = port;
+ 	reg.bw = bw;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_EGRESS_RATE, &ifr)) {
+ 		perror("ioctl");
+diff -U3 -rNp srcnew/switch_gsw.c src/switch_gsw.c
+--- srcnew/switch_gsw.c	2016-01-23 17:43:25.000000000 +0300
++++ src/switch_gsw.c	2016-01-23 17:37:12.770082950 +0300
+@@ -4,9 +4,11 @@
+ #include <string.h>
+ #include <sys/ioctl.h>
+ #include <sys/socket.h>
+-#include <linux/if.h>
++#include <net/if.h>
++#include <asm/types.h>
++#include <linux/autoconf.h>
+ 
+-#include <ra_ioctl.h>
++#include "ra_ioctl.h"
+ 
+ #define RT_SWITCH_HELP		1
+ #define RT_TABLE_MANIPULATE	1
+@@ -118,7 +120,7 @@ int reg_read(int offset, int *value)
+ 	esw_reg reg;
+ 	ra_mii_ioctl_data mii;
+ 
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &mii;
+ 
+ 	mii.phy_id = 0x1f;
+@@ -140,7 +142,7 @@ int reg_write(int offset, int value)
+ 	esw_reg reg;
+ 	ra_mii_ioctl_data mii;
+ 
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &mii;
+ 
+ 	mii.phy_id = 0x1f;
+@@ -163,7 +165,7 @@ int reg_read(int offset, int *value)
+ 	if (value == NULL)
+ 		return -1;
+ 	reg.off = offset;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_REG_READ, &ifr)) {
+ 		perror("ioctl");
+@@ -181,7 +183,7 @@ int reg_write(int offset, int value)
+ 
+ 	reg.off = offset;
+ 	reg.val = value;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_REG_WRITE, &ifr)) {
+ 		perror("ioctl");
+@@ -198,7 +200,7 @@ int phy_dump(int phy_addr)
+ 	esw_reg reg;
+ 
+ 	reg.val = phy_addr;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_PHY_DUMP, &ifr)) {
+ 		perror("ioctl");
+@@ -216,7 +218,7 @@ int ingress_rate_set(int on_off, int por
+ 	reg.on_off = on_off;
+ 	reg.port = port;
+ 	reg.bw = bw;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_INGRESS_RATE, &ifr)) {
+ 		perror("ioctl");
+@@ -234,7 +236,7 @@ int egress_rate_set(int on_off, int port
+ 	reg.on_off = on_off;
+ 	reg.port = port;
+ 	reg.bw = bw;
+-	strncpy(ifr.ifr_name, "eth2", 5);
++	strncpy(ifr.ifr_name, "eth0", 5);
+ 	ifr.ifr_data = &reg;
+ 	if (-1 == ioctl(esw_fd, RAETH_ESW_EGRESS_RATE, &ifr)) {
+ 		perror("ioctl");
+
