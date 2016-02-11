@@ -1,0 +1,36 @@
+Source-Makefile: feeds/packages/sound/mpg123/Makefile
+Package: libmpg123
+Version: 1.22.3-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libltdl
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: libs
+Category: Libraries
+Title: fast console mpeg audio decoder library
+Maintainer: Zoltan HERPAI <wigyori@uid0.hu>
+Source: mpg123-1.22.3.tar.bz2
+Type: ipkg
+Description: fast console mpeg audio decoder library
+http://www.mpg123.de
+Zoltan HERPAI <wigyori@uid0.hu>
+@@
+
+Package: mpg123
+Version: 1.22.3-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @BUILD_PATENTED +libmpg123 +alsa-lib
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: sound
+Category: Sound
+Title: fast console mpeg audio player
+Maintainer: Zoltan HERPAI <wigyori@uid0.hu>
+Source: mpg123-1.22.3.tar.bz2
+Type: ipkg
+Description: fast console mpeg audio player
+http://www.mpg123.de
+Zoltan HERPAI <wigyori@uid0.hu>
+@@
+
+

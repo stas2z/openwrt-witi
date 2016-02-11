@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/libs/libunistring/Makefile
+Package: libunistring
+Version: 0.9.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: libunistring
+Maintainer: Espen Jürgensen <espenjurgensen+openwrt@gmail.com>
+Source: libunistring-0.9.6.tar.gz
+Type: ipkg
+Description:   This library provides functions for manipulating Unicode strings and for manipulating C strings according to the Unicode standard.
+http://www.gnu.org/software/libunistring/
+Espen Jürgensen <espenjurgensen+openwrt@gmail.com>
+@@
+
+

@@ -1,0 +1,20 @@
+Source-Makefile: feeds/packages/libs/icu/Makefile
+Package: icu
+Version: 55.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libstdcpp +libpthread
+Menu-Depends: 
+Provides: 
+Build-Depends: icu/host
+Build-Types: host
+Section: libs
+Category: Libraries
+Title: International Components for Unicode
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: icu4c-55_1-src.tgz
+Type: ipkg
+Description: International Components for Unicode
+http://icu-project.org
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+

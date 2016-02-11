@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/net/ser2net/Makefile
+Package: ser2net
+Version: 2.10.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: Serial to Network Proxy
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: ser2net-2.10.0.tar.gz
+Type: ipkg
+Description:   This project provides a proxy that allows telnet/tcp connections to be made to
+  serial ports on a machine.
+http://sourceforge.net/projects/ser2net/
+Nicolas Thill <nico@openwrt.org>
+@@
+
+

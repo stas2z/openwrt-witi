@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/utils/luci-app-lxc/Makefile
+Package: luci-app-lxc
+Submenu: 3. Applications
+Version: 20141012
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +luci-mod-admin-full +lxc +lxc-create +liblxc +rpcd-mod-lxc
+Menu-Depends: 
+Provides: 
+Section: luci
+Category: LuCI
+Title: LXC management Web UI
+Maintainer: Petar Koretic <petar.koretic@sartura.hr>
+Source: 
+Type: ipkg
+Description:  This package will install LXC management Web UI.
+Petar Koretic <petar.koretic@sartura.hr>
+@@
+
+

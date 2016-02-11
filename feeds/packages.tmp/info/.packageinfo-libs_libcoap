@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/libs/libcoap/Makefile
+Package: libcoap
+Version: 1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: CoAP (RFC 7252) library
+Maintainer: Anton Glukhov <anton.a.glukhov@gmail.com>
+Source: libcoap-2da31de732c0e51a9bc9e1d4aea21e25da89cf87.tar.bz2
+Type: ipkg
+Description:   Constrained Application Protocol (RFC 7252) library
+http://libcoap.net/
+Anton Glukhov <anton.a.glukhov@gmail.com>
+@@
+
+

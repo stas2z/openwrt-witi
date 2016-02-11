@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/net/luci-app-squid/Makefile
+Package: luci-app-squid
+Submenu: 3. Applications
+Version: 20150608
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +luci-mod-admin-full +squid
+Menu-Depends: 
+Provides: 
+Section: luci
+Category: LuCI
+Title: Squid Web UI
+Maintainer: Marko Ratkaj <marko.ratkaj@sartura.hr>
+Source: 
+Type: ipkg
+Description:  This package will install Squid Web UI.
+Marko Ratkaj <marko.ratkaj@sartura.hr>
+@@
+
+

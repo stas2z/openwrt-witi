@@ -1,0 +1,24 @@
+Source-Makefile: feeds/packages/lang/python-ldap/Makefile
+Package: python-ldap
+Submenu: Python
+Version: 2.4.20-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libopenldap +python
+Menu-Depends: 
+Provides: 
+Build-Depends: python libopenldap
+Section: lang
+Category: Languages
+Title: Python modules for implementing LDAP clients
+Maintainer: Dmitry Trefilov <the-alien@live.ru>
+Source: python-ldap-2.4.20.tar.gz
+Type: ipkg
+Description:   python-ldap provides an object-oriented API to access LDAP directory
+  servers from Python programs. Mainly it wraps the OpenLDAP 2.x libs
+  for that purpose. Additionally the package contains modules for
+  other LDAP-related stuff (e.g. processing LDIF, LDAPURLs, LDAPv3
+  schema, LDAPv3 extended operations and controls, etc.).
+http://python-ldap.org/
+Dmitry Trefilov <the-alien@live.ru>
+@@
+
+

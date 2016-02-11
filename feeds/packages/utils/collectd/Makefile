@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2014 OpenWrt.org
+# Copyright (C) 2006-2016 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=collectd
-PKG_VERSION:=4.10.8
-PKG_RELEASE:=3
+PKG_VERSION:=5.5.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://collectd.org/files/
-PKG_MD5SUM:=7a60495208b9383225493c6dd6abb2f0
+PKG_MD5SUM:=fd24b947cef9351ce3e2d6d2a0762e18
 
 PKG_FIXUP:=autoreconf
 PKG_REMOVE_FILES:=aclocal.m4 libltdl/aclocal.m4
@@ -24,45 +24,74 @@ PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
 
 COLLECTD_PLUGINS_DISABLED:= \
+	amqp \
 	apple_sensors \
+	aquaero \
+	barometer \
 	battery \
+	ceph \
+	cgroups \
 	cpufreq \
 	curl_json \
+	curl_xml \
 	dbi \
-	entropy \
+	drbd \
+	ethstat \
+	fhcount \
 	genericjmx \
 	gmond \
 	hddtemp \
+	ipc \
 	ipmi \
 	ipvs \
 	java \
-	libvirt \
+	log_logstash \
+	lvm \
+	lpar \
 	mbmon \
+	md \
 	memcachec \
 	memcached \
-	modbus \
+	mic \
 	monitorus \
 	multimeter \
 	netapp \
 	nfs \
 	notify_desktop \
 	notify_email \
-	nut \
+	numa \
+	openldap \
 	openvz \
 	oracle \
 	perl \
+	pf \
 	pinba \
 	python \
+	redis \
 	routeros \
 	rrdcached \
 	serial \
+	sigrok \
+	smart \
+	statsd \
 	swap \
 	tape \
 	tokyotyrant \
+	turbostat \
 	uuid \
+	varnish \
+	virt \
 	vserver \
+	write_kafka \
+	write_log \
+	write_mongodb \
+	write_redis \
+	write_riemann \
+	write_sensu \
+	write_tsdb \
 	xmms \
 	zfs_arc \
+	zookeeper
 
 COLLECTD_PLUGINS_SELECTED:= \
 	apache \
@@ -78,6 +107,7 @@ COLLECTD_PLUGINS_SELECTED:= \
 	disk \
 	dns \
 	email \
+	entropy \
 	exec \
 	filecount \
 	fscache \
@@ -89,11 +119,13 @@ COLLECTD_PLUGINS_SELECTED:= \
 	logfile \
 	madwifi \
 	memory \
+	modbus \
 	mysql \
 	netlink \
 	network \
 	nginx \
 	ntpd \
+	nut \
 	olsrd \
 	onewire \
 	openvpn \
@@ -106,17 +138,18 @@ COLLECTD_PLUGINS_SELECTED:= \
 	sensors \
 	snmp \
 	syslog \
-	tail \
 	table \
-	ted \
+	tail \
 	tcpconns \
 	teamspeak2 \
+	ted \
 	thermal \
 	unixsock \
 	uptime \
 	users \
 	vmem \
 	wireless \
+	write_graphite \
 	write_http \
 
 PKG_CONFIG_DEPENDS:= \
@@ -151,8 +184,8 @@ endif
 CONFIGURE_ARGS+= \
 	--disable-debug \
 	--enable-daemon \
-	--enable-getifaddrs \
 	--with-nan-emulation \
+	--without-perl-bindings \
 	--without-libgcrypt
 
 CONFIGURE_VARS+= \
@@ -194,6 +227,11 @@ ifneq ($(CONFIG_PACKAGE_collectd-mod-netlink),)
   CONFIGURE_ARGS+= --with-libnetlink="$(STAGING_DIR)/usr"
 endif
 
+# exception: mod-modbus needs libmodbus
+ifneq ($(CONFIG_PACKAGE_collectd-mod-modbus),)
+  CONFIGURE_ARGS+= --with-libmodbus="$(STAGING_DIR)/usr"
+endif
+
 # exception: mod-onewire needs libow-capi
 ifneq ($(CONFIG_PACKAGE_collectd-mod-onewire),)
   CONFIGURE_ARGS+= --with-libowcapi="$(STAGING_DIR)/usr"
@@ -217,6 +255,7 @@ define Package/collectd/install
 	$(INSTALL_CONF) ./files/collectd.conf $(1)/etc/
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/collectd.init $(1)/etc/init.d/collectd
+	$(INSTALL_DIR) $(1)/etc/collectd/conf.d
 endef
 
 # 1: plugin name
@@ -263,6 +302,7 @@ $(eval $(call BuildPlugin,df,disk space input,df,))
 $(eval $(call BuildPlugin,disk,disk usage/timing input,disk,))
 $(eval $(call BuildPlugin,dns,DNS traffic input,dns,+PACKAGE_collectd-mod-dns:libpcap))
 $(eval $(call BuildPlugin,email,email output,email,))
+$(eval $(call BuildPlugin,entropy,Entropy amount input,entropy,))
 $(eval $(call BuildPlugin,exec,process exec input,exec,))
 $(eval $(call BuildPlugin,filecount,file count input,filecount,))
 $(eval $(call BuildPlugin,fscache,file-system based caching framework input,fscache,))
@@ -275,11 +315,12 @@ $(eval $(call BuildPlugin,logfile,log files output,logfile,))
 $(eval $(call BuildPlugin,madwifi,MadWifi status input,madwifi,))
 #$(eval $(call BuildPlugin,mysql,MySQL status input,mysql,+PACKAGE_collectd-mod-mysql:libmysqlclient-r))
 $(eval $(call BuildPlugin,memory,physical memory usage input,memory,))
-$(eval $(call BuildPlugin,netlink,netlink input,netlink,+PACKAGE_collectd-mod-netlink:ip @BROKEN))
+$(eval $(call BuildPlugin,modbus,read variables through libmodbus,modbus,+PACKAGE_collectd-mod-modbus:libmodbus))
+$(eval $(call BuildPlugin,netlink,netlink input,netlink,+PACKAGE_collectd-mod-netlink:libmnl))
 $(eval $(call BuildPlugin,network,network input/output,network))
 $(eval $(call BuildPlugin,nginx,nginx status input,nginx,+PACKAGE_collectd-mod-nginx:libcurl))
 $(eval $(call BuildPlugin,ntpd,NTP daemon status input,ntpd,))
-#$(eval $(call BuildPlugin,nut,UPS monitoring input,nut,+PACKAGE_collectd-mod-nut:nut))
+$(eval $(call BuildPlugin,nut,UPS monitoring input,nut,+PACKAGE_collectd-mod-nut:nut))
 $(eval $(call BuildPlugin,olsrd,OLSRd status input,olsrd,))
 $(eval $(call BuildPlugin,onewire,onewire sensor input,onewire,+PACKAGE_collectd-mod-onewire:libow-capi @BROKEN))
 $(eval $(call BuildPlugin,openvpn,OpenVPN traffic/compression input,openvpn,))
@@ -289,7 +330,7 @@ $(eval $(call BuildPlugin,powerdns,PowerDNS server status input,powerdns,))
 $(eval $(call BuildPlugin,processes,process status input,processes,))
 $(eval $(call BuildPlugin,protocols,network protocols input,protocols,))
 $(eval $(call BuildPlugin,rrdtool,RRDtool output,rrdtool,+PACKAGE_collectd-mod-rrdtool:librrd1))
-$(eval $(call BuildPlugin,sensors,lm_sensors input,sensors,+PACKAGE_collectd-mod-sensors:libsensors @BROKEN))
+$(eval $(call BuildPlugin,sensors,lm_sensors input,sensors,+PACKAGE_collectd-mod-sensors:libsensors))
 $(eval $(call BuildPlugin,snmp,SNMP input,snmp,+PACKAGE_collectd-mod-snmp:libnetsnmp))
 $(eval $(call BuildPlugin,syslog,syslog output,syslog,))
 $(eval $(call BuildPlugin,tail,tail input,tail,))
@@ -303,4 +344,5 @@ $(eval $(call BuildPlugin,uptime,uptime status input,uptime,))
 $(eval $(call BuildPlugin,users,user logged in status input,users,))
 $(eval $(call BuildPlugin,vmem,virtual memory usage input,vmem,))
 $(eval $(call BuildPlugin,wireless,wireless status input,wireless,))
+$(eval $(call BuildPlugin,write-graphite,Carbon/Graphite output,write_graphite,+PACKAGE_collectd-mod-write-graphite:libpthread))
 $(eval $(call BuildPlugin,write-http,HTTP POST output,write_http,+PACKAGE_collectd-mod-write-http:libcurl))

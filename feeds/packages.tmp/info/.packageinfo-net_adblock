@@ -1,0 +1,38 @@
+Source-Makefile: feeds/packages/net/adblock/Makefile
+Package: adblock
+Version: 0.60.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +wget
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: Powerful adblock script to block ad/abuse domains
+Maintainer: Dirk Brenken <openwrt@brenken.org>
+Source: 
+Type: ipkg
+Description: Powerful adblock script to block ad/abuse domains
+When the dns server on your router receives dns requests, we will sort out queries that ask for the resource
+records of ad/abuse servers and return the local ip address of your router and the internal web server
+delivers a transparent pixel instead.
+
+The script supports the following domain blacklist sites:
+  https://adaway.org
+  https://disconnect.me
+  http://dshield.org
+  https://feodotracker.abuse.ch
+  http://malwaredomains.com
+  http://www.malwaredomainlist.com
+  https://palevotracker.abuse.ch
+  http://www.shallalist.de
+  http://www.spam404.com
+  http://someonewhocares.org
+  http://winhelp2002.mvps.org
+  http://pgl.yoyo.org/adservers
+  https://zeustracker.abuse.ch
+
+Please see README.md in /etc/adblock for further information.
+
+Dirk Brenken <openwrt@brenken.org>
+@@
+
+

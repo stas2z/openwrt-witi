@@ -1,16 +1,527 @@
-var AbstractEdge=function(){};AbstractEdge.prototype={hide:function(){this.connection.fg.hide();this.connection.bg&&this.bg.connection.hide()}};var EdgeFactory=function(){this.template=new AbstractEdge;this.template.style={};this.template.style.directed=!1;this.template.weight=1};EdgeFactory.prototype={build:function(a,b){var c=jQuery.extend(!0,{},this.template);c.source=a;c.target=b;return c}};var Graph=function(){this.nodes={};this.edges=[];this.snapshots=[];this.edgeFactory=new EdgeFactory};
-Graph.prototype={addNode:function(a,b){void 0==this.nodes[a]&&(this.nodes[a]=new Graph.Node(a,b));return this.nodes[a]},addEdge:function(a,b,c){a=this.addNode(a);b=this.addNode(b);var d=this.edgeFactory.build(a,b);jQuery.extend(d.style,c);a.edges.push(d);this.edges.push(d);b.edges.push(d)},snapShot:function(a){},removeNode:function(a){delete this.nodes[a];for(var b=0;b<this.edges.length;b++)if(this.edges[b].source.id==a||this.edges[b].target.id==a)this.edges.splice(b,1),b--}};
-Graph.Node=function(a,b){b=b||{};b.id=a;b.edges=[];b.hide=function(){this.hidden=!0;this.shape&&this.shape.hide();for(i in this.edges)(this.edges[i].source.id==a||this.edges[i].target==a)&&this.edges[i].hide&&this.edges[i].hide()};b.show=function(){this.hidden=!1;this.shape&&this.shape.show();for(i in this.edges)(this.edges[i].source.id==a||this.edges[i].target==a)&&this.edges[i].show&&this.edges[i].show()};return b};Graph.Node.prototype={};Graph.Renderer={};
-Graph.Renderer.Raphael=function(a,b,c,d){this.width=c||400;this.height=d||400;var e=this;this.r=Raphael(a,this.width,this.height);this.radius=40;this.graph=b;this.mouse_in=!1;this.graph.render||(this.graph.render=function(){});this.isDrag=!1;this.dragger=function(a){this.dx=a.clientX;this.dy=a.clientY;e.isDrag=this;this.set&&this.set.animate({"fill-opacity":.1},200)&&this.set.toFront();a.preventDefault&&a.preventDefault()};a=document.getElementById(a);a.onmousemove=function(a){a=a||window.event;if(e.isDrag){var b=
-e.isDrag.set.getBBox(),c=a.clientX-e.isDrag.dx+(b.x+b.width/2),b=a.clientY-e.isDrag.dy+(b.y+b.height/2),c=a.clientX-(20>c?c-20:c>e.width-20?c-e.width+20:0);a=a.clientY-(20>b?b-20:b>e.height-20?b-e.height+20:0);e.isDrag.set.translate(c-Math.round(e.isDrag.dx),a-Math.round(e.isDrag.dy));for(var d in e.graph.edges)e.graph.edges[d].connection&&e.graph.edges[d].connection.draw();e.isDrag.dx=c;e.isDrag.dy=a}};a.onmouseup=function(){e.isDrag&&e.isDrag.set.animate({"fill-opacity":.6},500);e.isDrag=!1};this.draw()};
-Graph.Renderer.Raphael.prototype={translate:function(a){return[(a[0]-this.graph.layoutMinX)*this.factorX+this.radius,(a[1]-this.graph.layoutMinY)*this.factorY+this.radius]},rotate:function(a,b,c){return[a[0]+b*Math.cos(c),a[1]+b*Math.sin(c)]},draw:function(){this.factorX=(this.width-2*this.radius)/(this.graph.layoutMaxX-this.graph.layoutMinX);this.factorY=(this.height-2*this.radius)/(this.graph.layoutMaxY-this.graph.layoutMinY);for(a in this.graph.nodes)this.drawNode(this.graph.nodes[a]);for(var a=
-0;a<this.graph.edges.length;a++)this.drawEdge(this.graph.edges[a])},drawNode:function(a){var b=this.translate([a.layoutPosX,a.layoutPosY]);a.point=b;if(a.shape){var c=a.shape.getBBox();a.shape.translate(Math.round(b[0]-(c.x+c.width/2)),Math.round(b[1]-(c.y+c.height/2)));this.r.safari();return a}var d;a.render||(a.render=function(a,b){var c=Raphael.getColor(),c=a.ellipse(0,0,30,20).attr({fill:c,stroke:c,"stroke-width":2});c.node.id=b.label||b.id;return d=a.set().push(c).push(a.text(0,30,b.label||b.id))});
-d=a.render(this.r,a).hide();d.attr({"fill-opacity":.6});d.items.forEach(function(a){a.set=d;a.node.style.cursor="move"});d.mousedown(this.dragger);c=d.getBBox();d.translate(Math.round(b[0]-(c.x+c.width/2)),Math.round(b[1]-(c.y+c.height/2)));a.hidden||d.show();a.shape=d},drawEdge:function(a){a.backedge||(a.source.hidden||a.target.hidden?a.connection&&a.connection.fg.hide()|a.connection.bg&&a.connection.bg.hide():a.connection?(a.connection.fg.show(),a.connection.bg&&a.connection.bg.show(),a.connection.draw()):
-(a.style&&a.style.callback&&a.style.callback(a),a.connection=this.r.connection(a.source.shape,a.target.shape,a.style)))}};Graph.Layout={};Graph.Layout.Spring=function(a){this.graph=a;this.iterations=500;this.maxRepulsiveForceDistance=6;this.k=2;this.c=.01;this.maxVertexMovement=.5;this.layout()};
-Graph.Layout.Spring.prototype={layout:function(){this.layoutPrepare();for(var a=0;a<this.iterations;a++)this.layoutIteration();this.layoutCalcBounds()},layoutPrepare:function(){for(i in this.graph.nodes){var a=this.graph.nodes[i];a.layoutPosX=0;a.layoutPosY=0;a.layoutForceX=0;a.layoutForceY=0}},layoutCalcBounds:function(){var a=Infinity,b=-Infinity,c=Infinity,d=-Infinity;for(i in this.graph.nodes){var e=this.graph.nodes[i].layoutPosX,f=this.graph.nodes[i].layoutPosY;e>b&&(b=e);e<a&&(a=e);f>d&&(d=
-f);f<c&&(c=f)}this.graph.layoutMinX=a;this.graph.layoutMaxX=b;this.graph.layoutMinY=c;this.graph.layoutMaxY=d},layoutIteration:function(){var a=[],b;for(b in this.graph.nodes){var c=this.graph.nodes[b],d;for(d in a)this.layoutRepulsive(c,this.graph.nodes[a[d]]);a.push(b)}for(a=0;a<this.graph.edges.length;a++)this.layoutAttractive(this.graph.edges[a]);for(a in this.graph.nodes){b=this.graph.nodes[a];c=this.c*b.layoutForceX;d=this.c*b.layoutForceY;var e=this.maxVertexMovement;c>e&&(c=e);c<-e&&(c=-e);
-d>e&&(d=e);d<-e&&(d=-e);b.layoutPosX+=c;b.layoutPosY+=d;b.layoutForceX=0;b.layoutForceY=0}},layoutRepulsive:function(a,b){if("undefined"!=typeof a&&"undefined"!=typeof b){var c=b.layoutPosX-a.layoutPosX,d=b.layoutPosY-a.layoutPosY,e=c*c+d*d;.01>e&&(c=.1*Math.random()+.1,d=.1*Math.random()+.1,e=c*c+d*d);e=Math.sqrt(e);if(e<this.maxRepulsiveForceDistance){var f=this.k*this.k/e;b.layoutForceX+=f*c/e;b.layoutForceY+=f*d/e;a.layoutForceX-=f*c/e;a.layoutForceY-=f*d/e}}},layoutAttractive:function(a){var b=
-a.source,c=a.target,d=c.layoutPosX-b.layoutPosX,e=c.layoutPosY-b.layoutPosY,f=d*d+e*e;.01>f&&(d=.1*Math.random()+.1,e=.1*Math.random()+.1,f=d*d+e*e);var g=Math.sqrt(f);g>this.maxRepulsiveForceDistance&&(g=this.maxRepulsiveForceDistance,f=g*g);f=(f-this.k*this.k)/this.k;void 0==a.attraction&&(a.attraction=1);f*=.5*Math.log(a.attraction)+1;c.layoutForceX-=f*d/g;c.layoutForceY-=f*e/g;b.layoutForceX+=f*d/g;b.layoutForceY+=f*e/g}};Graph.Layout.Ordered=function(a,b){this.graph=a;this.order=b;this.layout()};
-Graph.Layout.Ordered.prototype={layout:function(){this.layoutPrepare();this.layoutCalcBounds()},layoutPrepare:function(a){for(i in this.graph.nodes)a=this.graph.nodes[i],a.layoutPosX=0,a.layoutPosY=0;var b=0;for(i in this.order)a=this.order[i],a.layoutPosX=b,a.layoutPosY=Math.random(),b++},layoutCalcBounds:function(){var a=Infinity,b=-Infinity,c=Infinity,d=-Infinity;for(i in this.graph.nodes){var e=this.graph.nodes[i].layoutPosX,f=this.graph.nodes[i].layoutPosY;e>b&&(b=e);e<a&&(a=e);f>d&&(d=f);f<
-c&&(c=f)}this.graph.layoutMinX=a;this.graph.layoutMaxX=b;this.graph.layoutMinY=c;this.graph.layoutMaxY=d}};function log(a){console.log&&console.log(a)}Raphael.el.tooltip=function(a){this.tp=a;this.tp.o={x:0,y:0};this.tp.hide();this.hover(function(a){this.mousemove(function(a){this.tp.translate(a.clientX-this.tp.o.x,a.clientY-this.tp.o.y);this.tp.o={x:a.clientX,y:a.clientY}});this.tp.show().toFront()},function(a){this.tp.hide();this.unmousemove()});return this};
-Array.prototype.forEach||(Array.prototype.forEach=function(a,b){var c=this.length;if("function"!=typeof a)throw new TypeError;for(var d=0;d<c;d++)d in this&&a.call(b,this[d],d,this)});
+/*
+ *  Dracula Graph Layout and Drawing Framework 0.0.3alpha
+ *  (c) 2010 Philipp Strathausen <strathausen@gmail.com>, http://strathausen.eu
+ *  Contributions by Jake Stothard <stothardj@gmail.com>.
+ *
+ *  based on the Graph JavaScript framework, version 0.0.1
+ *  (c) 2006 Aslak Hellesoy <aslak.hellesoy@gmail.com>
+ *  (c) 2006 Dave Hoover <dave.hoover@gmail.com>
+ *
+ *  Ported from Graph::Layouter::Spring in
+ *    http://search.cpan.org/~pasky/Graph-Layderer-0.02/
+ *  The algorithm is based on a spring-style layouter of a Java-based social
+ *  network tracker PieSpy written by Paul Mutton <paul@jibble.org>.
+ *
+ *  This code is freely distributable under the MIT license. Commercial use is
+ *  hereby granted without any cost or restriction.
+ *
+ *  Links:
+ *
+ *  Graph Dracula JavaScript Framework:
+ *      http://graphdracula.net
+ *
+ /*--------------------------------------------------------------------------*/
+
+/*
+ * Edge Factory
+ */
+var AbstractEdge = function() {
+}
+AbstractEdge.prototype = {
+    hide: function() {
+        this.connection.fg.hide();
+        this.connection.bg && this.bg.connection.hide();
+    }
+};
+var EdgeFactory = function() {
+    this.template = new AbstractEdge();
+    this.template.style = new Object();
+    this.template.style.directed = false;
+    this.template.weight = 1;
+};
+EdgeFactory.prototype = {
+    build: function(source, target) {
+        var e = jQuery.extend(true, {}, this.template);
+        e.source = source;
+        e.target = target;
+        return e;
+    }
+};
+
+/*
+ * Graph
+ */
+var Graph = function() {
+    this.nodes = {};
+    this.edges = [];
+    this.snapshots = []; // previous graph states TODO to be implemented
+    this.edgeFactory = new EdgeFactory();
+};
+Graph.prototype = {
+    /* 
+     * add a node
+     * @id          the node's ID (string or number)
+     * @content     (optional, dictionary) can contain any information that is
+     *              being interpreted by the layout algorithm or the graph
+     *              representation
+     */
+    addNode: function(id, content) {
+        /* testing if node is already existing in the graph */
+        if(this.nodes[id] == undefined) {
+            this.nodes[id] = new Graph.Node(id, content);
+        }
+        return this.nodes[id];
+    },
+
+    addEdge: function(source, target, style) {
+        var s = this.addNode(source);
+        var t = this.addNode(target);
+        var edge = this.edgeFactory.build(s, t);
+        jQuery.extend(edge.style,style);
+        s.edges.push(edge);
+        this.edges.push(edge);
+        // NOTE: Even directed edges are added to both nodes.
+        t.edges.push(edge);
+    },
+    
+    /* TODO to be implemented
+     * Preserve a copy of the graph state (nodes, positions, ...)
+     * @comment     a comment describing the state
+     */
+    snapShot: function(comment) {
+        /* FIXME
+        var graph = new Graph();
+        graph.nodes = jQuery.extend(true, {}, this.nodes);
+        graph.edges = jQuery.extend(true, {}, this.edges);
+        this.snapshots.push({comment: comment, graph: graph});
+        */
+    },
+    removeNode: function(id) {
+        delete this.nodes[id];
+        for(var i = 0; i < this.edges.length; i++) {
+            if (this.edges[i].source.id == id || this.edges[i].target.id == id) {
+                this.edges.splice(i, 1);
+                i--;
+            }
+        }
+    }
+};
+
+/*
+ * Node
+ */
+Graph.Node = function(id, node){
+    node = node || {};
+    node.id = id;
+    node.edges = [];
+    node.hide = function() {
+        this.hidden = true;
+        this.shape && this.shape.hide(); /* FIXME this is representation specific code and should be elsewhere */
+        for(i in this.edges)
+            (this.edges[i].source.id == id || this.edges[i].target == id) && this.edges[i].hide && this.edges[i].hide();
+    };
+    node.show = function() {
+        this.hidden = false;
+        this.shape && this.shape.show();
+        for(i in this.edges)
+            (this.edges[i].source.id == id || this.edges[i].target == id) && this.edges[i].show && this.edges[i].show();
+    };
+    return node;
+};
+Graph.Node.prototype = {
+};
+
+/*
+ * Renderer base class
+ */
+Graph.Renderer = {};
+
+/*
+ * Renderer implementation using RaphaelJS
+ */
+Graph.Renderer.Raphael = function(element, graph, width, height) {
+    this.width = width || 400;
+    this.height = height || 400;
+    var selfRef = this;
+    this.r = Raphael(element, this.width, this.height);
+    this.radius = 40; /* max dimension of a node */
+    this.graph = graph;
+    this.mouse_in = false;
+
+    /* TODO default node rendering function */
+    if(!this.graph.render) {
+        this.graph.render = function() {
+            return;
+        }
+    }
+    
+    /*
+     * Dragging
+     */
+    this.isDrag = false;
+    this.dragger = function (e) {
+        this.dx = e.clientX;
+        this.dy = e.clientY;
+        selfRef.isDrag = this;
+        this.set && this.set.animate({"fill-opacity": .1}, 200) && this.set.toFront();
+        e.preventDefault && e.preventDefault();
+    };
+    
+    var d = document.getElementById(element);
+    d.onmousemove = function (e) {
+        e = e || window.event;
+        if (selfRef.isDrag) {
+            var bBox = selfRef.isDrag.set.getBBox();
+            // TODO round the coordinates here (eg. for proper image representation)
+            var newX = e.clientX - selfRef.isDrag.dx + (bBox.x + bBox.width / 2);
+            var newY = e.clientY - selfRef.isDrag.dy + (bBox.y + bBox.height / 2);
+            /* prevent shapes from being dragged out of the canvas */
+            var clientX = e.clientX - (newX < 20 ? newX - 20 : newX > selfRef.width - 20 ? newX - selfRef.width + 20 : 0);
+            var clientY = e.clientY - (newY < 20 ? newY - 20 : newY > selfRef.height - 20 ? newY - selfRef.height + 20 : 0);
+            selfRef.isDrag.set.translate(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
+            //            console.log(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
+            for (var i in selfRef.graph.edges) {
+                selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
+            }
+            //selfRef.r.safari();
+            selfRef.isDrag.dx = clientX;
+            selfRef.isDrag.dy = clientY;
+        }
+    };
+    d.onmouseup = function () {
+        selfRef.isDrag && selfRef.isDrag.set.animate({"fill-opacity": .6}, 500);
+        selfRef.isDrag = false;
+    };
+    this.draw();
+};
+Graph.Renderer.Raphael.prototype = {
+    translate: function(point) {
+        return [
+            (point[0] - this.graph.layoutMinX) * this.factorX + this.radius,
+            (point[1] - this.graph.layoutMinY) * this.factorY + this.radius
+        ];
+    },
+
+    rotate: function(point, length, angle) {
+        var dx = length * Math.cos(angle);
+        var dy = length * Math.sin(angle);
+        return [point[0]+dx, point[1]+dy];
+    },
+
+    draw: function() {
+        this.factorX = (this.width - 2 * this.radius) / (this.graph.layoutMaxX - this.graph.layoutMinX);
+        this.factorY = (this.height - 2 * this.radius) / (this.graph.layoutMaxY - this.graph.layoutMinY);
+        for (i in this.graph.nodes) {
+            this.drawNode(this.graph.nodes[i]);
+        }
+        for (var i = 0; i < this.graph.edges.length; i++) {
+            this.drawEdge(this.graph.edges[i]);
+        }
+    },
+
+    drawNode: function(node) {
+        var point = this.translate([node.layoutPosX, node.layoutPosY]);
+        node.point = point;
+
+        /* if node has already been drawn, move the nodes */
+        if(node.shape) {
+            var oBBox = node.shape.getBBox();
+            var opoint = { x: oBBox.x + oBBox.width / 2, y: oBBox.y + oBBox.height / 2};
+            node.shape.translate(Math.round(point[0] - opoint.x), Math.round(point[1] - opoint.y));
+            this.r.safari();
+            return node;
+        }/* else, draw new nodes */
+
+        var shape;
+
+        /* if a node renderer function is provided by the user, then use it 
+           or the default render function instead */
+        if(!node.render) {
+            node.render = function(r, node) {
+                /* the default node drawing */
+                var color = Raphael.getColor();
+                var ellipse = r.ellipse(0, 0, 30, 20).attr({fill: color, stroke: color, "stroke-width": 2});
+                /* set DOM node ID */
+                ellipse.node.id = node.label || node.id;
+                shape = r.set().
+                    push(ellipse).
+                    push(r.text(0, 30, node.label || node.id));
+                return shape;
+            }
+        }
+        /* or check for an ajax representation of the nodes */
+        if(node.shapes) {
+            // TODO ajax representation evaluation
+        }
+
+        shape = node.render(this.r, node).hide();
+
+        shape.attr({"fill-opacity": .6});
+        /* re-reference to the node an element belongs to, needed for dragging all elements of a node */
+        shape.items.forEach(function(item){ item.set = shape; item.node.style.cursor = "move"; });
+        shape.mousedown(this.dragger);
+
+        var box = shape.getBBox();
+        shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)))
+        //console.log(box,point);
+        node.hidden || shape.show();
+        node.shape = shape;
+    },
+    drawEdge: function(edge) {
+        /* if this edge already exists the other way around and is undirected */
+        if(edge.backedge)
+            return;
+        if(edge.source.hidden || edge.target.hidden) {
+            edge.connection && edge.connection.fg.hide() | edge.connection.bg && edge.connection.bg.hide();
+            return;
+        }
+        /* if edge already has been drawn, only refresh the edge */
+        if(!edge.connection) {
+            edge.style && edge.style.callback && edge.style.callback(edge); // TODO move this somewhere else
+            edge.connection = this.r.connection(edge.source.shape, edge.target.shape, edge.style);
+            return;
+        }
+        //FIXME showing doesn't work well
+        edge.connection.fg.show();
+        edge.connection.bg && edge.connection.bg.show();
+        edge.connection.draw();
+    }
+};
+Graph.Layout = {};
+Graph.Layout.Spring = function(graph) {
+    this.graph = graph;
+    this.iterations = 500;
+    this.maxRepulsiveForceDistance = 6;
+    this.k = 2;
+    this.c = 0.01;
+    this.maxVertexMovement = 0.5;
+    this.layout();
+};
+Graph.Layout.Spring.prototype = {
+    layout: function() {
+        this.layoutPrepare();
+        for (var i = 0; i < this.iterations; i++) {
+            this.layoutIteration();
+        }
+        this.layoutCalcBounds();
+    },
+    
+    layoutPrepare: function() {
+        for (i in this.graph.nodes) {
+            var node = this.graph.nodes[i];
+            node.layoutPosX = 0;
+            node.layoutPosY = 0;
+            node.layoutForceX = 0;
+            node.layoutForceY = 0;
+        }
+        
+    },
+    
+    layoutCalcBounds: function() {
+        var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
+
+        for (i in this.graph.nodes) {
+            var x = this.graph.nodes[i].layoutPosX;
+            var y = this.graph.nodes[i].layoutPosY;
+            
+            if(x > maxx) maxx = x;
+            if(x < minx) minx = x;
+            if(y > maxy) maxy = y;
+            if(y < miny) miny = y;
+        }
+
+        this.graph.layoutMinX = minx;
+        this.graph.layoutMaxX = maxx;
+        this.graph.layoutMinY = miny;
+        this.graph.layoutMaxY = maxy;
+    },
+    
+    layoutIteration: function() {
+        // Forces on nodes due to node-node repulsions
+
+        var prev = new Array();
+        for(var c in this.graph.nodes) {
+            var node1 = this.graph.nodes[c];
+            for (var d in prev) {
+                var node2 = this.graph.nodes[prev[d]];
+                this.layoutRepulsive(node1, node2);
+                
+            }
+            prev.push(c);
+        }
+        
+        // Forces on nodes due to edge attractions
+        for (var i = 0; i < this.graph.edges.length; i++) {
+            var edge = this.graph.edges[i];
+            this.layoutAttractive(edge);             
+        }
+        
+        // Move by the given force
+        for (i in this.graph.nodes) {
+            var node = this.graph.nodes[i];
+            var xmove = this.c * node.layoutForceX;
+            var ymove = this.c * node.layoutForceY;
+
+            var max = this.maxVertexMovement;
+            if(xmove > max) xmove = max;
+            if(xmove < -max) xmove = -max;
+            if(ymove > max) ymove = max;
+            if(ymove < -max) ymove = -max;
+            
+            node.layoutPosX += xmove;
+            node.layoutPosY += ymove;
+            node.layoutForceX = 0;
+            node.layoutForceY = 0;
+        }
+    },
+
+    layoutRepulsive: function(node1, node2) {
+        if (typeof node1 == 'undefined' || typeof node2 == 'undefined')
+            return;
+        var dx = node2.layoutPosX - node1.layoutPosX;
+        var dy = node2.layoutPosY - node1.layoutPosY;
+        var d2 = dx * dx + dy * dy;
+        if(d2 < 0.01) {
+            dx = 0.1 * Math.random() + 0.1;
+            dy = 0.1 * Math.random() + 0.1;
+            var d2 = dx * dx + dy * dy;
+        }
+        var d = Math.sqrt(d2);
+        if(d < this.maxRepulsiveForceDistance) {
+            var repulsiveForce = this.k * this.k / d;
+            node2.layoutForceX += repulsiveForce * dx / d;
+            node2.layoutForceY += repulsiveForce * dy / d;
+            node1.layoutForceX -= repulsiveForce * dx / d;
+            node1.layoutForceY -= repulsiveForce * dy / d;
+        }
+    },
+
+    layoutAttractive: function(edge) {
+        var node1 = edge.source;
+        var node2 = edge.target;
+        
+        var dx = node2.layoutPosX - node1.layoutPosX;
+        var dy = node2.layoutPosY - node1.layoutPosY;
+        var d2 = dx * dx + dy * dy;
+        if(d2 < 0.01) {
+            dx = 0.1 * Math.random() + 0.1;
+            dy = 0.1 * Math.random() + 0.1;
+            var d2 = dx * dx + dy * dy;
+        }
+        var d = Math.sqrt(d2);
+        if(d > this.maxRepulsiveForceDistance) {
+            d = this.maxRepulsiveForceDistance;
+            d2 = d * d;
+        }
+        var attractiveForce = (d2 - this.k * this.k) / this.k;
+        if(edge.attraction == undefined) edge.attraction = 1;
+        attractiveForce *= Math.log(edge.attraction) * 0.5 + 1;
+        
+        node2.layoutForceX -= attractiveForce * dx / d;
+        node2.layoutForceY -= attractiveForce * dy / d;
+        node1.layoutForceX += attractiveForce * dx / d;
+        node1.layoutForceY += attractiveForce * dy / d;
+    }
+};
+
+Graph.Layout.Ordered = function(graph, order) {
+    this.graph = graph;
+    this.order = order;
+    this.layout();
+};
+Graph.Layout.Ordered.prototype = {
+    layout: function() {
+        this.layoutPrepare();
+        this.layoutCalcBounds();
+    },
+    
+    layoutPrepare: function(order) {
+        for (i in this.graph.nodes) {
+            var node = this.graph.nodes[i];
+            node.layoutPosX = 0;
+            node.layoutPosY = 0;
+        }
+            var counter = 0;
+            for (i in this.order) {
+                var node = this.order[i];
+                node.layoutPosX = counter;
+                node.layoutPosY = Math.random();
+                counter++;
+            }
+    },
+    
+    layoutCalcBounds: function() {
+        var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
+
+        for (i in this.graph.nodes) {
+            var x = this.graph.nodes[i].layoutPosX;
+            var y = this.graph.nodes[i].layoutPosY;
+            
+            if(x > maxx) maxx = x;
+            if(x < minx) minx = x;
+            if(y > maxy) maxy = y;
+            if(y < miny) miny = y;
+        }
+
+        this.graph.layoutMinX = minx;
+        this.graph.layoutMaxX = maxx;
+
+        this.graph.layoutMinY = miny;
+        this.graph.layoutMaxY = maxy;
+    }
+};
+
+/*
+ * usefull JavaScript extensions, 
+ */
+
+function log(a) {console.log&&console.log(a);}
+
+/*
+ * Raphael Tooltip Plugin
+ * - attaches an element as a tooltip to another element
+ *
+ * Usage example, adding a rectangle as a tooltip to a circle:
+ *
+ *      paper.circle(100,100,10).tooltip(paper.rect(0,0,20,30));
+ *
+ * If you want to use more shapes, you'll have to put them into a set.
+ *
+ */
+Raphael.el.tooltip = function (tp) {
+    this.tp = tp;
+    this.tp.o = {x: 0, y: 0};
+    this.tp.hide();
+    this.hover(
+        function(event){ 
+            this.mousemove(function(event){ 
+                this.tp.translate(event.clientX - 
+                                  this.tp.o.x,event.clientY - this.tp.o.y);
+                this.tp.o = {x: event.clientX, y: event.clientY};
+            });
+            this.tp.show().toFront();
+        }, 
+        function(event){
+            this.tp.hide();
+            this.unmousemove();
+        });
+    return this;
+};
+
+/* For IE */
+if (!Array.prototype.forEach)
+{
+  Array.prototype.forEach = function(fun /*, thisp*/)
+  {
+    var len = this.length;
+    if (typeof fun != "function")
+      throw new TypeError();
+
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++)
+    {
+      if (i in this)
+        fun.call(thisp, this[i], i, this);
+    }
+  };
+}

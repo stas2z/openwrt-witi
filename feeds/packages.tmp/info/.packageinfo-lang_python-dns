@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/python-dns/Makefile
+Package: python-dns
+Submenu: Python
+Version: 1.12.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python
+Menu-Depends: 
+Provides: 
+Section: language-python
+Category: Languages
+Title: dnspython
+Maintainer: Denis Shulyaka <Shulyaka@gmail.com>
+Source: dnspython-1.12.0.tar.gz
+Type: ipkg
+Description:  dnspython is a DNS toolkit for Python. It supports almost all record types. It can be used for queries, zone transfers, and dynamic updates. It supports TSIG authenticated messages and EDNS0.
+http://www.dnspython.org/
+Denis Shulyaka <Shulyaka@gmail.com>
+@@
+
+

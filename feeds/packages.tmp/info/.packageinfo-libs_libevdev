@@ -1,0 +1,23 @@
+Source-Makefile: feeds/packages/libs/libevdev/Makefile
+Package: libevdev
+Version: 1.4.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: a wrapper library for evdev devices
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: libevdev-1.4.6.tar.xz
+Type: ipkg
+Description:   libevdev is a wrapper library for evdev devices. it moves the common
+  tasks when dealing with evdev devices into a library and provides a
+  library interface to the callers, thus avoiding erroneous ioctls, etc.
+
+  The eventual goal is that libevdev wraps all ioctls available to
+  evdev devices, thus making direct access unnecessary.
+http://www.freedesktop.org/wiki/Software/libevdev/
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+

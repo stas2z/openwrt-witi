@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/utils/taskwarrior/Makefile
+Package: taskwarrior
+Version: 2.4.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libstdcpp +libuuid +libgnutls
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: taskwarrior
+Maintainer: Luka Perkov <luka@openwrt.org>
+Source: task-2.4.4.tar.gz
+Type: ipkg
+Description:  taskwarrior is a command-line todo list manager
+http://taskwarrior.org/
+Luka Perkov <luka@openwrt.org>
+@@
+
+

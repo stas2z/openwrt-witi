@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/devel/automake/Makefile
+Package: automake
+Version: 1.15-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +autoconf +perlbase-thread +perlbase-attributes
+Menu-Depends: 
+Provides: 
+Section: devel
+Category: Development
+Title: automake
+Maintainer: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Source: automake-1.15.tar.gz
+Type: ipkg
+Description:   Automake is a tool for automatically generating Makefile.in files compliant
+  with the GNU Coding Standards.
+https://www.gnu.org/software/automake/
+Heinrich Schuchardt <xypron.glpk@gmx.de>
+@@
+
+

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/lua-md5/Makefile
+Package: lua-md5
+Submenu: Lua
+Version: 1.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +lua
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: Lua-MD5
+Maintainer: Dirk Chang <dirk@kooiot.com>
+Source: lua-md5-1.2.tar.gz
+Type: ipkg
+Description:   MD5 offers basic cryptographic facilities for Lua
+https://github.com/keplerproject/md5
+Dirk Chang <dirk@kooiot.com>
+@@
+
+

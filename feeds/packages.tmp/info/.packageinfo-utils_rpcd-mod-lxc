@@ -1,0 +1,17 @@
+Source-Makefile: feeds/packages/utils/rpcd-mod-lxc/Makefile
+Package: rpcd-mod-lxc
+Version: 20141012
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +rpcd +liblxc
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: LXC rpcd module
+Maintainer: Luka Perkov <luka@openwrt.org>
+Source: 
+Type: ipkg
+Description: LXC rpcd module
+Luka Perkov <luka@openwrt.org>
+@@
+
+

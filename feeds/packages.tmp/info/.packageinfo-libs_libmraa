@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/libs/libmraa/Makefile
+Package: libmraa
+Version: 0.8.0-70600dece4138b0c0dbaff42f57828f1559cd840
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python +libstdcpp
+Menu-Depends: 
+Provides: 
+Build-Depends: node python/host swig/host node/host
+Section: libs
+Category: Libraries
+Title: Intel IoT lowlevel IO library
+Maintainer: John Crispin <blogic@openwrt.org>
+Source: libmraa-0.8.0-70600dece4138b0c0dbaff42f57828f1559cd840.tar.gz
+Type: ipkg
+Description: Intel IoT lowlevel IO library
+John Crispin <blogic@openwrt.org>
+@@
+
+

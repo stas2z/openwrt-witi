@@ -1,0 +1,19 @@
+Source-Makefile: feeds/routing/miniupnpd/Makefile
+Package: miniupnpd
+Submenu: Firewall
+Version: 1.9.20151212-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +iptables +libip4tc +IPV6:libip6tc +IPV6:ip6tables
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: Lightweight UPnP IGD, NAT-PMP & PCP daemon
+Maintainer: Markus Stenberg <fingon@iki.fi>
+Source: miniupnpd-1.9.20151212.tar.gz
+Type: ipkg
+Description: Lightweight UPnP IGD, NAT-PMP & PCP daemon
+http://miniupnp.free.fr/
+Markus Stenberg <fingon@iki.fi>
+@@
+
+

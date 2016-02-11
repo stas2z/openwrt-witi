@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/libs/opencv/Makefile
+Package: opencv
+Version: 3.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread +librt +libstdcpp +zlib +libjpeg
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: OpenCV
+Maintainer: WRTnode Team <pub@wrtnode.com>
+Source: opencv-3.0.0.zip
+Type: ipkg
+Description: OpenCV
+http://opencv.org/
+WRTnode Team <pub@wrtnode.com>
+@@
+
+

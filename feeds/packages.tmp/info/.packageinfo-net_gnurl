@@ -1,0 +1,35 @@
+Source-Makefile: feeds/packages/net/gnurl/Makefile
+Package: gnurl
+Submenu: File Transfer
+Version: 7.45.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libgnurl
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: A client-side HTTP/HTTPS transfer utility
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: gnurl-7.45.0.tar.bz2
+Type: ipkg
+Description: A client-side HTTP/HTTPS transfer utility
+https://gnunet.org/gnurl
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+Package: libgnurl
+Version: 7.45.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libgnutls +libidn +zlib
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: A client-side HTTP/HTTPS transfer library
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: gnurl-7.45.0.tar.bz2
+Type: ipkg
+Description: A client-side HTTP/HTTPS transfer library
+https://gnunet.org/gnurl
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+

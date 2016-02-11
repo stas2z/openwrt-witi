@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/net/bcp38/Makefile
+Package: bcp38
+Submenu: Routing and Redirection
+Version: 4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +ipset
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: BCP38 compliance
+Maintainer: Toke Høiland-Jørgensen <toke@toke.dk>
+Source: 
+Type: ipkg
+Description:  bcp38 implements IETF BCP38 for home routers. See https://tools.ietf.org/html/bcp38.
+https://github.com/dtaht/ceropackages-3.10
+Toke Høiland-Jørgensen <toke@toke.dk>
+@@
+
+

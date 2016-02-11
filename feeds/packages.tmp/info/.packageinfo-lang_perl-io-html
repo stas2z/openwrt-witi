@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/perl-io-html/Makefile
+Package: perl-io-html
+Submenu: Perl
+Version: 1.001-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread perl +perlbase-encode +perlbase-essential
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: Open an HTML file with automatic charset detection
+Maintainer: Marcel Denia <naoir@gmx.net>
+Source: IO-HTML-1.001.tar.gz
+Type: ipkg
+Description: Open an HTML file with automatic charset detection
+http://search.cpan.org/dist/IO-HTML/
+Marcel Denia <naoir@gmx.net>
+@@
+
+

@@ -7,21 +7,27 @@
 #
 
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/uclibc++.mk
 
-RELEASEVER:=5.4.0
+RELEASEVER:=5.5.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=4
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
-PKG_MD5SUM:=427fd2ffde51116271534f398bf913e8
+PKG_MD5SUM:=c433b3df08a5993e16fadaac279e39a0
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
+
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
+PKG_FIXUP:=autoreconf
 
 PKG_INSTALL:=1
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/Default
@@ -74,6 +80,12 @@ define Package/$(PKG_NAME)-collection-basic
    TITLE := Basic Yate Server
 endef
 
+ifneq ($(CONFIG_USE_MUSL),)
+  LIBNSL:=
+else
+  LIBNSL:=-lnsl
+endif
+
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include $(if $(CONFIG_BIG_ENDIAN),-DBIGENDIAN,)
 
 CONFIGURE_ARGS+= \
@@ -104,7 +116,7 @@ CONFIGURE_ARGS+= \
 	--with-spandsp="$(STAGING_DIR)/usr/include" \
 	--without-pwlib \
 	--without-openh323 \
-	--with-openssl="$(STAGING_DIR)/usr" \
+	--with-openssl \
 	--with-zlib="$(STAGING_DIR)/usr" \
 	--without-libqt4 \
 	--without-qtstatic \
@@ -114,12 +126,12 @@ CONFIGURE_ARGS+= \
 
 CONFIGURE_VARS+= \
 	LDFLAGS="$$$$LDFLAGS -nodefaultlibs" \
-	LIBS="-lc -luClibc++ -lpthread -lresolv -ldl -lm -lc $(LIBGCC_S)"
+	LIBS="-lc -luClibc++ -lpthread -lresolv -ldl -lm -lc $(LIBGCC_S) $(LIBNSL)"
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	
-	for yatelib in "" sig mgcp jabber script; do \
+	for yatelib in "" asn sig mgcp jabber script; do \
 		$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libyate$$$${yatelib}.so.$(RELEASEVER) $(1)/usr/lib ;\
 		$(LN) ./libyate$$$${yatelib}.so.$(RELEASEVER) $(1)/usr/lib/libyate$$$${yatelib}.so ;\
 	done

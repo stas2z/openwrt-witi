@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/utils/mmc-utils/Makefile
+Package: mmc-utils
+Version: 2015-05-01-d0b46442b50794217e53b2455c1344c548d9d088-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: Userspace tools for MMC/SD devices
+Maintainer: Michael Heimpold <mhei@heimpold.de>
+Source: mmc-utils-d0b46442b50794217e53b2455c1344c548d9d088.tar.gz
+Type: ipkg
+Description:   This package contains the userspace mmc utils, the userspace
+  counterpart to the Linux MMC/SD subsystem.
+http://git.kernel.org/cgit/linux/kernel/git/cjb/mmc-utils.git
+Michael Heimpold <mhei@heimpold.de>
+@@
+
+

@@ -1,0 +1,148 @@
+Source-Makefile: feeds/packages/net/iotivity/Makefile
+Package: iotivity
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!USE_UCLIBC +libpthread +librt +libuuid
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity C Library
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description:     IoTivity is a framework for the Internet of Things based on the
+    Open Interconnect Consortium Specification.
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+Package: iotivity-cpp
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread iotivity +libpthread +libstdcpp
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity C++ Library
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description:     IoTivity is a framework for the Internet of Things based on the
+    Open Interconnect Consortium Specification.
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+Package: iotivity-things-manager-lib
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread iotivity +iotivity-cpp +libstdcpp
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity things manager lib
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description:     IoTivity things-manager lib
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+Package: iotivity-oic-middle
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread iotivity +iotivity-cpp
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity OIC Middle
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description:     IoTivity OIC Middle
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+Package: iotivity-things-manager
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread iotivity +iotivity-cpp +iotivity-things-manager-lib
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity things manager
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description:     IoTivity things manager
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+Package: iotivity-resource-container-lib
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread iotivity +iotivity-cpp +boost-system +boost-thread +boost-date_time
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity Resource Container library
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description: IoTivity Resource Container library
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+Package: iotivity-resource-container-sample
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread iotivity +iotivity-resource-container-lib
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity Resource Container sample Application
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description: IoTivity Resource Container sample Application
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+Package: iotivity-resource-container-hue
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread iotivity +iotivity-resource-container-lib +libcurl
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity Resource Container Hue Bundle
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description: IoTivity Resource Container Hue Bundle
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+Package: iotivity-example-garage
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread iotivity +iotivity-cpp
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IoTivity Garage example
+Maintainer: Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+Source: iotivity-1.0.0.tar.gz
+Type: ipkg
+Description:     An IoTivity example application
+https://www.iotivity.org
+Hauke Mehrtens <hauke.mehrtens@lantiq.com>
+@@
+
+

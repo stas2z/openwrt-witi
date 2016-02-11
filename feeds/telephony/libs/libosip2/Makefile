@@ -19,9 +19,13 @@ PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 
+PKG_LICENSE:=LGPL-2.1+
+PKG_LICENSE_FILES:=COPYING
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libosip2
+  SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=GNU oSIP library

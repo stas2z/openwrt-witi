@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2013 OpenWrt.org
+# Copyright (C) 2007-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libtorrent
-PKG_VERSION:=0.13.4-git
-PKG_RELEASE=$(PKG_SOURCE_VERSION)-1
+PKG_VERSION:=0.13.6-git-1
+PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/rakshasa/libtorrent.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=51cd5ea8913a5f5062813d9f5b6256c76d41ea11
+PKG_SOURCE_VERSION:=14e793b75dac95c51ad64ff9cd2dc6772b68c625
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 
 PKG_FIXUP:=autoreconf
@@ -48,7 +48,9 @@ CONFIGURE_ARGS+= \
 	--enable-aligned \
 	--disable-debug \
 	--enable-openssl \
-	--disable-instrumentation
+	--disable-instrumentation \
+	--with-zlib=$(STAGING_DIR)/usr \
+	--disable-ipv6
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include

@@ -1,0 +1,424 @@
+Source-Makefile: feeds/packages/lang/python3/Makefile
+Package: python3-asyncio
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 asyncio module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 asyncio module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-codecs
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 codecs + unicode support
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 codecs + unicode support
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-ctypes
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 ctypes module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 ctypes module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-dbm
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light +libdb47
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 dbm module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 dbm module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-decimal
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 decimal module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 decimal module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-dev
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 development files
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 development files
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-distutils
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 distutils module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 distutils module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-email
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 email module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 email module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-gdbm
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light +libgdbm
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 gdbm module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 gdbm module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-lib2to3
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 lib2to3 module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 lib2to3 module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-logging
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 logging module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 logging module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-lzma
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light +liblzma
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 lzma module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 lzma module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-multiprocessing
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 multiprocessing
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 multiprocessing
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-ncurses
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light +libncurses
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 ncurses module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 ncurses module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-openssl
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light +libopenssl
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 SSL module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 SSL module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-pydoc
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 pydoc module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 pydoc module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-sqlite3
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light +libsqlite3
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 sqlite3 module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 sqlite3 module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-unittest
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 unittest module
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 unittest module
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-xml
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 xml libs
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description: Python 3.5 xml libs
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-base
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread +zlib
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 interpreter
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description:   This package contains only the interpreter and the bare minimum
+  for the interpreter to start.
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3-light
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-base +libffi +libbz2
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 light installation
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description:   This package is essentially the python3-base package plus
+  a few of the rarely used (and big) libraries stripped out
+  into separate packages.
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+Package: python3
+Submenu: Python
+Version: 3.5.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python3-light +python3-asyncio +python3-codecs +python3-ctypes +python3-dbm +python3-decimal +python3-distutils +python3-email +python3-gdbm +python3-logging +python3-lzma +python3-multiprocessing +python3-ncurses +python3-openssl +python3-pydoc +python3-sqlite3 +python3-unittest +python3-xml
+Menu-Depends: 
+Provides: 
+Build-Depends: libbz2/host expat/host python3/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Python 3.5 programming language
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: Python-3.5.0.tar.xz
+Type: ipkg
+Description:   This package contains the (almost) full Python install.
+  It's python3-light + all other packages.
+https://www.python.org/
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+

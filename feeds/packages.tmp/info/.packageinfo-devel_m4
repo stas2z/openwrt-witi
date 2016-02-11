@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/devel/m4/Makefile
+Package: m4
+Version: 1.4.17-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: devel
+Category: Development
+Title: m4
+Maintainer: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Source: m4-1.4.17.tar.gz
+Type: ipkg
+Description:   GNU M4 is an implementation of the traditional Unix macro processor.
+  It is used by GNU Autoconf and Automake.
+https://www.gnu.org/software/m4/
+Heinrich Schuchardt <xypron.glpk@gmx.de>
+@@
+
+

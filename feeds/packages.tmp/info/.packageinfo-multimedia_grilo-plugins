@@ -1,0 +1,190 @@
+Source-Makefile: feeds/packages/multimedia/grilo-plugins/Makefile
+Package: grilo-plugins
+Menu: 1
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +grilo +BUILD_NLS:libiconv-full +BUILD_NLS:libintl-full
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: Plugins for the Grilo framework
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: Plugins for the Grilo framework
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-dleyna
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: DLNA sharing plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: DLNA sharing plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-dmap
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins libdmapsharing
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: DAAP and DPAP sharing plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: DAAP and DPAP sharing plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-gravatar
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: Gravatar provider plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: Gravatar provider plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-jamendo
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: Jamendo sharing plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: Jamendo sharing plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-lastfm-albumart
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: Last.FM album art provider plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: Last.FM album art provider plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-magnatune
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: Magnatune sharing plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: Magnatune sharing plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-metadata-store
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: Extra metadata store plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: Extra metadata store plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-opensubtitles
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: Openi subtitles provider plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: Openi subtitles provider plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-raitv
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: Rai.tv sharing plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: Rai.tv sharing plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+Package: grilo-plugins-shoutcast
+Version: 0.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread grilo-plugins
+Menu-Depends: 
+Provides: 
+Build-Depends: glib2 grilo !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: multimedia
+Category: Multimedia
+Title: SHOUTcast sharing plugin
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Source: grilo-plugins-0.3.0.tar.xz
+Type: ipkg
+Description: SHOUTcast sharing plugin
+https://wiki.gnome.org/Projects/Grilo
+W. Michael Petullo <mike@flyn.org>
+@@
+
+

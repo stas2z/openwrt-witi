@@ -1,0 +1,21 @@
+Source-Makefile: feeds/packages/lang/perl-inline/Makefile
+Package: perl-inline
+Submenu: Perl
+Version: 0.80-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread perl +perlbase-base +perlbase-config +perlbase-cwd +perlbase-digest +perlbase-essential +perlbase-fcntl +perlbase-file
+Menu-Depends: 
+Provides: 
+Build-Depends/host: perl/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Write subroutines in other languages
+Maintainer: Marcel Denia <naoir@gmx.net>
+Source: Inline-0.80.tar.gz
+Type: ipkg
+Description: Write subroutines in other languages
+http://search.cpan.org/dist/Inline/
+Marcel Denia <naoir@gmx.net>
+@@
+
+

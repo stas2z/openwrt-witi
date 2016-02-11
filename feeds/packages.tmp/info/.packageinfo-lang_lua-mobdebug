@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/lua-mobdebug/Makefile
+Package: lua-mobdebug
+Submenu: Lua
+Version: 0.61-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +lua
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: Lua-MobDebug
+Maintainer: Dirk Chang <dirk@kooiot.com>
+Source: lua-mobdebug-0.61.tar.gz
+Type: ipkg
+Description:   MobDebug is a remote debugger for Lua (including Lua 5.1, Lua 5.2, Lua 5.3, and LuaJIT 2.x).
+https://github.com/pkulchenko/MobDebug
+Dirk Chang <dirk@kooiot.com>
+@@
+
+

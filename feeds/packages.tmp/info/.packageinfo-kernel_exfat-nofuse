@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/kernel/exfat-nofuse/Makefile
+Package: kmod-fs-exfat
+Submenu: Filesystems
+Version: <LINUX_VERSION>+git-20151121-1
+Depends: +kmod-nls-base @BUILD_PATENTED
+Menu-Depends: 
+Provides: 
+Section: kernel
+Category: Kernel modules
+Title: ExFAT Kernel driver
+Maintainer: Bruno Randolf <br1@einfach.org>
+Source: exfat-nofuse-git-20151121.tar.bz2
+Type: ipkg
+Description: 	Kernel module for ExFAT Filesytems
+Bruno Randolf <br1@einfach.org>
+@@
+
+

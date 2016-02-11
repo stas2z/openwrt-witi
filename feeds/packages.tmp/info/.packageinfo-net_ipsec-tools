@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/net/ipsec-tools/Makefile
+Package: ipsec-tools
+Submenu: VPN
+Version: 0.8.2-4
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libopenssl +kmod-ipsec
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: IPsec management tools
+Maintainer: Noah Meyerhans <frodo@morgul.net>
+Source: ipsec-tools-0.8.2.tar.bz2
+Type: ipkg
+Description: IPsec management tools
+http://ipsec-tools.sourceforge.net/
+Noah Meyerhans <frodo@morgul.net>
+@@
+
+

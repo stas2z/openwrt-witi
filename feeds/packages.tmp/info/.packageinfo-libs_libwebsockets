@@ -1,0 +1,36 @@
+Source-Makefile: feeds/packages/libs/libwebsockets/Makefile
+Package: libwebsockets-openssl
+Version: 1.6.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib +libopenssl
+Menu-Depends: 
+Provides: 
+Build-Variant: openssl
+Section: libs
+Category: Libraries
+Title: libwebsockets (OpenSSL)
+Maintainer: Karl Palsson <karlp@remake.is>
+Source: libwebsockets-1.6.2.tar.xz
+Type: ipkg
+Description: libwebsockets (OpenSSL)
+https://libwebsockets.org
+Karl Palsson <karlp@remake.is>
+@@
+
+Package: libwebsockets-cyassl
+Version: 1.6.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib +libcyassl
+Menu-Depends: 
+Provides: 
+Build-Variant: cyassl
+Section: libs
+Category: Libraries
+Title: libwebsockets (CyaSSL)
+Maintainer: Karl Palsson <karlp@remake.is>
+Source: libwebsockets-1.6.2.tar.xz
+Type: ipkg
+Description: libwebsockets (CyaSSL)
+https://libwebsockets.org
+Karl Palsson <karlp@remake.is>
+@@
+
+

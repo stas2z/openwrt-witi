@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/utils/rtl-ais/Makefile
+Package: rtl-ais
+Version: 20151213-b805be0164475e58a73b57763a8cbbf8a2bd0ded
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread +librtlsdr
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: rtl-sdr AIS dual channel tuner
+Maintainer: Nuno Goncalves <nunojpg@gmail.com>
+Source: rtl-ais-20151213-b805be0164475e58a73b57763a8cbbf8a2bd0ded.tar.gz
+Type: ipkg
+Description:   rtl_ais uses a rtl2832u dvb-t dongle to tune AIS (Automatic Identification
+  System) used on ships and by vessel traffic services
+https://github.com/dgiardini/rtl-ais
+Nuno Goncalves <nunojpg@gmail.com>
+@@
+
+

@@ -8,18 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=znc
-PKG_VERSION:=1.4
+PKG_VERSION:=1.6.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://znc.in/releases \
 		http://znc.in/releases/archive
-PKG_MD5SUM:=630cb74db34d2d5451ba30b47869f6bb
+PKG_MD5SUM:=89f6696ed366661f7432ece343fd19d0
 
 PKG_MAINTAINER:=Jonas Gorski <jogo@openwrt.org>
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
+PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 
 
@@ -33,7 +34,7 @@ endef
 
 define Package/znc
   $(Package/znc/default)
-  DEPENDS:=+libopenssl +libpthread $(CXX_DEPENDS)
+  DEPENDS:=+libopenssl +libpthread +libstdcpp
   MENU:=1
 endef
 
@@ -135,6 +136,8 @@ endef
 $(eval $(call module,adminlog,Log user connects and disconnects and failed \
 	logins to file or syslog.))
 
+$(eval $(call module,alias,Provides bouncer-side command alias support.))
+
 $(eval $(call module,autoattach,Reattaches you to channels on activity.))
 
 $(eval $(call module,autocycle,Cycles a channel when you are the only one in \
@@ -197,6 +200,8 @@ $(eval $(call module,flooddetach,This module detaches you from channels which \
 $(eval $(call module,identfile,Places the ident of a user to a file when they \
 	 are trying to connect.))
 
+$(eval $(call module,imapauth,Allow users to authenticate via IMAP.))
+
 $(eval $(call module,keepnick,Tries to get you your primary nick.))
 
 $(eval $(call module,kickrejoin,Implements auto-rejoin-on-kick.))
@@ -207,6 +212,8 @@ $(eval $(call module,listsockets,This module displays a list of all open \
 	sockets in ZNC.))
 
 $(eval $(call module,log,Log conversations to file.))
+
+$(eval $(call module,missingmotd,Sends 422 to clients when they login.))
 
 $(eval $(call module,modules_online,This module fakes the online status of \
 	ZNC-*users.))
@@ -261,18 +268,27 @@ $(eval $(call webskin,ice))
 
 PKG_CONFIG_DEPENDS := $(patsubst %,CONFIG_PACKAGE_%,$(ZNC_MODULES))
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 CONFIGURE_VARS += \
-	CXXFLAGS="$(TARGET_CFLAGS) -fno-builtin -fno-rtti -nostdinc++" \
+	CXXFLAGS="$(TARGET_CFLAGS) -fno-builtin -fno-rtti" \
 	CPPFLAGS="-I$(STAGING_DIR)/usr/include -I$(STAGING_DIR)/include" \
 	LDFLAGS="-nodefaultlibs -lc -L$(STAGING_DIR)/usr/lib -L$(STAGING_DIR)/lib" \
-	LIBS="-luClibc++ -lm -lssl -lcrypto $(LIBGCC_S) -lc"
+	LIBS="-lstdc++ -lm -lssl -lcrypto $(LIBGCC_S) -lc"
 
 CONFIGURE_ARGS += \
-	--disable-c-ares \
-	--disable-perl
+	--disable-charset \
+	--disable-cyrus \
+	--disable-debug \
+	--enable-largefile \
+	--disable-perl \
+	--enable-poll \
+	--disable-python \
+	--enable-ssl \
+	--disable-swig \
+	--disable-tcl \
+	--enable-tdns \
+	--enable-zlib
 
 define Build/Configure
 	$(call Build/Configure/Default,)

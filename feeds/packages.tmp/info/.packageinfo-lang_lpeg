@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/lpeg/Makefile
+Package: lpeg
+Submenu: Lua
+Version: 0.12.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +lua
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: LPeg
+Maintainer: Dirk Chang <dirk@kooiot.com>
+Source: lpeg-0.12.2.tar.gz
+Type: ipkg
+Description: 	LPeg is a new pattern-matching library for Lua, based on Parsing Expression Grammars (PEGs)
+http://www.inf.puc-rio.br/~roberto/lpeg/
+Dirk Chang <dirk@kooiot.com>
+@@
+
+

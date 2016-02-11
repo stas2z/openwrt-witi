@@ -1,0 +1,37 @@
+Source-Makefile: feeds/packages/utils/less/Makefile
+Package: less
+Version: 481-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libncurses
+Menu-Depends: 
+Provides: 
+Build-Variant: narrow
+Section: utils
+Category: Utilities
+Title: Pager program similar to more
+Maintainer: Julen Landa Alustiza <julen@zokormazo.info>
+Source: less-481.tar.gz
+Type: ipkg
+Description:     Full version of GNU less utility
+http://www.greenwoodsoftware.com/less/
+Julen Landa Alustiza <julen@zokormazo.info>
+@@
+
+Package: less-wide
+Version: 481-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libncursesw
+Menu-Depends: 
+Provides: 
+Build-Variant: wide
+Section: utils
+Category: Utilities
+Title: Pager program similar to more (Unicode)
+Maintainer: Julen Landa Alustiza <julen@zokormazo.info>
+Source: less-481.tar.gz
+Type: ipkg
+Description:     Full version of GNU less utility
+  This package contains the Unicode enabled version of less.
+http://www.greenwoodsoftware.com/less/
+Julen Landa Alustiza <julen@zokormazo.info>
+@@
+
+

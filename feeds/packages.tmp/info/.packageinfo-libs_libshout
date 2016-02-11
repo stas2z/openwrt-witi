@@ -1,0 +1,40 @@
+Source-Makefile: feeds/packages/libs/libshout/Makefile
+Package: libshout
+Version: 2.3.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libvorbis +libvorbisidec +libpthread
+Menu-Depends: 
+Provides: 
+Build-Variant: nospeex
+Section: libs
+Category: Libraries
+Title: Shoutcast client library (no speex & theora)
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: libshout-2.3.1.tar.gz
+Type: ipkg
+Description:  libshout allows applications to easily communicate and broadcast
+ to an Icecast streaming media server. It handles the socket connections,
+ metadata communication, and data streaming for the calling application,
+ and lets developers focus on feature sets instead of implementation
+ details.
+http://www.icecast.org/download.php
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: libshout-full
+Version: 2.3.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libvorbis +libvorbisidec +libpthread +libspeex +libtheora
+Menu-Depends: 
+Provides: 
+Build-Variant: full
+Section: libs
+Category: Libraries
+Title: Shoutcast client library (all codecs)
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: libshout-2.3.1.tar.gz
+Type: ipkg
+Description: Package/libshout/description
+http://www.icecast.org/download.php
+Nicolas Thill <nico@openwrt.org>
+@@
+
+

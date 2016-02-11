@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/utils/banhosts/Makefile
+Package: banhostlist
+Version: 1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: List of advertising domains
+Maintainer: Matteo Croce <matteo@openwrt.org>
+Source: 
+Type: ipkg
+Description: List of domains serving advertising and malicious content to easily block them
+http://winhelp2002.mvps.org/
+Matteo Croce <matteo@openwrt.org>
+@@
+
+

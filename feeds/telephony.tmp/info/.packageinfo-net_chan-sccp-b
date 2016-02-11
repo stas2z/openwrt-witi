@@ -1,0 +1,59 @@
+Source-Makefile: feeds/telephony/net/chan-sccp-b/Makefile
+Package: asterisk18-chan-sccp-b
+Submenu: Telephony
+Version: v4.2-r6139-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libltdl asterisk18
+Menu-Depends: 
+Provides: 
+Build-Variant: asterisk18
+Section: net
+Category: Network
+Title: SCCP channel provider support
+Maintainer: Jiri Slachta <slachta@cesnet.cz>
+Source: chan-sccp-b-v4.2-r6139.tar.gz
+Type: ipkg
+Description:  SCCP channel provider for asterisk. It delivers extended functionality for SCCP phones over chan_skinny delivered
+ by asterisk by default.
+http://chan-sccp-b.sourceforge.net/
+Jiri Slachta <slachta@cesnet.cz>
+@@
+
+Package: asterisk11-chan-sccp-b
+Submenu: Telephony
+Version: v4.2-r6139-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libltdl asterisk11
+Menu-Depends: 
+Provides: 
+Build-Variant: asterisk11
+Section: net
+Category: Network
+Title: SCCP channel provider support
+Maintainer: Jiri Slachta <slachta@cesnet.cz>
+Source: chan-sccp-b-v4.2-r6139.tar.gz
+Type: ipkg
+Description:  SCCP channel provider for asterisk. It delivers extended functionality for SCCP phones over chan_skinny delivered
+ by asterisk by default.
+http://chan-sccp-b.sourceforge.net/
+Jiri Slachta <slachta@cesnet.cz>
+@@
+
+Package: asterisk13-chan-sccp-b
+Submenu: Telephony
+Version: v4.2-r6139-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libltdl asterisk13
+Menu-Depends: 
+Provides: 
+Build-Variant: asterisk13
+Section: net
+Category: Network
+Title: SCCP channel provider support
+Maintainer: Jiri Slachta <slachta@cesnet.cz>
+Source: chan-sccp-b-v4.2-r6139.tar.gz
+Type: ipkg
+Description:  SCCP channel provider for asterisk. It delivers extended functionality for SCCP phones over chan_skinny delivered
+ by asterisk by default.
+http://chan-sccp-b.sourceforge.net/
+Jiri Slachta <slachta@cesnet.cz>
+@@
+
+

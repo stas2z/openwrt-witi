@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/perl-http-cookies/Makefile
+Package: perl-http-cookies
+Submenu: Perl
+Version: 6.01-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread perl +perl-http-date +perl-http-message +perlbase-essential +perlbase-time
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: HTTP cookie jars
+Maintainer: Marcel Denia <naoir@gmx.net>
+Source: HTTP-Cookies-6.01.tar.gz
+Type: ipkg
+Description: HTTP cookie jars
+http://search.cpan.org/dist/HTTP-Cookies/
+Marcel Denia <naoir@gmx.net>
+@@
+
+

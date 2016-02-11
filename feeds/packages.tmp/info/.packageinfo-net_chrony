@@ -1,0 +1,22 @@
+Source-Makefile: feeds/packages/net/chrony/Makefile
+Package: chrony
+Submenu: Time Synchronization
+Version: 2.2.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libcap
+Menu-Depends: 
+Provides: 
+Build-Depends: +pps-tools
+Section: net
+Category: Network
+Title: A versatile NTP client and server
+Maintainer: Miroslav Lichvar <mlichvar0@gmail.com>
+Source: chrony-2.2.1.tar.gz
+Type: ipkg
+Description: 	An NTP client and server designed to perform well in a wide range
+	of conditions. It can synchronize the system clock with NTP servers,
+	reference clocks, and manual input using wristwatch and keyboard.
+http://chrony.tuxfamily.org/
+Miroslav Lichvar <mlichvar0@gmail.com>
+@@
+
+

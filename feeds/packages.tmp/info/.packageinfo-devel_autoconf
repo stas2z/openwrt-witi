@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/devel/autoconf/Makefile
+Package: autoconf
+Version: 2.69-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +m4 +perl +perlbase-data +perlbase-file +perlbase-getopt +perlbase-dynaloader +perlbase-text
+Menu-Depends: 
+Provides: 
+Section: devel
+Category: Development
+Title: autoconf
+Maintainer: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Source: autoconf-2.69.tar.gz
+Type: ipkg
+Description:   Autoconf is an extensible package of M4 macros that produce shell scripts to
+  automatically configure software source code packages.
+https://www.gnu.org/software/autoconf/
+Heinrich Schuchardt <xypron.glpk@gmx.de>
+@@
+
+

@@ -1,0 +1,17 @@
+Source-Makefile: feeds/packages/sound/shairplay/Makefile
+Package: shairplay
+Version: 2015-09-29-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libao +libavahi-compat-libdnssd +libltdl +libpthread
+Menu-Depends: 
+Provides: 
+Section: sound
+Category: Sound
+Title: Shairplay
+Maintainer: Álvaro Fernández Rojas <noltari@gmail.com>
+Source: shairplay-2015-09-29-498bc5bcdd305e04721f94a04b9f26a7da72673f.tar.gz
+Type: ipkg
+Description:   Free portable AirPlay server implementation similar to ShairPort.
+Álvaro Fernández Rojas <noltari@gmail.com>
+@@
+
+

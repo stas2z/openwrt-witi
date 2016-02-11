@@ -19,14 +19,18 @@ PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
 
+PKG_LICENSE:=LGPL-2.1 GPL-2.0
+PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libspandsp
+  SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=spandsp library
   DEPENDS:=+libtiff
-  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 TARGET_CFLAGS += $(FPIC)

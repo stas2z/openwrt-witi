@@ -8,10 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=opentracker
-PKG_VERSION:=20130804
+PKG_VERSION:=20150427
 PKG_RELEASE:=1
-PKG_REV:=954f5029dfa17734dc408336ef710c192268e8a4
+PKG_REV:=27499d7a55bde404f3273a23026f2495e96adf87
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
+PKG_LICENSE:=Beerware
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=git://erdgeist.org/opentracker

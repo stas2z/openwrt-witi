@@ -1,0 +1,42 @@
+Source-Makefile: feeds/packages/net/git/Makefile
+Package: git
+Submenu: Version Control Systems
+Version: 2.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libopenssl +libpthread +librt
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: The fast version control system
+Maintainer: Peter Wagner <tripolar@gmx.at>
+Source: git-2.7.1.tar.xz
+Type: ipkg
+Description:  Git is a free & open source, distributed version control system
+ designed to handle everything from small to very large projects
+ with speed and efficiency.
+http://git-scm.com
+Peter Wagner <tripolar@gmx.at>
+@@
+
+Package: git-http
+Submenu: Version Control Systems
+Version: 2.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread git +libcurl +ca-certificates
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: Git HTTP commands
+Maintainer: Peter Wagner <tripolar@gmx.at>
+Source: git-2.7.1.tar.xz
+Type: ipkg
+Description:  Git is a free & open source, distributed version control system
+ designed to handle everything from small to very large projects
+ with speed and efficiency.
+
+ This package allows git push/fetch over http(s) and ftp(s)
+http://git-scm.com
+Peter Wagner <tripolar@gmx.at>
+@@
+
+

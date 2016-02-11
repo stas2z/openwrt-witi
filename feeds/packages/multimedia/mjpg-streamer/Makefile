@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2014 OpenWrt.org
+# Copyright (C) 2006-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -10,25 +10,27 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=mjpg-streamer
 PKG_REV:=182
 PKG_VERSION:=r$(PKG_REV)
-PKG_RELEASE:=1
+PKG_RELEASE:=8
 PKG_MAINTAINER:=Roger D <rogerdammit@gmail.com>
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).1.tar.bz2
 PKG_SOURCE_URL:=https://svn.code.sf.net/p/mjpg-streamer/code/mjpg-streamer-experimental
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
 
 PKG_LICENSE:=GPL-2.0
-PKG_LICENSE_FILE:=LICENSE
+PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
+
+PKG_BUILD_DEPENDS:=MJPG_STREAMER_V4L2:libv4l
 
 define Package/mjpg-streamer
   SECTION:=multimedia
   CATEGORY:=Multimedia
   TITLE:=MJPG-streamer
-  DEPENDS:=+libpthread +libjpeg +PACKAGE_libv4l:libv4l
+  DEPENDS:=+libpthread +libjpeg +MJPG_STREAMER_V4L2:libv4l
   URL:=http://mjpg-streamer.wiki.sourceforge.net/
   MENU:=1
 endef
@@ -47,12 +49,15 @@ define Package/mjpg-streamer/conffiles
 /etc/config/mjpg-streamer
 endef
 
-CAMBOZOLA:=cambozola-latest.tar.gz
+CAMBOZOLA:=cambozola-0.936.tar.gz
 
+# Distribution URL doesn't always have the correct version
+# Using the OpenWrt mirror provides a stable version
+#      orig-URL:=http://www.andywilcock.com/code/cambozola
 define Download/cambozola
-  URL:=http://www.andywilcock.com/code/cambozola
+  URL:=http://mirror2.openwrt.org/sources
   FILE:=$(CAMBOZOLA)
-  MD5SUM:=c9b0da91f8e6e72efccd307e04e2b75b
+  MD5SUM:=35c45188aa9635aef2b745c35c311396
 endef
 
 # Fetch latest cambozola that works with latest Java(s)

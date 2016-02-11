@@ -1,0 +1,34 @@
+Source-Makefile: feeds/packages/libs/classpath/Makefile
+Package: classpath
+Version: 0.99-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +alsa-lib +libgmp +libmagic
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: GNU Classpath
+Maintainer: Dana H. Myers <k6jq@comcast.net>
+Source: classpath-0.99.tar.gz
+Type: ipkg
+Description: GNU Classpath
+http://www.gnu.org/software/classpath/
+Dana H. Myers <k6jq@comcast.net>
+@@
+
+Package: classpath-tools
+Version: 0.99-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: GNU Classpath tools
+Maintainer: Dana H. Myers <k6jq@comcast.net>
+Source: classpath-0.99.tar.gz
+Type: ipkg
+Description: GNU Classpath tools
+http://www.gnu.org/software/classpath/
+Dana H. Myers <k6jq@comcast.net>
+@@
+
+

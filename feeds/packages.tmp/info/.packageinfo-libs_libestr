@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/libs/libestr/Makefile
+Package: libestr
+Version: 0.1.10-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: String handling library
+Maintainer: Dov Murik <dmurik@us.ibm.com>
+Source: libestr-0.1.10.tar.gz
+Type: ipkg
+Description:   libestr - some essentials for string handling (and a bit more)
+http://libestr.adiscon.com/
+Dov Murik <dmurik@us.ibm.com>
+@@
+
+

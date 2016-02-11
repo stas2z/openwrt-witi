@@ -1,0 +1,20 @@
+Source-Makefile: feeds/packages/lang/perl-device-serialport/Makefile
+Package: perl-device-serialport
+Submenu: Perl
+Version: 1.04-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread perl +perlbase-essential +perlbase-io +perlbase-posix +perlbase-test +perlbase-xsloader
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: A POSIX-based version of the Win32::SerialPort module
+Maintainer: Paul Oranje <por@xs4all.nl>
+Source: Device-SerialPort-1.04.tar.gz
+Type: ipkg
+Description:   A POSIX-based version of the Win32::SerialPort module
+  that provides modem support to Perl applications
+http://search.cpan.org/dist/Device-SerialPort/
+Paul Oranje <por@xs4all.nl>
+@@
+
+

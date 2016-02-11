@@ -1,0 +1,34 @@
+Source-Makefile: feeds/packages/libs/file/Makefile
+Package: file
+Version: 5.25-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libmagic
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: File type determination utility
+Maintainer: Luka Perkov <luka@openwrt.org>
+Source: file-5.25.tar.gz
+Type: ipkg
+Description: File type determination utility
+ftp://ftp.astron.com/pub/file/
+Luka Perkov <luka@openwrt.org>
+@@
+
+Package: libmagic
+Version: 5.25-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: File type determination library
+Maintainer: Luka Perkov <luka@openwrt.org>
+Source: file-5.25.tar.gz
+Type: ipkg
+Description: File type determination library
+ftp://ftp.astron.com/pub/file/
+Luka Perkov <luka@openwrt.org>
+@@
+
+

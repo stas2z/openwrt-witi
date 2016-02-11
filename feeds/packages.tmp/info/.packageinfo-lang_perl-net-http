@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/perl-net-http/Makefile
+Package: perl-net-http
+Submenu: Perl
+Version: 6.09-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread perl +perl-uri +perlbase-compress +perlbase-essential +perlbase-io
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: Low-level HTTP connection (client)
+Maintainer: Marcel Denia <naoir@gmx.net>
+Source: Net-HTTP-6.09.tar.gz
+Type: ipkg
+Description: Low-level HTTP connection (client)
+http://search.cpan.org/dist/Net-HTTP/
+Marcel Denia <naoir@gmx.net>
+@@
+
+

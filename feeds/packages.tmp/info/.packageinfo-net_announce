@@ -1,0 +1,22 @@
+Source-Makefile: feeds/packages/net/announce/Makefile
+Package: announce
+Submenu: IP Addresses and Names
+Version: 1.0.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread
+Menu-Depends: 
+Provides: 
+Build-Depends: +libpthread
+Section: net
+Category: Network
+Title: Announce services on the network with Zeroconf/Bonjour 
+Maintainer: Simon Peter <probono@puredarwin.org>
+Source: announce-1.0.1-1368525c7305ca5bb4134242f332344f5f7e94e3.tar.gz
+Type: ipkg
+Description:   Announce services on the network with Zeroconf/Bonjour.
+  This announces services such as ssh, sftp, and http running on the local machine
+  to the network.
+https://github.com/probonopd/announce
+Simon Peter <probono@puredarwin.org>
+@@
+
+

@@ -1,0 +1,35 @@
+Source-Makefile: feeds/packages/libs/libarchive/Makefile
+Package: libarchive
+Version: 3.1.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib +libopenssl
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Multi-format archive and compression library
+Maintainer: Johannes Morgenroth <morgenroth@ibr.cs.tu-bs.de>
+Source: libarchive-3.1.2.tar.gz
+Type: ipkg
+Description: Multi-format archive and compression library
+http://www.libarchive.org/
+Johannes Morgenroth <morgenroth@ibr.cs.tu-bs.de>
+@@
+
+Package: libarchive-noopenssl
+Version: 3.1.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib
+Menu-Depends: 
+Provides: 
+Build-Variant: noopenssl
+Section: libs
+Category: Libraries
+Title: Multi-format archive and compression library (without OpenSSL dependency)
+Maintainer: Johannes Morgenroth <morgenroth@ibr.cs.tu-bs.de>
+Source: libarchive-3.1.2.tar.gz
+Type: ipkg
+Description: Multi-format archive and compression library (without OpenSSL dependency)
+http://www.libarchive.org/
+Johannes Morgenroth <morgenroth@ibr.cs.tu-bs.de>
+@@
+
+

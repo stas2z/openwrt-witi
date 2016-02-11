@@ -1,0 +1,20 @@
+Source-Makefile: feeds/packages/lang/python-pyopenssl/Makefile
+Package: python-pyopenssl
+Submenu: Python
+Version: 0.15.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-light +python-cryptography +python-six
+Menu-Depends: 
+Provides: 
+Build-Depends: python python-setuptools
+Section: lang
+Category: Languages
+Title: python-pyopenssl
+Maintainer: Jeffery To <jeffery.to@gmail.com>
+Source: pyOpenSSL-0.15.1.tar.gz
+Type: ipkg
+Description: Python wrapper module around the OpenSSL library
+https://github.com/pyca/pyopenssl
+Jeffery To <jeffery.to@gmail.com>
+@@
+
+

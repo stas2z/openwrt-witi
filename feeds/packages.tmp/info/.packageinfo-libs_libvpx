@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/libs/libvpx/Makefile
+Package: libvpx
+Version: 1.4.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: libvpx
+Maintainer: Luiz Angelo Daros de Luca <luizluca@gmail.com>
+Source: libvpx-1.4.0-v1.4.0.tar.gz
+Type: ipkg
+Description:    libvpx is a VP8/VP9 Codec SDK.
+http://www.webmproject.org/
+Luiz Angelo Daros de Luca <luizluca@gmail.com>
+@@
+
+

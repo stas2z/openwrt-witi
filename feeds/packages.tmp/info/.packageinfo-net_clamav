@@ -1,0 +1,37 @@
+Source-Makefile: feeds/packages/net/clamav/Makefile
+Package: clamav
+Submenu: Web Servers/Proxies
+Version: 0.98.7-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread +uclibcxx +zlib +libcurl +libopenssl
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: ClamAV
+Maintainer: Marko Ratkaj <marko.ratkaj@sartura.hr>
+Source: clamav-0.98.7.tar.gz
+Type: ipkg
+Description:  ClamAV is an open source antivirus engine for detecting trojans,
+ viruses, malware & other malicious threats.
+http://www.clamav.net/
+Marko Ratkaj <marko.ratkaj@sartura.hr>
+@@
+
+Package: freshclam
+Submenu: Web Servers/Proxies
+Version: 0.98.7-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread +uclibcxx +zlib +libcurl +libopenssl +clamav
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: ClamAV database updater
+Maintainer: Marko Ratkaj <marko.ratkaj@sartura.hr>
+Source: clamav-0.98.7.tar.gz
+Type: ipkg
+Description:  Database updater for ClamAV
+http://www.clamav.net/
+Marko Ratkaj <marko.ratkaj@sartura.hr>
+@@
+
+

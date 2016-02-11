@@ -1,0 +1,21 @@
+Source-Makefile: feeds/packages/devel/libtool-bin/Makefile
+Package: libtool-bin
+Version: 2.4.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: devel
+Category: Development
+Title: GNU Libtool - libtoolize
+Maintainer: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Source: libtool-2.4.6.tar.gz
+Type: ipkg
+Description:  GNU libtool is a generic library support script.
+ Libtool hides the complexity of using shared libraries behind a consistent,
+ portable interface. 
+ This package contains the libtoolize executable.
+https://www.gnu.org/software/libtool/
+Heinrich Schuchardt <xypron.glpk@gmx.de>
+@@
+
+

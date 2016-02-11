@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/libs/libavl/Makefile
+Package: libavl
+Version: 0.3.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: AVLTree (this is not GNU libavl)
+Maintainer: Espen Jürgensen <espenjurgensen+openwrt@gmail.com>
+Source: libavl_0.3.5.orig.tar.gz
+Type: ipkg
+Description:   AVLTree is a small implementation of AVL trees for the C programming language.
+https://packages.debian.org/wheezy/libavl1
+Espen Jürgensen <espenjurgensen+openwrt@gmail.com>
+@@
+
+

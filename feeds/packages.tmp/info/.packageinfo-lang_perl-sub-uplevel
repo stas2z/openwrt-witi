@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/perl-sub-uplevel/Makefile
+Package: perl-sub-uplevel
+Submenu: Perl
+Version: 0.25-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread perl +perlbase-essential
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: Apparently run a function in a higher stack frame
+Maintainer: Marcel Denia <naoir@gmx.net>
+Source: Sub-Uplevel-0.25.tar.gz
+Type: ipkg
+Description: Apparently run a function in a higher stack frame
+http://search.cpan.org/dist/Sub-Uplevel/
+Marcel Denia <naoir@gmx.net>
+@@
+
+

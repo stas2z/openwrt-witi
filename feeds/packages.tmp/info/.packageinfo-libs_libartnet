@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/libs/libartnet/Makefile
+Package: libartnet
+Version: 1.1.2-1.1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Libartnet is an implementation of the ArtNet protocol.
+Maintainer: Martijn Zilverschoon <martijn@friedzombie.com>
+Source: libartnet-1.1.2.tar.gz
+Type: ipkg
+Description: 	Libartnet is an implementation of the ArtNet protocol. ArtNet allows the
+	transmission of DMX and related data over IP networks.
+http://www.openlighting.org/libartnet-main/
+Martijn Zilverschoon <martijn@friedzombie.com>
+@@
+
+

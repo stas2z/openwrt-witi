@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/mail/mailman/Makefile
+Package: mailman
+Version: 2.1.20-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +postfix +python +uhttpd +python-dns
+Menu-Depends: 
+Provides: 
+Section: mail
+Category: Mail
+Title: The GNU Mailing List Manager
+Maintainer: Denis Shulyaka <Shulyaka@gmail.com>
+Source: mailman-2.1.20.tgz
+Type: ipkg
+Description:  Mailman is free software for managing electronic mail discussion and e-newsletter lists.
+http://www.gnu.org/software/mailman/
+Denis Shulyaka <Shulyaka@gmail.com>
+@@
+
+

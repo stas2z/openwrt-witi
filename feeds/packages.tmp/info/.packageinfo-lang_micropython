@@ -1,0 +1,20 @@
+Source-Makefile: feeds/packages/lang/micropython/Makefile
+Package: micropython
+Submenu: Python
+Version: 1.5-20151122-4120f32292090bd811165fe76780e4e74e3450b9-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libffi
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: Micro Python
+Maintainer: Roger D <rogerdammit@gmail.com>
+Source: micropython-1.5-20151122-4120f32292090bd811165fe76780e4e74e3450b9.tar.gz
+Type: ipkg
+Description:  This package contains Micro Python, a lean and fast implementation of the Python 3.4 programming language
+ that is optimised to run on a microcontroller (and low power computers).
+http://micropython.org
+Roger D <rogerdammit@gmail.com>
+@@
+
+

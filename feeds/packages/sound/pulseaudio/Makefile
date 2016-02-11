@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2011 OpenWrt.org
+# Copyright (C) 2011-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,14 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pulseaudio
-PKG_VERSION:=5.0
-PKG_RELEASE:=2
+PKG_VERSION:=7.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://freedesktop.org/software/pulseaudio/releases/
-PKG_MD5SUM:=c43749838612f4860465e83ed62ca38e
+PKG_MD5SUM:=9d0a9817b632cac8e3f3834d7eb1c99d
+PKG_LICENSE:=LGPL-2.1+
+PKG_LICENSE_FILES:=GPL LICENSE
 
-PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=intltool/host
 
 PKG_FIXUP:=autoreconf
@@ -26,20 +27,21 @@ PKG_INSTALL = 1
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
-#TODO: split pulse into executable and library (or even better into several libraries since they're used as loadable modules, so not linked into)
 define Package/pulseaudio/Default
   SECTION:=sound
   CATEGORY:=Sound
   DEPENDS:=+libspeexdsp +libsndfile +libltdl +libpthread \
-	+librt +alsa-lib +libjson +libopenssl +libwrap +libcap $(ICONV_DEPENDS) $(INTL_DEPENDS)
+	+librt +alsa-lib +libopenssl +libwrap +libcap $(ICONV_DEPENDS) $(INTL_DEPENDS)
   TITLE:=Network sound server
   MAINTAINER:=Peter Wagner <tripolar@gmx.at>
   URL:=http://www.pulseaudio.org
   PROVIDES:=pulseaudio
+  USERID:=pulse=51:pulse=51
 endef
 
 define Package/pulseaudio-daemon
   $(call Package/pulseaudio/Default)
+  DEPENDS+= +libjson-c
 endef
 
 define Package/pulseaudio/Default/description
@@ -60,7 +62,7 @@ endef
 define Package/pulseaudio-tools
   SECTION:=sound
   CATEGORY:=Sound
-  DEPENDS:=+libsndfile pulseaudio
+  DEPENDS:=+libsndfile +pulseaudio
   TITLE:=Tools for Pulseaudio
   URL:=http://www.pulseaudio.org
 endef

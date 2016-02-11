@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/uuid/Makefile
+Package: uuid
+Submenu: Lua
+Version: 0.2.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +lua +luasocket
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: uuid
+Maintainer: Amr Hassan <amr.hassan@gmail.com>
+Source: uuid-0.2.0.tar.xz
+Type: ipkg
+Description: 	A pure Lua uuid generator
+https://github.com/Tieske/uuid
+Amr Hassan <amr.hassan@gmail.com>
+@@
+
+

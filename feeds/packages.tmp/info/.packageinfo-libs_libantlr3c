@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/libs/libantlr3c/Makefile
+Package: libantlr3c
+Version: 3.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: libantlr3c
+Maintainer: Espen Jürgensen <espenjurgensen+openwrt@gmail.com>
+Source: libantlr3c-3.2.tar.gz
+Type: ipkg
+Description:   ANother Tool for Language Recognition, is a language tool that provides a framework for constructing recognizers,
+  interpreters, compilers, and translators from grammatical descriptions containing actions in a variety of target languages.
+http://www.antlr3.org/
+Espen Jürgensen <espenjurgensen+openwrt@gmail.com>
+@@
+
+

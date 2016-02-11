@@ -1,0 +1,20 @@
+Source-Makefile: feeds/packages/libs/libevhtp-1.1/Makefile
+Package: libevhtp-1.1
+Version: 1.1.7-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libevent2 +libevent2-pthreads +libpthread
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: A more flexible replacement for libevent's httpd API - compatibility package
+Maintainer: Gergely Kiss <mail.gery@gmail.com>
+Source: libevhtp-1.1-1.1.7-f70c920d4d8d4146ff662867f47c4b5854045b3c.tar.gz
+Type: ipkg
+Description:    Libevhtp was created as a replacement API for Libevent's current HTTP API.
+
+   NOTE: This is an older version required for compatibility reasons. The latest version has its own package named "libevhtp".
+https://github.com/ellzey/libevhtp
+Gergely Kiss <mail.gery@gmail.com>
+@@
+
+

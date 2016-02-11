@@ -1,0 +1,18 @@
+Source-Makefile: feeds/packages/libs/libcanfestival/Makefile
+Package: libcanfestival
+Version: 1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread +librt
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Free software CANopen library
+Maintainer: Anton Glukhov <anton.a.glukhov@gmail.com>
+Source: libcanfestival-8bfe0ac00cdb.tar.bz2
+Type: ipkg
+Description:   CanFestival library
+http://canfestival.org
+Anton Glukhov <anton.a.glukhov@gmail.com>
+@@
+
+

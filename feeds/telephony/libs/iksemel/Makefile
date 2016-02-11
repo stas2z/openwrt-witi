@@ -19,15 +19,19 @@ PKG_FIXUP:=autoreconf
 
 PKG_INSTALL:=1
 
+PKG_LICENSE:=LGPL-2.1
+PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libiksemel
+  SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Iksemel Jabber Library
   URL:=http://code.google.com/p/iksemel/
   DEPENDS:= +libgnutls +libtasn1 +libgcrypt +libgpg-error
-  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 define Package/libiksemel/description

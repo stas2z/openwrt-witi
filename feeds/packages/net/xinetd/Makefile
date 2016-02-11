@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2014 OpenWrt.org
+# Copyright (C) 2006-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,11 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xinetd
 PKG_VERSION:=2.3.15
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.xinetd.org
 PKG_MD5SUM:=77358478fd58efa6366accae99b8b04c
+PKG_LICENSE:=xinetd
+PKG_LICENSE_FILES:=COPYRIGHT
 
 PKG_INSTALL:=1
 
@@ -24,7 +26,7 @@ define Package/xinetd
   CATEGORY:=Network
   TITLE:=A powerful and secure super-server
   URL:=http://www.xinetd.org/
-  MAINTAINER:=Jonathan McCrohan <jmccrohan@gmail.com>
+  PKG_MAINTAINER:=Jonathan McCrohan <jmccrohan@gmail.com>
 endef
 
 define Package/xinetd/description
@@ -40,6 +42,7 @@ define Package/xinetd/conffiles
 endef
 
 TARGET_CFLAGS += -DNO_RPC
+TARGET_CPPFLAGS += -DHAVE_RLIM_T
 
 CONFIGURE_ARGS += \
 	--without-libwrap \

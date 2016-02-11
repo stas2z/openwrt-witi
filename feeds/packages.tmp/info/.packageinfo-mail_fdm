@@ -1,0 +1,25 @@
+Source-Makefile: feeds/packages/mail/fdm/Makefile
+Package: fdm
+Menu: 1
+Version: 1.7-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +tdb +zlib +libopenssl +FDM_WITH_PCRE:libpcre
+Menu-Depends: 
+Provides: 
+Section: mail
+Category: Mail
+Title: fetch mail and deliver
+Maintainer: Dmitry V. Zimin <pfzim@mail.ru>
+Source: fdm-1.7.tar.gz
+Type: ipkg
+Description:   fdm is a simple, lightweight replacement for mail fetch, filter
+  and delivery programs such as fetchmail and procmail. It can
+  fetch using POP3 or IMAP (with SSL) or from stdin, and deliver
+  to a pipe, file, maildir, mbox or SMTP server, based on POSIX regexp
+http://fdm.sourceforge.net/
+Dmitry V. Zimin <pfzim@mail.ru>
+@@
+Config:
+	source "feeds/packages/mail/fdm/Config.in"
+@@
+
+

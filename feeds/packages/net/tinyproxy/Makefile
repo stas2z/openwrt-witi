@@ -24,7 +24,6 @@ define Package/tinyproxy
   SUBMENU:=Web Servers/Proxies
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+libpthread
   TITLE:=Tinyproxy is a lightweight HTTP and HTTPS proxy
   URL:=http://tinyproxy.sourceforge.net/
 endef

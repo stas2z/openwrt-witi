@@ -1,0 +1,76 @@
+Source-Makefile: feeds/packages/sound/shairport-sync/Makefile
+Package: shairport-sync-openssl
+Version: 2.6-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @AUDIO_SUPPORT +libpthread +alsa-lib +libconfig +libdaemon +libpopt +PACKAGE_shairport-sync-openssl:libopenssl +libavahi-client +libsoxr
+Menu-Depends: 
+Provides: 
+Build-Variant: openssl
+Section: sound
+Category: Sound
+Title: AirPlay compatible audio player (openssl)
+Maintainer: Ted Hess <thess@kitschensync.net>, Mike Brady <mikebrady@eircom.net>
+Source: shairport-sync-2.6.tar.gz
+Type: ipkg
+Description:   Shairport Sync plays audio from iTunes and AirPlay sources, including
+  iOS devices, Quicktime Player and third party sources such as forkedDaapd.
+  Audio played by a Shairport Sync-powered device stays synchronised with the source
+  and hence with similar devices playing the same source.
+
+  Shairport Sync does not support AirPlay video or photo streaming.
+  Ensure Kernel Modules > Sound Support > kmod-sound-core is selected.
+  Also select kmod-usb-audio if you want to use USB-connected sound cards.
+http://github.com/mikebrady/shairport-sync
+Ted Hess <thess@kitschensync.net>, Mike Brady <mikebrady@eircom.net>
+@@
+
+Package: shairport-sync-polarssl
+Version: 2.6-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @AUDIO_SUPPORT +libpthread +alsa-lib +libconfig +libdaemon +libpopt +PACKAGE_shairport-sync-polarssl:libpolarssl +libavahi-client +libsoxr
+Menu-Depends: 
+Provides: 
+Build-Variant: polarssl
+Section: sound
+Category: Sound
+Title: AirPlay compatible audio player (polarssl)
+Maintainer: Ted Hess <thess@kitschensync.net>, Mike Brady <mikebrady@eircom.net>
+Source: shairport-sync-2.6.tar.gz
+Type: ipkg
+Description:   Shairport Sync plays audio from iTunes and AirPlay sources, including
+  iOS devices, Quicktime Player and third party sources such as forkedDaapd.
+  Audio played by a Shairport Sync-powered device stays synchronised with the source
+  and hence with similar devices playing the same source.
+
+  Shairport Sync does not support AirPlay video or photo streaming.
+  Ensure Kernel Modules > Sound Support > kmod-sound-core is selected.
+  Also select kmod-usb-audio if you want to use USB-connected sound cards.
+http://github.com/mikebrady/shairport-sync
+Ted Hess <thess@kitschensync.net>, Mike Brady <mikebrady@eircom.net>
+@@
+
+Package: shairport-sync-mini
+Version: 2.6-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @AUDIO_SUPPORT +libpthread +alsa-lib +libconfig +libdaemon +libpopt +libpolarssl
+Menu-Depends: 
+Provides: 
+Build-Variant: mini
+Section: sound
+Category: Sound
+Title: AirPlay compatible audio player (minimal)
+Maintainer: Ted Hess <thess@kitschensync.net>, Mike Brady <mikebrady@eircom.net>
+Source: shairport-sync-2.6.tar.gz
+Type: ipkg
+Description:     Shairport Sync plays audio from iTunes and AirPlay sources, including
+  iOS devices, Quicktime Player and third party sources such as forkedDaapd.
+  Audio played by a Shairport Sync-powered device stays synchronised with the source
+  and hence with similar devices playing the same source.
+
+  Shairport Sync does not support AirPlay video or photo streaming.
+  Ensure Kernel Modules > Sound Support > kmod-sound-core is selected.
+  Also select kmod-usb-audio if you want to use USB-connected sound cards.
+
+  Minimal version uses PolarSSL and does not include libsoxr and avahi support.
+http://github.com/mikebrady/shairport-sync
+Ted Hess <thess@kitschensync.net>, Mike Brady <mikebrady@eircom.net>
+@@
+
+

@@ -1,0 +1,26 @@
+Source-Makefile: feeds/packages/net/dhcpcd/Makefile
+Package: dhcpcd
+Version: 6.4.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: DHCPv4/IPv4LL/IPv6RS/DHCPv6 quad stack client
+Maintainer: Roy Marples <roy@marples.name>
+Source: dhcpcd-6.4.3.tar.bz2
+Type: ipkg
+Description:   DHCPv4, IPv6RS and DHCPv6 client with IPv4LL support
+  dhcpcd is a one stop network management daemon which includes
+    * RFC compliant DHCPv4 and DHCPv6 clients
+    * DHCPv6 Prefix Delegation support
+    * IPv4LL (aka ZeroConf) support
+    * ARP address conflict resolution
+    * Link carrier detection
+    * Wireless SSID profiles
+    * ARP ping profiles
+http://roy.marples.name/projects/dhcpcd
+Roy Marples <roy@marples.name>
+@@
+
+

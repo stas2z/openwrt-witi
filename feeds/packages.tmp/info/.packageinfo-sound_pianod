@@ -1,0 +1,42 @@
+Source-Makefile: feeds/packages/sound/pianod/Makefile
+Package: pianod
+Version: 174-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libao +libfaad2 +libmad +libpolarssl +libjson-c +libgcrypt +libpthread
+Menu-Depends: 
+Provides: 
+Section: sound
+Category: Sound
+Title: Pandora radio daemon
+Maintainer: Ted Hess <thess@kitschensync.net>
+Source: pianod-174.tar.gz
+Type: ipkg
+Description:   pianod is a Pandora music player client with line-oriented and Websocket control interfaces.
+  A simple protocol makes for easy clients, mix scripting, integration with a
+  home automation system, use as multiple-user music system for home or office.
+  Documentation and configuration information can be found at:
+      http://deviousfish.com/pianod/
+http://deviousfish.com/pianod/
+Ted Hess <thess@kitschensync.net>
+@@
+
+Package: pianod-client
+Version: 174-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +pianod
+Menu-Depends: 
+Provides: 
+Section: sound
+Category: Sound
+Title: Pandora radio daemon WebUI
+Maintainer: Ted Hess <thess@kitschensync.net>
+Source: pianod-174.tar.gz
+Type: ipkg
+Description:   Web client UI and remote player viewer for pianod
+  Examples --- (Note: The viewer.* files need not be on the pianod host)
+  Main interface: http://pianod-host:4446/pianod
+  Remote viewer: file:///<path>/viewer.html?server=pianod-host:4446  --or--
+                 http://pianod-host:4446/pianod/viewer.html?server=pianod-host:4446
+http://deviousfish.com/pianod/
+Ted Hess <thess@kitschensync.net>
+@@
+
+

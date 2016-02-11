@@ -1,0 +1,21 @@
+Source-Makefile: feeds/packages/lang/python-setuptools/Makefile
+Package: python-setuptools
+Submenu: Python
+Version: 19.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python +ca-certificates
+Menu-Depends: 
+Provides: 
+Build-Depends/host: python/host
+Build-Types: host
+Section: lang
+Category: Languages
+Title: Tool for installing Python packages.
+Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
+Source: setuptools-19.4.tar.gz
+Type: ipkg
+Description:   Easily download, build, install, upgrade, and uninstall Python packages
+https://bitbucket.org/pypa/setuptools
+Alexandru Ardelean <ardeleanalex@gmail.com>
+@@
+
+

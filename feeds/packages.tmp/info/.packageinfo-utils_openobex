@@ -1,0 +1,50 @@
+Source-Makefile: feeds/packages/utils/openobex/Makefile
+Package: openobex
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +openobex-apps +libopenobex
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: Open Source impl of the OBject EXchange protocol (meta)
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: openobex-1.7.1-Source.tar.gz
+Type: ipkg
+Description: Open Source impl of the OBject EXchange protocol (meta)
+https://www.gitorious.org/openobex
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: openobex-apps
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libopenobex +bluez-libs
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: Open Source impl of the OBject EXchange protocol (apps)
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: openobex-1.7.1-Source.tar.gz
+Type: ipkg
+Description: Open Source impl of the OBject EXchange protocol (apps)
+https://www.gitorious.org/openobex
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: libopenobex
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libusb-1.0
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Open Source impl of the OBject EXchange protocol (library)
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: openobex-1.7.1-Source.tar.gz
+Type: ipkg
+Description: Open Source impl of the OBject EXchange protocol (library)
+https://www.gitorious.org/openobex
+Nicolas Thill <nico@openwrt.org>
+@@
+
+

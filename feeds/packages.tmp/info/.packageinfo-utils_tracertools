@@ -1,0 +1,17 @@
+Source-Makefile: feeds/packages/utils/tracertools/Makefile
+Package: tracertools
+Version: 20160118-0428aa8585c915e64ce7cdb7c6f88cf2f5987b5f
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: Tracer MPPT monitoring and control tools
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: tracertools-20160118-0428aa8585c915e64ce7cdb7c6f88cf2f5987b5f.tar.gz
+Type: ipkg
+Description: 	Tools for the Tracer MPPT solar charge controller.
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+

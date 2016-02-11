@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/lang/perl-html-form/Makefile
+Package: perl-html-form
+Submenu: Perl
+Version: 6.03-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread perl +perl-html-parser +perl-http-message +perl-uri +perlbase-encode +perlbase-essential
+Menu-Depends: 
+Provides: 
+Section: lang
+Category: Languages
+Title: Class that represents an HTML form element
+Maintainer: Marcel Denia <naoir@gmx.net>
+Source: HTML-Form-6.03.tar.gz
+Type: ipkg
+Description: Class that represents an HTML form element
+http://search.cpan.org/dist/HTML-Form/
+Marcel Denia <naoir@gmx.net>
+@@
+
+

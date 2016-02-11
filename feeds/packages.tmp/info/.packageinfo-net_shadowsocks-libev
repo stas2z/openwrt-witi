@@ -1,0 +1,36 @@
+Source-Makefile: feeds/packages/net/shadowsocks-libev/Makefile
+Package: shadowsocks-libev
+Version: 2.2.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libopenssl +libpthread +ipset +ip +iptables-mod-tproxy
+Menu-Depends: 
+Provides: 
+Build-Variant: openssl
+Section: net
+Category: Network
+Title: Lightweight Secured Socks5 Proxy (OpenSSL)
+Maintainer: Jian Chang <aa65535@live.com>
+Source: shadowsocks-libev-2.2.3-2b1eef11973de3f7380401fd20f937e84bc2b756.tar.gz
+Type: ipkg
+Description: Shadowsocks-libev is a lightweight secured socks5 proxy for embedded devices and low end boxes.
+https://github.com/shadowsocks/shadowsocks-libev
+Jian Chang <aa65535@live.com>
+@@
+
+Package: shadowsocks-libev-polarssl
+Version: 2.2.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpolarssl +libpthread +ipset +ip +iptables-mod-tproxy
+Menu-Depends: 
+Provides: 
+Build-Variant: polarssl
+Section: net
+Category: Network
+Title: Lightweight Secured Socks5 Proxy (PolarSSL)
+Maintainer: Jian Chang <aa65535@live.com>
+Source: shadowsocks-libev-2.2.3-2b1eef11973de3f7380401fd20f937e84bc2b756.tar.gz
+Type: ipkg
+Description: Shadowsocks-libev is a lightweight secured socks5 proxy for embedded devices and low end boxes.
+https://github.com/shadowsocks/shadowsocks-libev
+Jian Chang <aa65535@live.com>
+@@
+
+

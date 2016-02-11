@@ -8,17 +8,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ethtool
-PKG_VERSION:=3.14
+PKG_VERSION:=4.2
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Matthias Schiffer <mschiffer@universe-factory.net>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/software/network/ethtool
-PKG_MD5SUM:=d46b809ddd672b51d7e23787ae9122e0
+PKG_MD5SUM:=8433e71a256678d859ecc264132063c5
+
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
+
+PKG_CONFIG_DEPENDS:=ETHTOOL_PRETTY_DUMP
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -33,6 +38,16 @@ define Package/ethtool/description
  ethtool is a small utility for examining and tuning your ethernet-based
  network interface
 endef
+
+define Package/ethtool/config
+	source "$(SOURCE)/Config.in"
+endef
+
+ifeq ($(CONFIG_ETHTOOL_PRETTY_DUMP),y)
+CONFIGURE_ARGS += --enable-pretty-dump
+else
+CONFIGURE_ARGS += --disable-pretty-dump
+endif
 
 define Package/ethtool/install
 	$(INSTALL_DIR) $(1)/usr/sbin

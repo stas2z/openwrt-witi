@@ -1,0 +1,37 @@
+Source-Makefile: feeds/packages/libs/glpk/Makefile
+Package: libglpk
+Version: 4.57-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: The GNU Linear Programming Kit
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: glpk-4.57.tar.gz
+Type: ipkg
+Description: 	The GLPK (GNU Linear Programming Kit) package is intended for solving
+	large-scale linear programming (LP), mixed integer programming (MIP),
+	and other related problems. It is a set of routines written in ANSI C
+	and organized in the form of a callable library.
+http://www.gnu.org/software/glpk/
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+Package: glpsol
+Version: 4.57-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libglpk
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: The GNU Linear Programming Kit (glpsol)
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: glpk-4.57.tar.gz
+Type: ipkg
+Description: The GNU Linear Programming Kit (glpsol)
+http://www.gnu.org/software/glpk/
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+

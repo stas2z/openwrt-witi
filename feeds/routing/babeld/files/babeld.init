@@ -1,18 +1,19 @@
 #!/bin/sh /etc/rc.common
 
-. /lib/functions/network.sh
+. $IPKG_INSTROOT/lib/functions/network.sh
 
 START=70
 
 pidfile='/var/run/babeld.pid'
 CONFIGFILE='/var/etc/babeld.conf'
 OTHERCONFIGFILE="/etc/babeld.conf"
+OTHERCONFIGDIR="/tmp/babeld.d/"
 EXTRA_COMMANDS="status"
 EXTRA_HELP="        status Dump Babel's table to the log file."
 
 # Options to ignore for the global section (old options that are translated
 # for backward compatibility with old configuration files)
-ignored_options="carrier_sense assume_wireless no_split_horizon random_router_id multicast_address port hello_interval wired_hello_interval smoothing_half_time duplication_priority local_server conf_file"
+ignored_options="carrier_sense assume_wireless no_split_horizon random_router_id multicast_address port hello_interval wired_hello_interval smoothing_half_time duplication_priority local_server conf_file conf_dir"
 
 # Append a line to the configuration file
 cfg_append() {
@@ -108,6 +109,13 @@ parse_old_global_options() {
 	[ "$_bool" -eq 1 ] && add_default_option "wired" "false"
 	config_get_bool _bool "$section" 'no_split_horizon' 0
 	[ "$_bool" -eq 1 ] && add_default_option "split_horizon" "false"
+        # Configure alternative configuration file and directory
+	local conf_file
+	config_get conf_file "$section" "conf_file"
+	[ -n "$conf_file" ] && OTHERCONFIGFILE="$conf_file"
+	local conf_dir
+	config_get conf_dir "$section" "conf_dir"
+	[ -n "$conf_dir" ] && OTHERCONFIGDIR="$conf_dir"
 }
 
 babel_filter() {
@@ -127,6 +135,10 @@ babel_filter() {
 	append_parm "$cfg" 'eq' 'eq'
 	append_parm "$cfg" 'le' 'le'
 	append_parm "$cfg" 'ge' 'ge'
+	append_parm "$cfg" 'src_ip' 'src-ip'
+	append_parm "$cfg" 'src_eq' 'src-eq'
+	append_parm "$cfg" 'src_le' 'src-le'
+	append_parm "$cfg" 'src_ge' 'src-ge'
 	append_parm "$cfg" 'neigh' 'neigh'
 	append_parm "$cfg" 'id' 'id'
 	append_parm "$cfg" 'proto' 'proto'
@@ -154,6 +166,9 @@ babel_config_cb() {
 			local value="$2"
 			# Ignore old options
 			list_contains ignored_options "$option" && return
+			# Skip lists. They will be taken care of by list_cb
+			test "${option#*_ITEM}" != "$option" && return
+			test "${option#*_LENGTH}" != "$option" && return
 			cfg_append "${option//_/-} $value"
 		}
 	;;
@@ -200,8 +215,14 @@ babel_config_cb() {
 start() {
 	mkdir -p /var/lib
 	mkdir -p /var/etc
+	mkdir -p $OTHERCONFIGDIR
+
 	# Start by emptying the generated config file
 	>"$CONFIGFILE"
+	# Import dynamic config files
+	for f in $OTHERCONFIGDIR/*.conf; do
+		[ -f "$f" ] && cat $f >> $CONFIGFILE
+	done
 	# First load the whole config file, without callbacks, so that we are
 	# aware of all "ignore" options in the second pass.
 	config_load babeld

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/net/port-mirroring/Makefile
+Package: port-mirroring
+Menu: 1
+Version: 1.4.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpcap +libpthread
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: Copy network packets with optional support for TaZmen Sniffer Protocol (TZSP) 
+Maintainer: Mike Maraya <mike.maraya@gmail.com>
+Source: port-mirroring-1.4.2.tar.bz2
+Type: ipkg
+Description: Copy network packets with optional support for TaZmen Sniffer Protocol (TZSP) 
+https://github.com/mmaraya/port-mirroring
+Mike Maraya <mike.maraya@gmail.com>
+@@
+
+

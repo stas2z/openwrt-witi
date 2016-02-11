@@ -1,0 +1,122 @@
+Source-Makefile: feeds/packages/libs/toxcore/Makefile
+Package: libtoxav
+Submenu: Networking
+Version: 0.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libtoxcore +libopus +libvpx
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Tox A/V library
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: toxcore-0.0.0-6d883f488ff59b2394982b62895d50b1d1d55bf4.tar.gz
+Type: ipkg
+Description:     Tox, a FOSS initiative, aims to be an easy to use, all-in-one
+  communication platform that ensures their users full privacy and
+  secure message delivery.
+
+  A/V library providing audio/video codec bindings
+https://tox.im
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+Package: libtoxcore
+Submenu: Networking
+Version: 0.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libsodium +librt +libpthread
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Tox core library
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: toxcore-0.0.0-6d883f488ff59b2394982b62895d50b1d1d55bf4.tar.gz
+Type: ipkg
+Description:     Tox, a FOSS initiative, aims to be an easy to use, all-in-one
+  communication platform that ensures their users full privacy and
+  secure message delivery.
+
+  core library
+https://tox.im
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+Package: libtoxdns
+Submenu: Networking
+Version: 0.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libtoxcore
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Tox dns library
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: toxcore-0.0.0-6d883f488ff59b2394982b62895d50b1d1d55bf4.tar.gz
+Type: ipkg
+Description:     Tox, a FOSS initiative, aims to be an easy to use, all-in-one
+  communication platform that ensures their users full privacy and
+  secure message delivery.
+
+  DNS library
+https://tox.im
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+Package: libtoxencryptsave
+Submenu: Networking
+Version: 0.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libtoxcore
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Tox encryptsave library
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: toxcore-0.0.0-6d883f488ff59b2394982b62895d50b1d1d55bf4.tar.gz
+Type: ipkg
+Description:     Tox, a FOSS initiative, aims to be an easy to use, all-in-one
+  communication platform that ensures their users full privacy and
+  secure message delivery.
+
+  encryptsave library
+https://tox.im
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+Package: ntox
+Submenu: Instant Messaging
+Version: 0.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libtoxcore +libncurses
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: ntox Tox command-line client
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: toxcore-0.0.0-6d883f488ff59b2394982b62895d50b1d1d55bf4.tar.gz
+Type: ipkg
+Description:     Tox, a FOSS initiative, aims to be an easy to use, all-in-one
+  communication platform that ensures their users full privacy and
+  secure message delivery.
+
+  nTox is an ncurses-based command-line client for Tox.
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+Package: tox-bootstrapd
+Submenu: Instant Messaging
+Version: 0.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libtoxcore +libconfig
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: Tox DHT bootstrap
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Source: toxcore-0.0.0-6d883f488ff59b2394982b62895d50b1d1d55bf4.tar.gz
+Type: ipkg
+Description: Tox DHT bootstrap
+Daniel Golle <daniel@makrotopia.org>
+@@
+
+

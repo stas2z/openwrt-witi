@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/libs/libupnpp/Makefile
+Package: libupnpp
+Version: 0.11.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libstdcpp +libexpat +librt +libcurl +libupnp
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: The libupnpp C++ library wraps libupnp for easier use by upmpdcli and upplay
+Maintainer: Petko Bordjukov <bordjukov@gmail.com>
+Source: libupnpp-0.11.0.tar.gz
+Type: ipkg
+Description: libupnpp defines useful objects over libupnp and can be used to create both devices
+and control points. It is shared by upmpdcli and upplay.
+http://www.lesbonscomptes.com/upmpdcli
+Petko Bordjukov <bordjukov@gmail.com>
+@@
+
+

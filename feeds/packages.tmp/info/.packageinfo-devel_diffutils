@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/devel/diffutils/Makefile
+Package: diffutils
+Version: 3.3-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +USE_GLIBC:librt
+Menu-Depends: 
+Provides: 
+Section: devel
+Category: Development
+Title: diffutils
+Maintainer: Roger D <rogerdammit@gmail.com>
+Source: diffutils-3.3.tar.xz
+Type: ipkg
+Description:   The Diffutils package contains programs that show the differences between
+  files or directories.
+http://www.gnu.org/software/diffutils/
+Roger D <rogerdammit@gmail.com>
+@@
+
+

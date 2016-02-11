@@ -1,0 +1,17 @@
+Source-Makefile: feeds/packages/utils/evtest/Makefile
+Package: evtest
+Version: 1.33-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: Event Test Program
+Maintainer: Pushpal Sidhu (psidhu@gateworks.com)
+Source: evtest-1.33.tar.gz
+Type: ipkg
+Description:   Utility to test event driven devices such as keyboards and mice
+Pushpal Sidhu (psidhu@gateworks.com)
+@@
+
+

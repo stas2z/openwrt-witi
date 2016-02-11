@@ -1,0 +1,22 @@
+Source-Makefile: feeds/packages/sound/upmpdcli/Makefile
+Package: upmpdcli
+Menu: 1
+Version: 0.11.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libupnpp +libmpdclient
+Menu-Depends: 
+Provides: 
+Section: sound
+Category: Sound
+Title: A UPnP front-end to MPD, the Music Player Daemon
+Maintainer: Petko Bordjukov <bordjukov@gmail.com>
+Source: upmpdcli-0.11.0.tar.gz
+Type: ipkg
+Description: upmpdcli implements an UPnP Media Renderer, using MPD to perform the real work.
+http://www.lesbonscomptes.com/upmpdcli
+Petko Bordjukov <bordjukov@gmail.com>
+@@
+Config:
+	source "feeds/packages/sound/upmpdcli/Config.in"
+@@
+
+

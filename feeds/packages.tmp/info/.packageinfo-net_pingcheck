@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/net/pingcheck/Makefile
+Package: pingcheck
+Version: 0.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libubus +libuci
+Menu-Depends: 
+Provides: 
+Section: net
+Category: Network
+Title: Check Internet and interface connectivity
+Maintainer: Bruno Randolf <br1@einfach.org>
+Source: pingcheck-0.1.tar.gz
+Type: ipkg
+Description: Checks by using "ping" (ICMP echo) wether a configured host (normally on the
+internet) can be reached via a specific interface. Then makes this information
+available via ubus and triggers "online" and "offline" scripts.
+Bruno Randolf <br1@einfach.org>
+@@
+
+

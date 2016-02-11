@@ -1,0 +1,19 @@
+Source-Makefile: feeds/packages/utils/hd-idle/Makefile
+Package: hd-idle
+Submenu: disc
+Version: 1.04-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: Another idle-daemon for attached hard drives
+Maintainer: Lim Guo Wei <limguowei@gmail.com>
+Source: hd-idle-1.04.tgz
+Type: ipkg
+Description:        hd-idle is a utility program for spinning-down external disks after a period of idle time.
+http://hd-idle.sourceforge.net/
+Lim Guo Wei <limguowei@gmail.com>
+@@
+
+

@@ -10,12 +10,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=batman-adv
 
-PKG_VERSION:=2014.2.0
+PKG_VERSION:=2016.0
 PKG_RELEASE:=1
-PKG_MD5SUM:=1243029b3a3e2f4fa721d1a59c2faaf5
+PKG_MD5SUM:=5ab2b29a386d02c16019e469d3981d41
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
+PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
+PKG_LICENSE:=GPL-2.0
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -23,12 +24,12 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 define KernelPackage/batman-adv
-  URL:=http://www.open-mesh.org/
+  URL:=https://www.open-mesh.org/
   MAINTAINER:=Marek Lindner <mareklindner@neomailbox.ch>
   SUBMENU:=Network Support
   DEPENDS:=+KMOD_BATMAN_ADV_BLA:kmod-lib-crc16 +kmod-crypto-core +kmod-crypto-crc32c +kmod-lib-crc32c
   TITLE:=B.A.T.M.A.N. Adv
-  FILES:=$(PKG_BUILD_DIR)/batman-adv.$(LINUX_KMOD_SUFFIX)
+  FILES:=$(PKG_BUILD_DIR)/net/batman-adv/batman-adv.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,50,batman-adv)
 endef
 
@@ -40,6 +41,10 @@ endef
 
 define KernelPackage/batman-adv/config
 	source "$(SOURCE)/Config.in"
+endef
+
+define Package/kmod-batman-adv/conffiles
+/etc/config/batman-adv
 endef
 
 MAKE_BATMAN_ADV_ARGS += \
@@ -60,7 +65,7 @@ MAKE_BATMAN_ADV_ARGS += \
 define Build/Prepare
 	$(call Build/Prepare/Default)
 	$(SED) '/#define _NET_BATMAN_ADV_MAIN_H_/a\#undef CONFIG_MODULE_STRIPPED' \
-		$(PKG_BUILD_DIR)/main.h
+		$(PKG_BUILD_DIR)/net/batman-adv/main.h
 endef
 
 define Build/Compile

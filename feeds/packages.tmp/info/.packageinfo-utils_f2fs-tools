@@ -1,0 +1,38 @@
+Source-Makefile: feeds/packages/utils/f2fs-tools/Makefile
+Package: libf2fs
+Version: 1.4.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: Library for Flash-Friendly File System (F2FS) tools
+Maintainer: Luka Perkov <luka@openwrt.org>
+Source: f2fs-tools-1.4.0.tar.gz
+Type: ipkg
+Description: Library for Flash-Friendly File System (F2FS) tools
+Luka Perkov <luka@openwrt.org>
+@@
+
+Package: f2fs-tools
+Menu: 1
+Submenu: Filesystem
+Version: 1.4.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libuuid +libf2fs
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: Tools for Flash-Friendly File System (F2FS)
+Maintainer: Luka Perkov <luka@openwrt.org>
+Source: f2fs-tools-1.4.0.tar.gz
+Type: ipkg
+Description: Tools for Flash-Friendly File System (F2FS)
+http://git.kernel.org/cgit/linux/kernel/git/jaegeuk/f2fs-tools.git
+Luka Perkov <luka@openwrt.org>
+@@
+Config:
+  source "feeds/packages/utils/f2fs-tools/Config.in"
+@@
+
+

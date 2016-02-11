@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2014 OpenWrt.org
+# Copyright (C) 2006-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,12 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mtr
-PKG_VERSION:=0.85
-PKG_RELEASE:=1
+PKG_REV:=dd2b750
+PKG_VERSION:=0.85+newdns-$(PKG_REV)
+PKG_RELEASE:=2
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=ftp://ftp.bitwizard.nl/mtr
-PKG_MD5SUM:=5e665c617e5659b6ec3e201ee7488eb1
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/traviscross/mtr.git
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_VERSION:=$(PKG_REV)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+
+PKG_LICENSE:=GPL-2.0+
+PKG_LICENSE_FILES:=COPYING
 
 PKG_INSTALL:=1
 
@@ -27,7 +33,7 @@ define Package/mtr
   DEPENDS:=+libncurses
   TITLE:=Full screen ncurses traceroute tool
   URL:=http://www.bitwizard.nl/mtr/
-  MAINTAINER:=Jonathan McCrohan <jmccrohan@gmail.com>
+  PKG_MAINTAINER:=Jonathan McCrohan <jmccrohan@gmail.com>
 endef
 
 define Package/mtr/description
@@ -44,6 +50,7 @@ endef
 CONFIGURE_ARGS += \
 	--without-gtk \
 	--without-glib \
+	$(call autoconf_bool,CONFIG_IPV6,ipv6)
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); touch \

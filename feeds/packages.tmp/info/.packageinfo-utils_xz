@@ -1,0 +1,173 @@
+Source-Makefile: feeds/packages/utils/xz/Makefile
+Package: xz-utils
+Menu: 1
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: XZ Utils (meta)
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description: XZ Utils (meta)
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: liblzma
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: liblzma library from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description: liblzma library from XZ Utils
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: lzmadec
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xz-utils +liblzma
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: lzmadec utility from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description:    Contains: lzmadec 
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: lzmainfo
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xz-utils +liblzma
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: lzmainfo utility from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description:    Contains: lzmainfo 
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: xz
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xz-utils +liblzma
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: xz utility from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description:    Contains: xz  lzcat lzma unlzma unxz xzcat
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: xzdec
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xz-utils +liblzma
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: xzdec utility from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description:    Contains: xzdec 
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: xzdiff
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xz-utils +bash +xz
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: xzdiff utility from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description:    Contains: xzdiff  lzcmp lzdiff xzcmp
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: xzgrep
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xz-utils +bash +xz
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: xzgrep utility from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description:    Contains: xzgrep  lzegrep lzfgrep lzgrep xzegrep xzfgrep
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: xzless
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xz-utils +bash +xz
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: xzless utility from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description:    Contains: xzless  lzless
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+Package: xzmore
+Submenu: Compression
+Version: 5.2.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xz-utils +bash +xz
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: xzmore utility from XZ Utils
+Maintainer: Nicolas Thill <nico@openwrt.org>
+Source: xz-5.2.2.tar.bz2
+Type: ipkg
+Description:    Contains: xzmore  lzmore
+http://tukaani.org/xz
+Nicolas Thill <nico@openwrt.org>
+@@
+
+
