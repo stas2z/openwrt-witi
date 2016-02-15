@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libiwinfo
-PKG_RELEASE:=51
+PKG_RELEASE:=2016-01-25
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 PKG_CONFIG_DEPENDS := \
@@ -17,7 +17,7 @@ PKG_CONFIG_DEPENDS := \
 	CONFIG_PACKAGE_kmod-madwifi \
 	CONFIG_PACKAGE_kmod-mt76x2e \
 	CONFIG_PACKAGE_kmod-mt76x2e_ap \
-	CONFIG_PACKAGE_kmod-mac80211
+	CONFIG_PACKAGE_kmod-cfg80211
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -26,7 +26,7 @@ define Package/libiwinfo
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Generalized Wireless Information Library (iwinfo)
-  DEPENDS:=+PACKAGE_kmod-mac80211:libnl-tiny
+  DEPENDS:=+PACKAGE_kmod-cfg80211:libnl-tiny +libuci
   ABI_VERSION:=$(PKG_RELEASE)
   MAINTAINER:=Jo-Philipp Wich <xm@subsignal.org>
 endef
@@ -80,7 +80,7 @@ IWINFO_BACKENDS := \
 	$(if $(CONFIG_PACKAGE_kmod-mt76x2e),mt76x2e) \
 	$(if $(CONFIG_PACKAGE_kmod-mt76x2e_ap),mt76x2e) \
 	$(if $(CONFIG_PACKAGE_kmod-madwifi),madwifi) \
-	$(if $(CONFIG_PACKAGE_kmod-mac80211),nl80211)
+	$(if $(CONFIG_PACKAGE_kmod-cfg80211),nl80211)
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include/libnl-tiny \

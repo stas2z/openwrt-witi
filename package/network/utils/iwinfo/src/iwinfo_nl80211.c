@@ -23,9 +23,15 @@
  */
 
 #include <limits.h>
+#include <glob.h>
+#include <fnmatch.h>
+#include <stdarg.h>
+
 #include "iwinfo_nl80211.h"
 
 #define min(x, y) ((x) < (y)) ? (x) : (y)
+
+#define BIT(x) (1ULL<<(x))
 
 static struct nl80211_state *nls = NULL;
 
@@ -124,6 +130,27 @@ static int nl80211_readint(const char *path)
 	return rv;
 }
 
+static int nl80211_readstr(const char *path, char *buffer, int length)
+{
+	int fd;
+	int rv = -1;
+
+	if ((fd = open(path, O_RDONLY)) > -1)
+	{
+		if ((rv = read(fd, buffer, length - 1)) > 0)
+		{
+			if (buffer[rv - 1] == '\n')
+				rv--;
+
+			buffer[rv] = 0;
+		}
+
+		close(fd);
+	}
+
+	return rv;
+}
+
 
 static int nl80211_msg_error(struct sockaddr_nl *nla,
 	struct nlmsgerr *err, void *arg)
@@ -191,10 +218,6 @@ static struct nl80211_msg_conveyor * nl80211_new(struct genl_family *family,
 	return &cv;
 
 err:
-nla_put_failure:
-	if (cb)
-		nl_cb_put(cb);
-
 	if (req)
 		nlmsg_free(req);
 
@@ -207,6 +230,98 @@ static struct nl80211_msg_conveyor * nl80211_ctl(int cmd, int flags)
 		return NULL;
 
 	return nl80211_new(nls->nlctrl, cmd, flags);
+}
+
+static int nl80211_phy_idx_from_uci_path(struct uci_section *s)
+{
+	const char *opt;
+	char buf[128];
+	int idx = -1;
+	glob_t gl;
+
+	opt = uci_lookup_option_string(uci_ctx, s, "path");
+	if (!opt)
+		return -1;
+
+	snprintf(buf, sizeof(buf), "/sys/devices/%s/ieee80211/*/index", opt);  /**/
+	if (glob(buf, 0, NULL, &gl))
+		return -1;
+
+	if (gl.gl_pathc > 0)
+		idx = nl80211_readint(gl.gl_pathv[0]);
+
+	globfree(&gl);
+
+	return idx;
+}
+
+static int nl80211_phy_idx_from_uci_macaddr(struct uci_section *s)
+{
+	const char *opt;
+	char buf[128];
+	int i, idx = -1;
+	glob_t gl;
+
+	opt = uci_lookup_option_string(uci_ctx, s, "macaddr");
+	if (!opt)
+		return -1;
+
+	snprintf(buf, sizeof(buf), "/sys/class/ieee80211/*");	/**/
+	if (glob(buf, 0, NULL, &gl))
+		return -1;
+
+	for (i = 0; i < gl.gl_pathc; i++)
+	{
+		snprintf(buf, sizeof(buf), "%s/macaddress", gl.gl_pathv[i]);
+		if (nl80211_readstr(buf, buf, sizeof(buf)) <= 0)
+			continue;
+
+		if (fnmatch(opt, buf, FNM_CASEFOLD))
+			continue;
+
+		snprintf(buf, sizeof(buf), "%s/index", gl.gl_pathv[i]);
+		if ((idx = nl80211_readint(buf)) > -1)
+			break;
+	}
+
+	globfree(&gl);
+
+	return idx;
+}
+
+static int nl80211_phy_idx_from_uci_phy(struct uci_section *s)
+{
+	const char *opt;
+	char buf[128];
+
+	opt = uci_lookup_option_string(uci_ctx, s, "phy");
+	if (!opt)
+		return -1;
+
+	snprintf(buf, sizeof(buf), "/sys/class/ieee80211/%s/index", opt);
+	return nl80211_readint(buf);
+}
+
+static int nl80211_phy_idx_from_uci(const char *name)
+{
+	struct uci_section *s;
+	int idx = -1;
+
+	s = iwinfo_uci_get_radio(name, "mac80211");
+	if (!s)
+		goto free;
+
+	idx = nl80211_phy_idx_from_uci_path(s);
+
+	if (idx < 0)
+		idx = nl80211_phy_idx_from_uci_macaddr(s);
+
+	if (idx < 0)
+		idx = nl80211_phy_idx_from_uci_phy(s);
+
+free:
+	iwinfo_uci_free();
+	return idx;
 }
 
 static struct nl80211_msg_conveyor * nl80211_msg(const char *ifname,
@@ -224,7 +339,7 @@ static struct nl80211_msg_conveyor * nl80211_msg(const char *ifname,
 	if (!strncmp(ifname, "phy", 3))
 		phyidx = atoi(&ifname[3]);
 	else if (!strncmp(ifname, "radio", 5))
-		phyidx = atoi(&ifname[5]);
+		phyidx = nl80211_phy_idx_from_uci(ifname);
 	else if (!strncmp(ifname, "mon.", 4))
 		ifidx = if_nametoindex(&ifname[4]);
 	else
@@ -416,54 +531,6 @@ static int nl80211_channel2freq(int channel, const char *band)
 	return 0;
 }
 
-static char * nl80211_getval(const char *ifname, const char *buf, const char *key)
-{
-	int i, len;
-	char lkey[64] = { 0 };
-	const char *ln = buf;
-	static char lval[256] = { 0 };
-
-	int matched_if = ifname ? 0 : 1;
-
-
-	for( i = 0, len = strlen(buf); i < len; i++ )
-	{
-		if (!lkey[0] && (buf[i] == ' ' || buf[i] == '\t'))
-		{
-			ln++;
-		}
-		else if (!lkey[0] && (buf[i] == '='))
-		{
-			if ((&buf[i] - ln) > 0)
-				memcpy(lkey, ln, min(sizeof(lkey) - 1, &buf[i] - ln));
-		}
-		else if (buf[i] == '\n')
-		{
-			if (lkey[0])
-			{
-				memcpy(lval, ln + strlen(lkey) + 1,
-					min(sizeof(lval) - 1, &buf[i] - ln - strlen(lkey) - 1));
-
-				if ((ifname != NULL) &&
-				    (!strcmp(lkey, "interface") || !strcmp(lkey, "bss")) )
-				{
-					matched_if = !strcmp(lval, ifname);
-				}
-				else if (matched_if && !strcmp(lkey, key))
-				{
-					return lval;
-				}
-			}
-
-			ln = &buf[i+1];
-			memset(lkey, 0, sizeof(lkey));
-			memset(lval, 0, sizeof(lval));
-		}
-	}
-
-	return NULL;
-}
-
 static int nl80211_ifname2phy_cb(struct nl_msg *msg, void *arg)
 {
 	char *buf = arg;
@@ -497,7 +564,7 @@ static char * nl80211_ifname2phy(const char *ifname)
 
 static char * nl80211_phy2ifname(const char *ifname)
 {
-	int fd, ifidx = -1, cifidx = -1, phyidx = -1;
+	int ifidx = -1, cifidx = -1, phyidx = -1;
 	char buffer[64];
 	static char nif[IFNAMSIZ] = { 0 };
 
@@ -510,7 +577,7 @@ static char * nl80211_phy2ifname(const char *ifname)
 	else if (!strncmp(ifname, "phy", 3))
 		phyidx = atoi(&ifname[3]);
 	else if (!strncmp(ifname, "radio", 5))
-		phyidx = atoi(&ifname[5]);
+		phyidx = nl80211_phy_idx_from_uci(ifname);
 	else
 		return NULL;
 
@@ -534,7 +601,7 @@ static char * nl80211_phy2ifname(const char *ifname)
 					    ((ifidx < 0) || (cifidx < ifidx)))
 					{
 						ifidx = cifidx;
-						strncpy(nif, e->d_name, sizeof(nif));
+						strncpy(nif, e->d_name, sizeof(nif) - 1);
 					}
 				}
 			}
@@ -588,44 +655,98 @@ static int nl80211_get_mode(const char *ifname, int *buf)
 	return (*buf == IWINFO_OPMODE_UNKNOWN) ? -1 : 0;
 }
 
-static char * nl80211_hostapd_info(const char *ifname)
+static int __nl80211_hostapd_query(const char *ifname, ...)
 {
-	int mode;
-	char *phy;
-	char path[32] = { 0 };
-	static char buf[4096] = { 0 };
-	FILE *conf;
+	va_list ap, ap_cur;
+	char *phy, *search, *dest, *key, *val, buf[128];
+	int len, mode, found = 0, match = 1;
+	FILE *fp;
 
 	if (nl80211_get_mode(ifname, &mode))
-		return NULL;
+		return 0;
 
-	if ((mode == IWINFO_OPMODE_MASTER || mode == IWINFO_OPMODE_AP_VLAN) &&
-	    (phy = nl80211_ifname2phy(ifname)) != NULL)
+	if (mode != IWINFO_OPMODE_MASTER && mode != IWINFO_OPMODE_AP_VLAN)
+		return 0;
+
+	phy = nl80211_ifname2phy(ifname);
+
+	if (!phy)
+		return 0;
+
+	snprintf(buf, sizeof(buf), "/var/run/hostapd-%s.conf", phy);
+	fp = fopen(buf, "r");
+
+	if (!fp)
+		return 0;
+
+	va_start(ap, ifname);
+
+	/* clear all destination buffers */
+	va_copy(ap_cur, ap);
+
+	while ((search = va_arg(ap_cur, char *)) != NULL)
 	{
-		snprintf(path, sizeof(path), "/var/run/hostapd-%s.conf", phy);
+		dest = va_arg(ap_cur, char *);
+		len  = va_arg(ap_cur, int);
 
-		if ((conf = fopen(path, "r")) != NULL)
-		{
-			fread(buf, sizeof(buf) - 1, 1, conf);
-			fclose(conf);
-
-			return buf;
-		}
+		memset(dest, 0, len);
 	}
 
-	return NULL;
+	va_end(ap_cur);
+
+	/* iterate applicable lines and copy found values into dest buffers */
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		key = strtok(buf, " =\t\n");
+		val = strtok(NULL, "\n");
+
+		if (!key || !val || !*key || *key == '#')
+			continue;
+
+		if (!strcmp(key, "interface") || !strcmp(key, "bss"))
+			match = !strcmp(ifname, val);
+
+		if (!match)
+			continue;
+
+		va_copy(ap_cur, ap);
+
+		while ((search = va_arg(ap_cur, char *)) != NULL)
+		{
+			dest = va_arg(ap_cur, char *);
+			len  = va_arg(ap_cur, int);
+
+			if (!strcmp(search, key))
+			{
+				strncpy(dest, val, len - 1);
+				found++;
+				break;
+			}
+		}
+
+		va_end(ap_cur);
+	}
+
+	fclose(fp);
+
+	va_end(ap);
+
+	return found;
 }
+
+#define nl80211_hostapd_query(ifname, ...) \
+	__nl80211_hostapd_query(ifname, ##__VA_ARGS__, NULL)
+
 
 static inline int nl80211_wpactl_recv(int sock, char *buf, int blen)
 {
 	fd_set rfds;
-	struct timeval tv = { 2, 0 };
+	struct timeval tv = { 0, 256000 };
 
 	FD_ZERO(&rfds);
 	FD_SET(sock, &rfds);
 
 	memset(buf, 0, blen);
-
 
 	if (select(sock + 1, &rfds, NULL, NULL, &tv) < 0)
 		return -1;
@@ -633,104 +754,145 @@ static inline int nl80211_wpactl_recv(int sock, char *buf, int blen)
 	if (!FD_ISSET(sock, &rfds))
 		return -1;
 
-	return recv(sock, buf, blen, 0);
+	return recv(sock, buf, blen - 1, 0);
 }
 
-static char * nl80211_wpactl_info(const char *ifname, const char *cmd,
-								   const char *event)
+static int nl80211_wpactl_connect(const char *ifname, struct sockaddr_un *local)
 {
-	int numtry = 0;
-	int sock = -1;
-	char *rv = NULL;
-	size_t remote_length, local_length;
-	static char buffer[10240] = { 0 };
-
-	struct sockaddr_un local = { 0 };
 	struct sockaddr_un remote = { 0 };
+	size_t remote_length, local_length;
 
-
-	sock = socket(PF_UNIX, SOCK_DGRAM, 0);
+	int sock = socket(PF_UNIX, SOCK_DGRAM, 0);
 	if (sock < 0)
-		return NULL;
+		return sock;
 
 	remote.sun_family = AF_UNIX;
-	remote_length = sizeof(remote.sun_family) + sprintf(remote.sun_path,
-		"/var/run/wpa_supplicant-%s/%s", ifname, ifname);
+	remote_length = sizeof(remote.sun_family) +
+		sprintf(remote.sun_path, "/var/run/wpa_supplicant-%s/%s",
+		        ifname, ifname);
 
 	if (fcntl(sock, F_SETFD, fcntl(sock, F_GETFD) | FD_CLOEXEC) < 0)
-		goto out;
-
-	if (connect(sock, (struct sockaddr *) &remote, remote_length))
 	{
-		remote_length = sizeof(remote.sun_family) + sprintf(remote.sun_path,
-			"/var/run/wpa_supplicant/%s", ifname);
-
-		if (connect(sock, (struct sockaddr *) &remote, remote_length))
-			goto out;
+		close(sock);
+		return -1;
 	}
 
-	local.sun_family = AF_UNIX;
-	local_length = sizeof(local.sun_family) +
-		sprintf(local.sun_path, "/var/run/iwinfo-%s-%d", ifname, getpid());
-
-	if (bind(sock, (struct sockaddr *) &local, local_length))
-		goto out;
-
-
-	if (event)
+	if (connect(sock, (struct sockaddr *)&remote, remote_length))
 	{
-		send(sock, "ATTACH", 6, 0);
+		remote_length = sizeof(remote.sun_family) +
+			sprintf(remote.sun_path, "/var/run/wpa_supplicant/%s", ifname);
 
-		if (nl80211_wpactl_recv(sock, buffer, sizeof(buffer)-1) <= 0)
-			goto out;
-	}
-
-
-	send(sock, cmd, strlen(cmd), 0);
-
-	/* we might have to scan up to 72 channels / 256ms per channel */
-	/* this makes up to 18.5s hence 10 tries */
-	while( numtry++ < 10 )
-	{
-		char *bracket;
-
-		/* make sure there is a terminating nul byte */
-		if (nl80211_wpactl_recv(sock, buffer, sizeof(buffer)-1) <= 0)
+		if (connect(sock, (struct sockaddr *)&remote, remote_length))
 		{
-			if (event)
+			close(sock);
+			return -1;
+		}
+	}
+
+	local->sun_family = AF_UNIX;
+	local_length = sizeof(local->sun_family) +
+		sprintf(local->sun_path, "/var/run/iwinfo-%s-%d", ifname, getpid());
+
+	if (bind(sock, (struct sockaddr *)local, local_length) < 0)
+	{
+		close(sock);
+		return -1;
+	}
+
+	return sock;
+}
+
+static int __nl80211_wpactl_query(const char *ifname, ...)
+{
+	va_list ap, ap_cur;
+	struct sockaddr_un local = { 0 };
+	int len, mode, found = 0, sock = -1;
+	char *search, *dest, *key, *val, *line, *pos, buf[512];
+
+	if (nl80211_get_mode(ifname, &mode))
+		return 0;
+
+	if (mode != IWINFO_OPMODE_CLIENT && mode != IWINFO_OPMODE_ADHOC)
+		return 0;
+
+	sock = nl80211_wpactl_connect(ifname, &local);
+
+	if (sock < 0)
+		return 0;
+
+	va_start(ap, ifname);
+
+	/* clear all destination buffers */
+	va_copy(ap_cur, ap);
+
+	while ((search = va_arg(ap_cur, char *)) != NULL)
+	{
+		dest = va_arg(ap_cur, char *);
+		len  = va_arg(ap_cur, int);
+
+		memset(dest, 0, len);
+	}
+
+	va_end(ap_cur);
+
+	send(sock, "STATUS", 6, 0);
+
+	while (true)
+	{
+		if (nl80211_wpactl_recv(sock, buf, sizeof(buf)) <= 0)
+			break;
+
+		if (buf[0] == '<')
+			continue;
+
+		for (line = strtok_r(buf, "\n", &pos);
+			 line != NULL;
+			 line = strtok_r(NULL, "\n", &pos))
+		{
+			key = strtok(line, "=");
+			val = strtok(NULL, "\n");
+
+			if (!key || !val)
 				continue;
 
-			break;
+			va_copy(ap_cur, ap);
+
+			while ((search = va_arg(ap_cur, char *)) != NULL)
+			{
+				dest = va_arg(ap_cur, char *);
+				len  = va_arg(ap_cur, int);
+
+				if (!strcmp(search, key))
+				{
+					strncpy(dest, val, len - 1);
+					found++;
+					break;
+				}
+			}
+
+			va_end(ap_cur);
 		}
 
-		if ((!event && buffer[0] != '<') || (event && strstr(buffer, event)))
-			break;
-
-		/* there may be more than max(numtry) BSS-ADDED events */
-		/* ignore them similar to wpa_cli */
-		if (buffer[0] == '<' &&
-				(bracket=strchr(buffer,'>')) != NULL &&
-				strncmp(bracket+1,"CTRL-EVENT-BSS-ADDED",20) == 0)
-			numtry--;
+		break;
 	}
 
-	rv = buffer;
+	va_end(ap);
 
-out:
 	close(sock);
+	unlink(local.sun_path);
 
-	if (local.sun_family)
-		unlink(local.sun_path);
-
-	return rv;
+	return found;
 }
+
+#define nl80211_wpactl_query(ifname, ...) \
+	__nl80211_wpactl_query(ifname, ##__VA_ARGS__, NULL)
+
 
 static char * nl80211_ifadd(const char *ifname)
 {
-	int phyidx;
 	char *rv = NULL, path[PATH_MAX];
 	static char nif[IFNAMSIZ] = { 0 };
-	struct nl80211_msg_conveyor *req, *res;
+	struct nl80211_msg_conveyor *req;
 	FILE *sysfs;
 
 	req = nl80211_msg(ifname, NL80211_CMD_NEW_INTERFACE, 0);
@@ -786,7 +948,7 @@ static void nl80211_hostapd_hup(const char *ifname)
 	if (phy)
 	{
 		snprintf(buf, sizeof(buf), "/var/run/wifi-%s.pid", phy);
-		if ((fd = open(buf, O_RDONLY)) > 0)
+		if ((fd = open(buf, O_RDONLY)) >= 0)
 		{
 			if (read(fd, buf, sizeof(buf)) > 0)
 				pid = atoi(buf);
@@ -819,7 +981,7 @@ static int nl80211_get_ssid_bssid_cb(struct nl_msg *msg, void *arg)
 	struct nlattr *bss[NL80211_BSS_MAX + 1];
 
 	static struct nla_policy bss_policy[NL80211_BSS_MAX + 1] = {
-		[NL80211_BSS_INFORMATION_ELEMENTS] = {                 },
+		[NL80211_BSS_INFORMATION_ELEMENTS] = { 0 },
 		[NL80211_BSS_STATUS]               = { .type = NLA_U32 },
 	};
 
@@ -878,7 +1040,7 @@ static int nl80211_get_ssid(const char *ifname, char *buf)
 	res = nl80211_phy2ifname(ifname);
 	req = nl80211_msg(res ? res : ifname, NL80211_CMD_GET_SCAN, NLM_F_DUMP);
 
-	sb.ssid = buf;
+	sb.ssid = (unsigned char *)buf;
 	*buf = 0;
 
 	if (req)
@@ -888,19 +1050,15 @@ static int nl80211_get_ssid(const char *ifname, char *buf)
 	}
 
 	/* failed, try to find from hostapd info */
-	if ((*buf == 0) &&
-	    (res = nl80211_hostapd_info(ifname)) &&
-	    (res = nl80211_getval(ifname, res, "ssid")))
-	{
-		memcpy(buf, res, strlen(res));
-	}
+	if (*buf == 0)
+		nl80211_hostapd_query(ifname, "ssid", buf, IWINFO_ESSID_MAX_SIZE + 1);
 
 	return (*buf == 0) ? -1 : 0;
 }
 
 static int nl80211_get_bssid(const char *ifname, char *buf)
 {
-	char *res;
+	char *res, bssid[sizeof("FF:FF:FF:FF:FF:FF\0")];
 	struct nl80211_msg_conveyor *req;
 	struct nl80211_ssid_bssid sb;
 
@@ -919,16 +1077,15 @@ static int nl80211_get_bssid(const char *ifname, char *buf)
 
 	/* failed, try to find mac from hostapd info */
 	if ((sb.bssid[0] == 0) &&
-	    (res = nl80211_hostapd_info(ifname)) &&
-	    (res = nl80211_getval(ifname, res, "bssid")))
+	    nl80211_hostapd_query(ifname, "bssid", bssid, sizeof(bssid)))
 	{
 		sb.bssid[0] = 1;
-		sb.bssid[1] = strtol(&res[0],  NULL, 16);
-		sb.bssid[2] = strtol(&res[3],  NULL, 16);
-		sb.bssid[3] = strtol(&res[6],  NULL, 16);
-		sb.bssid[4] = strtol(&res[9],  NULL, 16);
-		sb.bssid[5] = strtol(&res[12], NULL, 16);
-		sb.bssid[6] = strtol(&res[15], NULL, 16);
+		sb.bssid[1] = strtol(&bssid[0],  NULL, 16);
+		sb.bssid[2] = strtol(&bssid[3],  NULL, 16);
+		sb.bssid[3] = strtol(&bssid[6],  NULL, 16);
+		sb.bssid[4] = strtol(&bssid[9],  NULL, 16);
+		sb.bssid[5] = strtol(&bssid[12], NULL, 16);
+		sb.bssid[6] = strtol(&bssid[15], NULL, 16);
 	}
 
 	if (sb.bssid[0])
@@ -979,8 +1136,7 @@ static int nl80211_get_frequency_info_cb(struct nl_msg *msg, void *arg)
 
 static int nl80211_get_frequency(const char *ifname, int *buf)
 {
-	int chn;
-	char *res, *channel;
+	char *res, channel[4], hwmode[2];
 	struct nl80211_msg_conveyor *req;
 
 	/* try to find frequency from interface info */
@@ -996,26 +1152,22 @@ static int nl80211_get_frequency(const char *ifname, int *buf)
 
 	/* failed, try to find frequency from hostapd info */
 	if ((*buf == 0) &&
-	    (res = nl80211_hostapd_info(ifname)) &&
-	    (channel = nl80211_getval(NULL, res, "channel")))
+	    nl80211_hostapd_query(ifname, "hw_mode", hwmode, sizeof(hwmode),
+	                                  "channel", channel, sizeof(channel)) == 2)
 	{
-		chn = atoi(channel);
-		*buf = nl80211_channel2freq(chn, nl80211_getval(NULL, res, "hw_mode"));
+		*buf = nl80211_channel2freq(atoi(channel), hwmode);
 	}
-	else
-	{
-		/* failed, try to find frequency from scan results */
-		if (*buf == 0)
-		{
-			res = nl80211_phy2ifname(ifname);
-			req = nl80211_msg(res ? res : ifname, NL80211_CMD_GET_SCAN,
-			                  NLM_F_DUMP);
 
-			if (req)
-			{
-				nl80211_send(req, nl80211_get_frequency_scan_cb, buf);
-				nl80211_free(req);
-			}
+	/* failed, try to find frequency from scan results */
+	if (*buf == 0)
+	{
+		res = nl80211_phy2ifname(ifname);
+		req = nl80211_msg(res ? res : ifname, NL80211_CMD_GET_SCAN, NLM_F_DUMP);
+
+		if (req)
+		{
+			nl80211_send(req, nl80211_get_frequency_scan_cb, buf);
+			nl80211_free(req);
 		}
 	}
 
@@ -1033,22 +1185,35 @@ static int nl80211_get_channel(const char *ifname, int *buf)
 	return -1;
 }
 
+static int nl80211_get_txpower_cb(struct nl_msg *msg, void *arg)
+{
+	int *buf = arg;
+	struct nlattr **tb = nl80211_parse(msg);
+
+	if (tb[NL80211_ATTR_WIPHY_TX_POWER_LEVEL])
+		*buf = iwinfo_mbm2dbm(nla_get_u32(tb[NL80211_ATTR_WIPHY_TX_POWER_LEVEL]));
+
+	return NL_SKIP;
+}
 
 static int nl80211_get_txpower(const char *ifname, int *buf)
 {
-#if 0
 	char *res;
-	char path[PATH_MAX];
+	struct nl80211_msg_conveyor *req;
 
-	res = nl80211_ifname2phy(ifname);
-	snprintf(path, sizeof(path), "/sys/kernel/debug/ieee80211/%s/power",
-	         res ? res : ifname);
+	res = nl80211_phy2ifname(ifname);
+	req = nl80211_msg(res ? res : ifname, NL80211_CMD_GET_INTERFACE, 0);
 
-	if ((*buf = nl80211_readint(path)) > -1)
-		return 0;
-#endif
+	if (req)
+	{
+		*buf = 0;
+		nl80211_send(req, nl80211_get_txpower_cb, buf);
+		nl80211_free(req);
+		if (*buf)
+			return 0;
+	}
 
-	return wext_ops.txpower(ifname, buf);
+	return -1;
 }
 
 
@@ -1266,158 +1431,163 @@ static int nl80211_get_quality_max(const char *ifname, int *buf)
 	return 0;
 }
 
+static int nl80211_check_wepkey(const char *key)
+{
+	if (key && *key)
+	{
+		switch (strlen(key))
+		{
+		case 5:
+		case 10:
+			return IWINFO_CIPHER_WEP40;
+
+		case 13:
+		case 26:
+			return IWINFO_CIPHER_WEP104;
+		}
+	}
+
+	return 0;
+}
+
 static int nl80211_get_encryption(const char *ifname, char *buf)
 {
-	int i;
-	char k[9];
-	char *val, *res;
+	char wpa[2], wpa_key_mgmt[16], wpa_pairwise[16], wpa_groupwise[16];
+	char auth_algs[2], wep_key0[27], wep_key1[27], wep_key2[27], wep_key3[27];
+
 	struct iwinfo_crypto_entry *c = (struct iwinfo_crypto_entry *)buf;
 
 	/* WPA supplicant */
-	if ((res = nl80211_wpactl_info(ifname, "STATUS", NULL)) &&
-	    (val = nl80211_getval(NULL, res, "pairwise_cipher")))
+	if (nl80211_wpactl_query(ifname,
+			"pairwise_cipher", wpa_pairwise,  sizeof(wpa_pairwise),
+			"group_cipher",    wpa_groupwise, sizeof(wpa_groupwise),
+			"key_mgmt",        wpa_key_mgmt,  sizeof(wpa_key_mgmt)))
 	{
 		/* WEP */
-		if (strstr(val, "WEP"))
+		if (!strcmp(wpa_key_mgmt, "NONE"))
 		{
-			if (strstr(val, "WEP-40"))
+			if (strstr(wpa_pairwise, "WEP-40"))
 				c->pair_ciphers |= IWINFO_CIPHER_WEP40;
-
-			else if (strstr(val, "WEP-104"))
+			else if (strstr(wpa_pairwise, "WEP-104"))
 				c->pair_ciphers |= IWINFO_CIPHER_WEP104;
 
-			c->enabled       = 1;
-			c->group_ciphers = c->pair_ciphers;
+			if (strstr(wpa_groupwise, "WEP-40"))
+				c->group_ciphers |= IWINFO_CIPHER_WEP40;
+			else if (strstr(wpa_groupwise, "WEP-104"))
+				c->group_ciphers |= IWINFO_CIPHER_WEP104;
 
+			c->enabled      = !!(c->pair_ciphers | c->group_ciphers);
 			c->auth_suites |= IWINFO_KMGMT_NONE;
 			c->auth_algs   |= IWINFO_AUTH_OPEN; /* XXX: assumption */
 		}
 
 		/* WPA */
-		else
+		else if (strstr(wpa_key_mgmt, "WPA"))
 		{
-			if (strstr(val, "TKIP"))
+			if (strstr(wpa_pairwise, "TKIP"))
 				c->pair_ciphers |= IWINFO_CIPHER_TKIP;
-
-			else if (strstr(val, "CCMP"))
+			else if (strstr(wpa_pairwise, "CCMP"))
 				c->pair_ciphers |= IWINFO_CIPHER_CCMP;
-
-			else if (strstr(val, "NONE"))
+			else if (strstr(wpa_pairwise, "NONE"))
 				c->pair_ciphers |= IWINFO_CIPHER_NONE;
-
-			else if (strstr(val, "WEP-40"))
+			else if (strstr(wpa_pairwise, "WEP-40"))
 				c->pair_ciphers |= IWINFO_CIPHER_WEP40;
-
-			else if (strstr(val, "WEP-104"))
+			else if (strstr(wpa_pairwise, "WEP-104"))
 				c->pair_ciphers |= IWINFO_CIPHER_WEP104;
 
+			if (strstr(wpa_groupwise, "TKIP"))
+				c->group_ciphers |= IWINFO_CIPHER_TKIP;
+			else if (strstr(wpa_groupwise, "CCMP"))
+				c->group_ciphers |= IWINFO_CIPHER_CCMP;
+			else if (strstr(wpa_groupwise, "NONE"))
+				c->group_ciphers |= IWINFO_CIPHER_NONE;
+			else if (strstr(wpa_groupwise, "WEP-40"))
+				c->group_ciphers |= IWINFO_CIPHER_WEP40;
+			else if (strstr(wpa_groupwise, "WEP-104"))
+				c->group_ciphers |= IWINFO_CIPHER_WEP104;
 
-			if ((val = nl80211_getval(NULL, res, "group_cipher")))
-			{
-				if (strstr(val, "TKIP"))
-					c->group_ciphers |= IWINFO_CIPHER_TKIP;
+			if (strstr(wpa_key_mgmt, "WPA2"))
+				c->wpa_version = 2;
+			else if (strstr(wpa_key_mgmt, "WPA"))
+				c->wpa_version = 1;
 
-				else if (strstr(val, "CCMP"))
-					c->group_ciphers |= IWINFO_CIPHER_CCMP;
+			if (strstr(wpa_key_mgmt, "PSK"))
+				c->auth_suites |= IWINFO_KMGMT_PSK;
+			else if (strstr(wpa_key_mgmt, "EAP") ||
+			         strstr(wpa_key_mgmt, "802.1X"))
+				c->auth_suites |= IWINFO_KMGMT_8021x;
+			else if (strstr(wpa_key_mgmt, "NONE"))
+				c->auth_suites |= IWINFO_KMGMT_NONE;
 
-				else if (strstr(val, "NONE"))
-					c->group_ciphers |= IWINFO_CIPHER_NONE;
-
-				else if (strstr(val, "WEP-40"))
-					c->group_ciphers |= IWINFO_CIPHER_WEP40;
-
-				else if (strstr(val, "WEP-104"))
-					c->group_ciphers |= IWINFO_CIPHER_WEP104;
-			}
-
-
-			if ((val = nl80211_getval(NULL, res, "key_mgmt")))
-			{
-				if (strstr(val, "WPA2"))
-					c->wpa_version = 2;
-
-				else if (strstr(val, "WPA"))
-					c->wpa_version = 1;
-
-
-				if (strstr(val, "PSK"))
-					c->auth_suites |= IWINFO_KMGMT_PSK;
-
-				else if (strstr(val, "EAP") || strstr(val, "802.1X"))
-					c->auth_suites |= IWINFO_KMGMT_8021x;
-
-				else if (strstr(val, "NONE"))
-					c->auth_suites |= IWINFO_KMGMT_NONE;
-			}
-
-			c->enabled = (c->wpa_version && c->auth_suites) ? 1 : 0;
+			c->enabled = !!(c->wpa_version && c->auth_suites);
 		}
 
 		return 0;
 	}
 
 	/* Hostapd */
-	else if ((res = nl80211_hostapd_info(ifname)))
+	else if (nl80211_hostapd_query(ifname,
+				"wpa",          wpa,          sizeof(wpa),
+				"wpa_key_mgmt", wpa_key_mgmt, sizeof(wpa_key_mgmt),
+				"wpa_pairwise", wpa_pairwise, sizeof(wpa_pairwise),
+				"auth_algs",    auth_algs,    sizeof(auth_algs),
+				"wep_key0",     wep_key0,     sizeof(wep_key0),
+				"wep_key1",     wep_key1,     sizeof(wep_key1),
+				"wep_key2",     wep_key2,     sizeof(wep_key2),
+				"wep_key3",     wep_key3,     sizeof(wep_key3)))
 	{
-		if ((val = nl80211_getval(ifname, res, "wpa")) != NULL)
-			c->wpa_version = atoi(val);
+		c->wpa_version = wpa[0] ? atoi(wpa) : 0;
 
-		val = nl80211_getval(ifname, res, "wpa_key_mgmt");
-
-		if (!val || strstr(val, "PSK"))
-			c->auth_suites |= IWINFO_KMGMT_PSK;
-
-		if (val && strstr(val, "EAP"))
-			c->auth_suites |= IWINFO_KMGMT_8021x;
-
-		if (val && strstr(val, "NONE"))
-			c->auth_suites |= IWINFO_KMGMT_NONE;
-
-		if ((val = nl80211_getval(ifname, res, "wpa_pairwise")) != NULL)
+		if (wpa_key_mgmt[0])
 		{
-			if (strstr(val, "TKIP"))
+			if (strstr(wpa_key_mgmt, "PSK"))
+				c->auth_suites |= IWINFO_KMGMT_PSK;
+
+			if (strstr(wpa_key_mgmt, "EAP"))
+				c->auth_suites |= IWINFO_KMGMT_8021x;
+
+			if (strstr(wpa_key_mgmt, "NONE"))
+				c->auth_suites |= IWINFO_KMGMT_NONE;
+		}
+		else
+		{
+			c->auth_suites |= IWINFO_KMGMT_PSK;
+		}
+
+		if (wpa_pairwise[0])
+		{
+			if (strstr(wpa_pairwise, "TKIP"))
 				c->pair_ciphers |= IWINFO_CIPHER_TKIP;
 
-			if (strstr(val, "CCMP"))
+			if (strstr(wpa_pairwise, "CCMP"))
 				c->pair_ciphers |= IWINFO_CIPHER_CCMP;
 
-			if (strstr(val, "NONE"))
+			if (strstr(wpa_pairwise, "NONE"))
 				c->pair_ciphers |= IWINFO_CIPHER_NONE;
 		}
 
-		if ((val = nl80211_getval(ifname, res, "auth_algs")) != NULL)
+		if (auth_algs[0])
 		{
-			switch(atoi(val)) {
-				case 1:
-					c->auth_algs |= IWINFO_AUTH_OPEN;
-					break;
-
-				case 2:
-					c->auth_algs |= IWINFO_AUTH_SHARED;
-					break;
-
-				case 3:
-					c->auth_algs |= IWINFO_AUTH_OPEN;
-					c->auth_algs |= IWINFO_AUTH_SHARED;
-					break;
-
-				default:
-					break;
-			}
-
-			for (i = 0; i < 4; i++)
+			switch(atoi(auth_algs))
 			{
-				snprintf(k, sizeof(k), "wep_key%d", i);
+			case 1:
+				c->auth_algs |= IWINFO_AUTH_OPEN;
+				break;
 
-				if ((val = nl80211_getval(ifname, res, k)))
-				{
-					if ((strlen(val) == 5) || (strlen(val) == 10))
-						c->pair_ciphers |= IWINFO_CIPHER_WEP40;
+			case 2:
+				c->auth_algs |= IWINFO_AUTH_SHARED;
+				break;
 
-					else if ((strlen(val) == 13) || (strlen(val) == 26))
-						c->pair_ciphers |= IWINFO_CIPHER_WEP104;
-				}
+			case 3:
+				c->auth_algs |= IWINFO_AUTH_OPEN;
+				c->auth_algs |= IWINFO_AUTH_SHARED;
+				break;
 			}
+
+			c->pair_ciphers |= nl80211_check_wepkey(wep_key0);
+			c->pair_ciphers |= nl80211_check_wepkey(wep_key1);
+			c->pair_ciphers |= nl80211_check_wepkey(wep_key2);
+			c->pair_ciphers |= nl80211_check_wepkey(wep_key3);
 		}
 
 		c->group_ciphers = c->pair_ciphers;
@@ -1455,6 +1625,48 @@ static int nl80211_get_phyname(const char *ifname, char *buf)
 }
 
 
+static void nl80211_parse_rateinfo(struct nlattr **ri,
+                                   struct iwinfo_rate_entry *re)
+{
+	if (ri[NL80211_RATE_INFO_BITRATE32])
+		re->rate = nla_get_u32(ri[NL80211_RATE_INFO_BITRATE32]) * 100;
+	else if (ri[NL80211_RATE_INFO_BITRATE])
+		re->rate = nla_get_u16(ri[NL80211_RATE_INFO_BITRATE]) * 100;
+
+	if (ri[NL80211_RATE_INFO_VHT_MCS])
+	{
+		re->is_vht = 1;
+		re->mcs = nla_get_u8(ri[NL80211_RATE_INFO_VHT_MCS]);
+
+		if (ri[NL80211_RATE_INFO_VHT_NSS])
+			re->nss = nla_get_u8(ri[NL80211_RATE_INFO_VHT_NSS]);
+	}
+	else if (ri[NL80211_RATE_INFO_MCS])
+	{
+		re->is_ht = 1;
+		re->mcs = nla_get_u8(ri[NL80211_RATE_INFO_MCS]);
+	}
+
+	if (ri[NL80211_RATE_INFO_5_MHZ_WIDTH])
+		re->mhz = 5;
+	else if (ri[NL80211_RATE_INFO_10_MHZ_WIDTH])
+		re->mhz = 10;
+	else if (ri[NL80211_RATE_INFO_40_MHZ_WIDTH])
+		re->mhz = 40;
+	else if (ri[NL80211_RATE_INFO_80_MHZ_WIDTH])
+		re->mhz = 80;
+	else if (ri[NL80211_RATE_INFO_80P80_MHZ_WIDTH] ||
+	         ri[NL80211_RATE_INFO_160_MHZ_WIDTH])
+		re->mhz = 160;
+	else
+		re->mhz = 20;
+
+	if (ri[NL80211_RATE_INFO_SHORT_GI])
+		re->is_short_gi = 1;
+
+	re->is_40mhz = (re->mhz == 40);
+}
+
 static int nl80211_get_assoclist_cb(struct nl_msg *msg, void *arg)
 {
 	struct nl80211_array_buf *arr = arg;
@@ -1462,6 +1674,7 @@ static int nl80211_get_assoclist_cb(struct nl_msg *msg, void *arg)
 	struct nlattr **attr = nl80211_parse(msg);
 	struct nlattr *sinfo[NL80211_STA_INFO_MAX + 1];
 	struct nlattr *rinfo[NL80211_RATE_INFO_MAX + 1];
+	struct nl80211_sta_flag_update *sta_flags;
 
 	static struct nla_policy stats_policy[NL80211_STA_INFO_MAX + 1] = {
 		[NL80211_STA_INFO_INACTIVE_TIME] = { .type = NLA_U32    },
@@ -1470,6 +1683,13 @@ static int nl80211_get_assoclist_cb(struct nl_msg *msg, void *arg)
 		[NL80211_STA_INFO_RX_BITRATE]    = { .type = NLA_NESTED },
 		[NL80211_STA_INFO_TX_BITRATE]    = { .type = NLA_NESTED },
 		[NL80211_STA_INFO_SIGNAL]        = { .type = NLA_U8     },
+		[NL80211_STA_INFO_RX_BYTES]      = { .type = NLA_U32    },
+		[NL80211_STA_INFO_TX_BYTES]      = { .type = NLA_U32    },
+		[NL80211_STA_INFO_TX_RETRIES]    = { .type = NLA_U32    },
+		[NL80211_STA_INFO_TX_FAILED]     = { .type = NLA_U32    },
+		[NL80211_STA_INFO_T_OFFSET]      = { .type = NLA_U64    },
+		[NL80211_STA_INFO_STA_FLAGS] =
+			{ .minlen = sizeof(struct nl80211_sta_flag_update) },
 	};
 
 	static struct nla_policy rate_policy[NL80211_RATE_INFO_MAX + 1] = {
@@ -1505,37 +1725,57 @@ static int nl80211_get_assoclist_cb(struct nl_msg *msg, void *arg)
 		if (sinfo[NL80211_STA_INFO_RX_BITRATE] &&
 		    !nla_parse_nested(rinfo, NL80211_RATE_INFO_MAX,
 		                      sinfo[NL80211_STA_INFO_RX_BITRATE], rate_policy))
-		{
-			if (rinfo[NL80211_RATE_INFO_BITRATE])
-				e->rx_rate.rate =
-					nla_get_u16(rinfo[NL80211_RATE_INFO_BITRATE]) * 100;
-
-			if (rinfo[NL80211_RATE_INFO_MCS])
-				e->rx_rate.mcs = nla_get_u8(rinfo[NL80211_RATE_INFO_MCS]);
-
-			if (rinfo[NL80211_RATE_INFO_40_MHZ_WIDTH])
-				e->rx_rate.is_40mhz = 1;
-
-			if (rinfo[NL80211_RATE_INFO_SHORT_GI])
-				e->rx_rate.is_short_gi = 1;
-		}
+			nl80211_parse_rateinfo(rinfo, &e->rx_rate);
 
 		if (sinfo[NL80211_STA_INFO_TX_BITRATE] &&
 		    !nla_parse_nested(rinfo, NL80211_RATE_INFO_MAX,
 		                      sinfo[NL80211_STA_INFO_TX_BITRATE], rate_policy))
+			nl80211_parse_rateinfo(rinfo, &e->tx_rate);
+
+		if (sinfo[NL80211_STA_INFO_RX_BYTES])
+			e->rx_bytes = nla_get_u32(sinfo[NL80211_STA_INFO_RX_BYTES]);
+
+		if (sinfo[NL80211_STA_INFO_TX_BYTES])
+			e->tx_bytes = nla_get_u32(sinfo[NL80211_STA_INFO_TX_BYTES]);
+
+		if (sinfo[NL80211_STA_INFO_TX_RETRIES])
+			e->tx_retries = nla_get_u32(sinfo[NL80211_STA_INFO_TX_RETRIES]);
+
+		if (sinfo[NL80211_STA_INFO_TX_FAILED])
+			e->tx_failed = nla_get_u32(sinfo[NL80211_STA_INFO_TX_FAILED]);
+
+		if (sinfo[NL80211_STA_INFO_T_OFFSET])
+			e->t_offset = nla_get_u64(sinfo[NL80211_STA_INFO_T_OFFSET]);
+
+		/* Station flags */
+		if (sinfo[NL80211_STA_INFO_STA_FLAGS])
 		{
-			if (rinfo[NL80211_RATE_INFO_BITRATE])
-				e->tx_rate.rate =
-					nla_get_u16(rinfo[NL80211_RATE_INFO_BITRATE]) * 100;
+			sta_flags = (struct nl80211_sta_flag_update *)
+				nla_data(sinfo[NL80211_STA_INFO_STA_FLAGS]);
 
-			if (rinfo[NL80211_RATE_INFO_MCS])
-				e->tx_rate.mcs = nla_get_u8(rinfo[NL80211_RATE_INFO_MCS]);
+			if (sta_flags->mask & BIT(NL80211_STA_FLAG_AUTHORIZED) &&
+			    sta_flags->set & BIT(NL80211_STA_FLAG_AUTHORIZED))
+				e->is_authorized = 1;
 
-			if (rinfo[NL80211_RATE_INFO_40_MHZ_WIDTH])
-				e->tx_rate.is_40mhz = 1;
+			if (sta_flags->mask & BIT(NL80211_STA_FLAG_AUTHENTICATED) &&
+			    sta_flags->set & BIT(NL80211_STA_FLAG_AUTHENTICATED))
+				e->is_authenticated = 1;
 
-			if (rinfo[NL80211_RATE_INFO_SHORT_GI])
-				e->tx_rate.is_short_gi = 1;
+			if (sta_flags->mask & BIT(NL80211_STA_FLAG_SHORT_PREAMBLE) &&
+			    sta_flags->set & BIT(NL80211_STA_FLAG_SHORT_PREAMBLE))
+				e->is_preamble_short = 1;
+
+			if (sta_flags->mask & BIT(NL80211_STA_FLAG_WME) &&
+			    sta_flags->set & BIT(NL80211_STA_FLAG_WME))
+				e->is_wme = 1;
+
+			if (sta_flags->mask & BIT(NL80211_STA_FLAG_MFP) &&
+			    sta_flags->set & BIT(NL80211_STA_FLAG_MFP))
+				e->is_mfp = 1;
+
+			if (sta_flags->mask & BIT(NL80211_STA_FLAG_TDLS_PEER) &&
+			    sta_flags->set & BIT(NL80211_STA_FLAG_TDLS_PEER))
+				e->is_tdls = 1;
 		}
 	}
 
@@ -1784,15 +2024,15 @@ static int nl80211_get_scanlist_cb(struct nl_msg *msg, void *arg)
 	static struct nla_policy bss_policy[NL80211_BSS_MAX + 1] = {
 		[NL80211_BSS_TSF]                  = { .type = NLA_U64 },
 		[NL80211_BSS_FREQUENCY]            = { .type = NLA_U32 },
-		[NL80211_BSS_BSSID]                = {                 },
+		[NL80211_BSS_BSSID]                = { 0 },
 		[NL80211_BSS_BEACON_INTERVAL]      = { .type = NLA_U16 },
 		[NL80211_BSS_CAPABILITY]           = { .type = NLA_U16 },
-		[NL80211_BSS_INFORMATION_ELEMENTS] = {                 },
+		[NL80211_BSS_INFORMATION_ELEMENTS] = { 0 },
 		[NL80211_BSS_SIGNAL_MBM]           = { .type = NLA_U32 },
 		[NL80211_BSS_SIGNAL_UNSPEC]        = { .type = NLA_U8  },
 		[NL80211_BSS_STATUS]               = { .type = NLA_U32 },
 		[NL80211_BSS_SEEN_MS_AGO]          = { .type = NLA_U32 },
-		[NL80211_BSS_BEACON_IES]           = {                 },
+		[NL80211_BSS_BEACON_IES]           = { 0 },
 	};
 
 	if (!tb[NL80211_ATTR_BSS] ||
@@ -1913,7 +2153,7 @@ static int wpasupp_ssid_decode(const char *in, char *out, int outlen)
 				break;
 
 			case 'e':
-				out[len++] = '\e'; in++;
+				out[len++] = '\033'; in++;
 				break;
 
 			case 'x':
@@ -1940,13 +2180,143 @@ static int wpasupp_ssid_decode(const char *in, char *out, int outlen)
 	return len;
 }
 
+static int nl80211_get_scanlist_wpactl(const char *ifname, char *buf, int *len)
+{
+	int sock, qmax, rssi, tries, count = -1, ready = 0;
+	char *pos, *line, *bssid, *freq, *signal, *flags, *ssid, reply[4096];
+	struct sockaddr_un local = { 0 };
+	struct iwinfo_scanlist_entry *e = (struct iwinfo_scanlist_entry *)buf;
+
+	sock = nl80211_wpactl_connect(ifname, &local);
+
+	if (sock < 0)
+		return sock;
+
+	send(sock, "ATTACH", 6, 0);
+	send(sock, "SCAN", 4, 0);
+
+	/*
+	 * wait for scan results:
+	 *   nl80211_wpactl_recv() will use a timeout of 256ms and we need to scan
+	 *   72 channels at most. We'll also receive two "OK" messages acknowledging
+	 *   the "ATTACH" and "SCAN" commands and the driver might need a bit extra
+	 *   time to process the results, so try 72 + 2 + 1 times.
+	 */
+	for (tries = 0; tries < 75; tries++)
+	{
+		if (nl80211_wpactl_recv(sock, reply, sizeof(reply)) <= 0)
+			continue;
+
+		/* got an event notification */
+		if (reply[0] == '<')
+		{
+			/* scan results are ready */
+			if (strstr(reply, "CTRL-EVENT-SCAN-RESULTS"))
+			{
+				/* send "SCAN_RESULTS" command */
+				ready = (send(sock, "SCAN_RESULTS", 12, 0) == 12);
+				break;
+			}
+
+			/* is another unrelated event, retry */
+			tries--;
+		}
+	}
+
+	/* receive and parse scan results if the wait above didn't time out */
+	if (ready && nl80211_wpactl_recv(sock, reply, sizeof(reply)) > 0)
+	{
+		nl80211_get_quality_max(ifname, &qmax);
+
+		for (line = strtok_r(reply, "\n", &pos);
+		     line != NULL;
+		     line = strtok_r(NULL, "\n", &pos))
+		{
+			/* skip header line */
+			if (count < 0)
+			{
+				count++;
+				continue;
+			}
+
+			bssid  = strtok(line, "\t");
+			freq   = strtok(NULL, "\t");
+			signal = strtok(NULL, "\t");
+			flags  = strtok(NULL, "\t");
+			ssid   = strtok(NULL, "\n");
+
+			if (!bssid || !freq || !signal || !flags || !ssid)
+				continue;
+
+			/* BSSID */
+			e->mac[0] = strtol(&bssid[0],  NULL, 16);
+			e->mac[1] = strtol(&bssid[3],  NULL, 16);
+			e->mac[2] = strtol(&bssid[6],  NULL, 16);
+			e->mac[3] = strtol(&bssid[9],  NULL, 16);
+			e->mac[4] = strtol(&bssid[12], NULL, 16);
+			e->mac[5] = strtol(&bssid[15], NULL, 16);
+
+			/* SSID */
+			wpasupp_ssid_decode(ssid, e->ssid, sizeof(e->ssid));
+
+			/* Mode */
+			if (strstr(flags, "[MESH]"))
+				e->mode = IWINFO_OPMODE_MESHPOINT;
+			else if (strstr(flags, "[IBSS]"))
+				e->mode = IWINFO_OPMODE_ADHOC;
+			else
+				e->mode = IWINFO_OPMODE_MASTER;
+
+			/* Channel */
+			e->channel = nl80211_freq2channel(atoi(freq));
+
+			/* Signal */
+			rssi = atoi(signal);
+			e->signal = rssi;
+
+			/* Quality */
+			if (rssi < 0)
+			{
+				/* The cfg80211 wext compat layer assumes a signal range
+				 * of -110 dBm to -40 dBm, the quality value is derived
+				 * by adding 110 to the signal level */
+				if (rssi < -110)
+					rssi = -110;
+				else if (rssi > -40)
+					rssi = -40;
+
+				e->quality = (rssi + 110);
+			}
+			else
+			{
+				e->quality = rssi;
+			}
+
+			/* Max. Quality */
+			e->quality_max = qmax;
+
+			/* Crypto */
+			nl80211_get_scancrypto(flags, &e->crypto);
+
+			count++;
+			e++;
+		}
+
+		*len = count * sizeof(struct iwinfo_scanlist_entry);
+	}
+
+	close(sock);
+	unlink(local.sun_path);
+
+	return (count >= 0) ? 0 : -1;
+}
+
 static int nl80211_get_scanlist(const char *ifname, char *buf, int *len)
 {
-	int freq, rssi, qmax, count, mode;
 	char *res;
-	char ssid[129] = { 0 };
-	char bssid[18] = { 0 };
-	char cipher[256] = { 0 };
+	int rv, mode;
+
+	*len = 0;
 
 	/* Got a radioX pseudo interface, find some interface on it or create one */
 	if (!strncmp(ifname, "radio", 5))
@@ -1960,104 +2330,16 @@ static int nl80211_get_scanlist(const char *ifname, char *buf, int *len)
 		/* Need to spawn a temporary iface for scanning */
 		else if ((res = nl80211_ifadd(ifname)) != NULL)
 		{
-			count = nl80211_get_scanlist(res, buf, len);
+			rv = nl80211_get_scanlist(res, buf, len);
 			nl80211_ifdel(res);
-			return count;
+			return rv;
 		}
 	}
 
-	struct iwinfo_scanlist_entry *e = (struct iwinfo_scanlist_entry *)buf;
-
 	/* WPA supplicant */
-	if ((res = nl80211_wpactl_info(ifname, "SCAN", "CTRL-EVENT-SCAN-RESULTS")))
+	if (!nl80211_get_scanlist_wpactl(ifname, buf, len))
 	{
-		if ((res = nl80211_wpactl_info(ifname, "SCAN_RESULTS", NULL)))
-		{
-			nl80211_get_quality_max(ifname, &qmax);
-
-			count = -1;
-
-			do {
-				if (res[0] == '<')
-				{
-					/* skip log lines */
-					goto nextline;
-				}
-				if (count < 0)
-				{
-					/* skip header line */
-					count++;
-					goto nextline;
-				}
-				if (sscanf(res, "%17s %d %d %255s%*[ \t]%128[^\n]\n",
-					      bssid, &freq, &rssi, cipher, ssid) < 5)
-				{
-					/* skip malformed lines */
-					goto nextline;
-				}
-				/* BSSID */
-				e->mac[0] = strtol(&bssid[0],  NULL, 16);
-				e->mac[1] = strtol(&bssid[3],  NULL, 16);
-				e->mac[2] = strtol(&bssid[6],  NULL, 16);
-				e->mac[3] = strtol(&bssid[9],  NULL, 16);
-				e->mac[4] = strtol(&bssid[12], NULL, 16);
-				e->mac[5] = strtol(&bssid[15], NULL, 16);
-
-				/* SSID */
-				wpasupp_ssid_decode(ssid, e->ssid, sizeof(e->ssid));
-
-				/* Mode (assume master) */
-				if (strstr(cipher,"[MESH]"))
-					e->mode = IWINFO_OPMODE_MESHPOINT;
-				else
-					e->mode = IWINFO_OPMODE_MASTER;
-
-				/* Channel */
-				e->channel = nl80211_freq2channel(freq);
-
-				/* Signal */
-				e->signal = rssi;
-
-				/* Quality */
-				if (rssi < 0)
-				{
-					/* The cfg80211 wext compat layer assumes a signal range
-					 * of -110 dBm to -40 dBm, the quality value is derived
-					 * by adding 110 to the signal level */
-					if (rssi < -110)
-						rssi = -110;
-					else if (rssi > -40)
-						rssi = -40;
-
-					e->quality = (rssi + 110);
-				}
-				else
-				{
-					e->quality = rssi;
-				}
-
-				/* Max. Quality */
-				e->quality_max = qmax;
-
-				/* Crypto */
-				nl80211_get_scancrypto(cipher, &e->crypto);
-
-				count++;
-				e++;
-
-				memset(ssid, 0, sizeof(ssid));
-				memset(bssid, 0, sizeof(bssid));
-				memset(cipher, 0, sizeof(cipher));
-
-			nextline:
-				/* advance to next line */
-				while( *res && *res++ != '\n' );
- 			}
-			while( *res );
-
-			*len = count * sizeof(struct iwinfo_scanlist_entry);
-			return 0;
-		}
+		return 0;
 	}
 
 	/* station / ad-hoc / monitor scan */
@@ -2080,16 +2362,16 @@ static int nl80211_get_scanlist(const char *ifname, char *buf, int *len)
 			if (!iwinfo_ifup(ifname))
 				return -1;
 
-			nl80211_get_scanlist_nl(ifname, buf, len);
+			rv = nl80211_get_scanlist_nl(ifname, buf, len);
 			iwinfo_ifdown(ifname);
-			return 0;
+			return rv;
 		}
 
 		/* Spawn a new scan interface */
 		else
 		{
 			if (!(res = nl80211_ifadd(ifname)))
-				goto out;
+				return -1;
 
 			iwinfo_ifmac(res);
 
@@ -2097,7 +2379,7 @@ static int nl80211_get_scanlist(const char *ifname, char *buf, int *len)
 			 * additional interface and there's no need to tear down the ap */
 			if (iwinfo_ifup(res))
 			{
-				nl80211_get_scanlist_nl(res, buf, len);
+				rv = nl80211_get_scanlist_nl(res, buf, len);
 				iwinfo_ifdown(res);
 			}
 
@@ -2105,15 +2387,14 @@ static int nl80211_get_scanlist(const char *ifname, char *buf, int *len)
 			 * during scan */
 			else if (iwinfo_ifdown(ifname) && iwinfo_ifup(res))
 			{
-				nl80211_get_scanlist_nl(res, buf, len);
+				rv = nl80211_get_scanlist_nl(res, buf, len);
 				iwinfo_ifdown(res);
 				iwinfo_ifup(ifname);
 				nl80211_hostapd_hup(ifname);
 			}
 
-		out:
 			nl80211_ifdel(res);
-			return 0;
+			return rv;
 		}
 	}
 
@@ -2131,15 +2412,6 @@ static int nl80211_get_freqlist_cb(struct nl_msg *msg, void *arg)
 	struct nlattr *bands[NL80211_BAND_ATTR_MAX + 1];
 	struct nlattr *freqs[NL80211_FREQUENCY_ATTR_MAX + 1];
 	struct nlattr *band, *freq;
-
-	static struct nla_policy freq_policy[NL80211_FREQUENCY_ATTR_MAX + 1] = {
-		[NL80211_FREQUENCY_ATTR_FREQ]         = { .type = NLA_U32  },
-		[NL80211_FREQUENCY_ATTR_DISABLED]     = { .type = NLA_FLAG },
-		[NL80211_FREQUENCY_ATTR_PASSIVE_SCAN] = { .type = NLA_FLAG },
-		[NL80211_FREQUENCY_ATTR_NO_IBSS]      = { .type = NLA_FLAG },
-		[NL80211_FREQUENCY_ATTR_RADAR]        = { .type = NLA_FLAG },
-		[NL80211_FREQUENCY_ATTR_MAX_TX_POWER] = { .type = NLA_U32  },
-	};
 
 	nla_for_each_nested(band, attr[NL80211_ATTR_WIPHY_BANDS], bands_remain)
 	{
@@ -2159,9 +2431,8 @@ static int nl80211_get_freqlist_cb(struct nl_msg *msg, void *arg)
 			e->channel = nl80211_freq2channel(e->mhz);
 
 			e->restricted = (
-				freqs[NL80211_FREQUENCY_ATTR_PASSIVE_SCAN] ||
-				freqs[NL80211_FREQUENCY_ATTR_NO_IBSS]      ||
-				freqs[NL80211_FREQUENCY_ATTR_RADAR]
+				freqs[NL80211_FREQUENCY_ATTR_NO_IR] &&
+				!freqs[NL80211_FREQUENCY_ATTR_RADAR]
 			) ? 1 : 0;
 
 			e++;
@@ -2226,7 +2497,7 @@ static int nl80211_get_country(const char *ifname, char *buf)
 
 static int nl80211_get_countrylist(const char *ifname, char *buf, int *len)
 {
-	int i, count;
+	int count;
 	struct iwinfo_country_entry *e = (struct iwinfo_country_entry *)buf;
 	const struct iwinfo_iso3166_label *l;
 
@@ -2235,15 +2506,24 @@ static int nl80211_get_countrylist(const char *ifname, char *buf, int *len)
 		e->iso3166 = l->iso3166;
 		e->ccode[0] = (l->iso3166 / 256);
 		e->ccode[1] = (l->iso3166 % 256);
+		e->ccode[2] = 0;
 	}
 
 	*len = (count * sizeof(struct iwinfo_country_entry));
 	return 0;
 }
 
-static int nl80211_get_hwmodelist_cb(struct nl_msg *msg, void *arg)
+
+struct nl80211_modes
 {
-	int *modes = arg;
+	bool ok;
+	uint32_t hw;
+	uint32_t ht;
+};
+
+static int nl80211_get_modelist_cb(struct nl_msg *msg, void *arg)
+{
+	struct nl80211_modes *m = arg;
 	int bands_remain, freqs_remain;
 	uint16_t caps = 0;
 	uint32_t vht_caps = 0;
@@ -2251,8 +2531,6 @@ static int nl80211_get_hwmodelist_cb(struct nl_msg *msg, void *arg)
 	struct nlattr *bands[NL80211_BAND_ATTR_MAX + 1];
 	struct nlattr *freqs[NL80211_FREQUENCY_ATTR_MAX + 1];
 	struct nlattr *band, *freq;
-
-	*modes = 0;
 
 	if (attr[NL80211_ATTR_WIPHY_BANDS])
 	{
@@ -2266,14 +2544,13 @@ static int nl80211_get_hwmodelist_cb(struct nl_msg *msg, void *arg)
 
 			/* Treat any nonzero capability as 11n */
 			if (caps > 0)
-				*modes |= IWINFO_80211_N;
+			{
+				m->hw |= IWINFO_80211_N;
+				m->ht |= IWINFO_HTMODE_HT20;
 
-			if (bands[NL80211_BAND_ATTR_VHT_CAPA])
-				vht_caps = nla_get_u32(bands[NL80211_BAND_ATTR_VHT_CAPA]);
-
-			/* Treat any nonzero capability as 11ac */
-			if (vht_caps > 0)
-				*modes |= IWINFO_80211_AC;
+				if (caps & (1 << 1))
+					m->ht |= IWINFO_HTMODE_HT40;
+			}
 
 			nla_for_each_nested(freq, bands[NL80211_BAND_ATTR_FREQS],
 			                    freqs_remain)
@@ -2286,15 +2563,38 @@ static int nl80211_get_hwmodelist_cb(struct nl_msg *msg, void *arg)
 
 				if (nla_get_u32(freqs[NL80211_FREQUENCY_ATTR_FREQ]) < 2485)
 				{
-					*modes |= IWINFO_80211_B;
-					*modes |= IWINFO_80211_G;
+					m->hw |= IWINFO_80211_B;
+					m->hw |= IWINFO_80211_G;
 				}
-				else if (!(*modes & IWINFO_80211_AC))
+				else if (bands[NL80211_BAND_ATTR_VHT_CAPA])
 				{
-					*modes |= IWINFO_80211_A;
+					vht_caps = nla_get_u32(bands[NL80211_BAND_ATTR_VHT_CAPA]);
+
+					/* Treat any nonzero capability as 11ac */
+					if (vht_caps > 0)
+					{
+						m->hw |= IWINFO_80211_AC;
+						m->ht |= IWINFO_HTMODE_VHT20 | IWINFO_HTMODE_VHT40 | IWINFO_HTMODE_VHT80;
+
+						switch ((vht_caps >> 2) & 3)
+						{
+						case 2:
+							m->ht |= IWINFO_HTMODE_VHT80_80;
+							/* fall through */
+
+						case 1:
+							m->ht |= IWINFO_HTMODE_VHT160;
+						}
+					}
+				}
+				else if (!(m->hw & IWINFO_80211_AC))
+				{
+					m->hw |= IWINFO_80211_A;
 				}
 			}
 		}
+
+		m->ok = 1;
 	}
 
 	return NL_SKIP;
@@ -2303,16 +2603,45 @@ static int nl80211_get_hwmodelist_cb(struct nl_msg *msg, void *arg)
 static int nl80211_get_hwmodelist(const char *ifname, int *buf)
 {
 	struct nl80211_msg_conveyor *req;
+	struct nl80211_modes m = { 0 };
 
 	req = nl80211_msg(ifname, NL80211_CMD_GET_WIPHY, 0);
 	if (req)
 	{
-		nl80211_send(req, nl80211_get_hwmodelist_cb, buf);
+		nl80211_send(req, nl80211_get_modelist_cb, &m);
 		nl80211_free(req);
 	}
 
-	return *buf ? 0 : -1;
+	if (m.ok)
+	{
+		*buf = m.hw;
+		return 0;
+	}
+
+	return -1;
 }
+
+static int nl80211_get_htmodelist(const char *ifname, int *buf)
+{
+	struct nl80211_msg_conveyor *req;
+	struct nl80211_modes m = { 0 };
+
+	req = nl80211_msg(ifname, NL80211_CMD_GET_WIPHY, 0);
+	if (req)
+	{
+		nl80211_send(req, nl80211_get_modelist_cb, &m);
+		nl80211_free(req);
+	}
+
+	if (m.ok)
+	{
+		*buf = m.ht;
+		return 0;
+	}
+
+	return -1;
+}
+
 
 static int nl80211_get_ifcomb_cb(struct nl_msg *msg, void *arg)
 {
@@ -2331,15 +2660,15 @@ static int nl80211_get_ifcomb_cb(struct nl_msg *msg, void *arg)
 			[NL80211_IFACE_COMB_LIMITS] = { .type = NLA_NESTED },
 			[NL80211_IFACE_COMB_MAXNUM] = { .type = NLA_U32 },
 		};
-		struct nlattr *tb_comb[NUM_NL80211_IFACE_COMB];
+		struct nlattr *tb_comb[NUM_NL80211_IFACE_COMB+1];
 		static struct nla_policy iface_limit_policy[NUM_NL80211_IFACE_LIMIT] = {
 			[NL80211_IFACE_LIMIT_TYPES] = { .type = NLA_NESTED },
 			[NL80211_IFACE_LIMIT_MAX] = { .type = NLA_U32 },
 		};
-		struct nlattr *tb_limit[NUM_NL80211_IFACE_LIMIT];
+		struct nlattr *tb_limit[NUM_NL80211_IFACE_LIMIT+1];
 		struct nlattr *limit;
 
-		nla_parse_nested(tb_comb, NL80211_BAND_ATTR_MAX, comb, iface_combination_policy);
+		nla_parse_nested(tb_comb, NUM_NL80211_IFACE_COMB, comb, iface_combination_policy);
 
 		if (!tb_comb[NL80211_IFACE_COMB_LIMITS])
 			continue;
@@ -2382,7 +2711,7 @@ static int nl80211_get_mbssid_support(const char *ifname, int *buf)
 
 static int nl80211_get_hardware_id(const char *ifname, char *buf)
 {
-	int rv;
+	int rv = -1;
 	char *res;
 
 	/* Got a radioX pseudo interface, find some interface on it or create one */
@@ -2460,6 +2789,17 @@ static int nl80211_get_frequency_offset(const char *ifname, int *buf)
 	return 0;
 }
 
+static int nl80211_lookup_phyname(const char *section, char *buf)
+{
+	int idx;
+
+	if ((idx = nl80211_phy_idx_from_uci(section)) < 0)
+		return -1;
+
+	sprintf(buf, "phy%d", idx);
+	return 0;
+}
+
 const struct iwinfo_ops nl80211_ops = {
 	.name             = "nl80211",
 	.probe            = nl80211_probe,
@@ -2475,6 +2815,7 @@ const struct iwinfo_ops nl80211_ops = {
 	.quality_max      = nl80211_get_quality_max,
 	.mbssid_support   = nl80211_get_mbssid_support,
 	.hwmodelist       = nl80211_get_hwmodelist,
+	.htmodelist       = nl80211_get_htmodelist,
 	.mode             = nl80211_get_mode,
 	.ssid             = nl80211_get_ssid,
 	.bssid            = nl80211_get_bssid,
@@ -2488,5 +2829,6 @@ const struct iwinfo_ops nl80211_ops = {
 	.scanlist         = nl80211_get_scanlist,
 	.freqlist         = nl80211_get_freqlist,
 	.countrylist      = nl80211_get_countrylist,
+	.lookup_phy       = nl80211_lookup_phyname,
 	.close            = nl80211_close
 };

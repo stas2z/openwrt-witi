@@ -592,6 +592,7 @@ static int wl_get_hwmodelist(const char *ifname, int *buf)
 	if (!wl_ioctl(ifname, WLC_GET_PHYTYPE, &phytype, sizeof(phytype)) &&
 		!wl_ioctl(ifname, WLC_GET_BANDLIST, band, sizeof(band)))
 	{
+		*buf = 0;
 		switch (phytype)
 		{
 			case WLC_PHY_TYPE_A:
@@ -600,15 +601,18 @@ static int wl_get_hwmodelist(const char *ifname, int *buf)
 			case WLC_PHY_TYPE_B:
 				*buf = IWINFO_80211_B;
 				break;
+			case WLC_PHY_TYPE_AC:
+				*buf |= IWINFO_80211_AC;
+			case WLC_PHY_TYPE_HT:
+			case WLC_PHY_TYPE_N:
+				*buf |= IWINFO_80211_N;
 			case WLC_PHY_TYPE_LP:
 			case WLC_PHY_TYPE_G:
-			case WLC_PHY_TYPE_N:
 				bands = 0;
 				for (i = 1; i <= band[0]; i++)
 				{
 					bands |= band[i];
 				}
-				*buf = 0;
 				if (bands & WLC_BAND_5G)
 					*buf |= IWINFO_80211_A;
 				if (bands & WLC_BAND_2G)
@@ -616,8 +620,6 @@ static int wl_get_hwmodelist(const char *ifname, int *buf)
 					*buf |= IWINFO_80211_B;
 					*buf |= IWINFO_80211_G;
 				}
-				if (phytype == WLC_PHY_TYPE_N)
-					*buf |= IWINFO_80211_N;
 				break;
 			default:
 				return -1;
@@ -625,6 +627,29 @@ static int wl_get_hwmodelist(const char *ifname, int *buf)
 		}
 			return 0;
 	}
+	return -1;
+}
+
+static int wl_get_htmodelist(const char *ifname, int *buf)
+{
+	int modes;
+
+	if (!wl_get_hwmodelist(ifname, &modes))
+	{
+		*buf = 0;
+
+		/* FIXME: determine real capabilities */
+
+		if (modes & IWINFO_80211_N)
+			*buf |= IWINFO_HTMODE_HT20 | IWINFO_HTMODE_HT40;
+
+		if (modes & IWINFO_80211_AC)
+			*buf |= IWINFO_HTMODE_VHT20 | IWINFO_HTMODE_VHT40 |
+			        IWINFO_HTMODE_VHT80;
+
+		return 0;
+	}
+
 	return -1;
 }
 
@@ -713,6 +738,7 @@ const struct iwinfo_ops wl_ops = {
 	.quality_max      = wl_get_quality_max,
 	.mbssid_support   = wl_get_mbssid_support,
 	.hwmodelist       = wl_get_hwmodelist,
+	.htmodelist       = wl_get_htmodelist,
 	.mode             = wl_get_mode,
 	.ssid             = wl_get_ssid,
 	.bssid            = wl_get_bssid,

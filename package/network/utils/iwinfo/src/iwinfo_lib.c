@@ -57,6 +57,15 @@ const char *IWINFO_OPMODE_NAMES[] = {
 	"P2P Go",
 };
 
+const char *IWINFO_HTMODE_NAMES[] = {
+	"HT20",
+	"HT40",
+	"VHT20",
+	"VHT40",
+	"VHT80",
+	"VHT80+80",
+	"VHT160",
+};
 
 /*
  * ISO3166 country labels
@@ -313,9 +322,6 @@ const struct iwinfo_iso3166_label IWINFO_ISO3166_NAMES[] = {
 	{ 0,               "" }
 };
 
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-#endif
 
 static const struct iwinfo_ops *backends[] = {
 #ifdef USE_NL80211
@@ -349,6 +355,17 @@ const struct iwinfo_ops * iwinfo_backend(const char *ifname)
 
 	for (i = 0; i < ARRAY_SIZE(backends); i++)
 		if (backends[i]->probe(ifname))
+			return backends[i];
+
+	return NULL;
+}
+
+const struct iwinfo_ops * iwinfo_backend_by_name(const char *name)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(backends); i++)
+		if (!strcmp(backends[i]->name, name))
 			return backends[i];
 
 	return NULL;

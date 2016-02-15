@@ -411,10 +411,10 @@
 								noise:    net.assoclist[bssid].noise,
 								rx_rate:  net.assoclist[bssid].rx_rate,
 								rx_mcs:   net.assoclist[bssid].rx_mcs,
-								rx_40mhz: net.assoclist[bssid].rx_40mhz,
+								rx_mhz: net.assoclist[bssid].rx_mhz,
 								tx_rate:  net.assoclist[bssid].tx_rate,
 								tx_mcs:   net.assoclist[bssid].tx_mcs,
-								tx_40mhz: net.assoclist[bssid].tx_40mhz,
+								tx_mhz: net.assoclist[bssid].tx_mhz,
 								link:     net.link,
 								name:     net.name
 							});
@@ -477,12 +477,12 @@
 					tr.insertCell(-1).innerHTML = String.format('%d <%:dBm%>', assoclist[i].noise).nobr();
 
 					tr.insertCell(-1).innerHTML = (assoclist[i].rx_mcs > -1)
-						? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[i].rx_rate / 1000, assoclist[i].rx_mcs, assoclist[i].rx_40mhz ? 40 : 20).nobr()
+						? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[i].rx_rate / 1000, assoclist[i].rx_mcs, assoclist[i].rx_mhz).nobr()
 						: String.format('%.1f <%:Mbit/s%>', assoclist[i].rx_rate / 1000).nobr()
 					;
 
 					tr.insertCell(-1).innerHTML = (assoclist[i].tx_mcs > -1)
-						? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[i].tx_rate / 1000, assoclist[i].tx_mcs, assoclist[i].tx_40mhz ? 40 : 20).nobr()
+						? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[i].tx_rate / 1000, assoclist[i].tx_mcs, assoclist[i].tx_mhz).nobr()
 						: String.format('%.1f <%:Mbit/s%>', assoclist[i].tx_rate / 1000).nobr()
 					;
 				}

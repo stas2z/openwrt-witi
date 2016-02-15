@@ -673,14 +673,46 @@ static int mt76x2e_get_assoclist(const char *ifname, char *buf, int *len)
 			memset(&entry, 0, sizeof(entry));
 			memcpy(entry.mac, mp->Entry[i].Addr, MAC_ADDR_LENGTH);
 			entry.signal = rssi;
+
 			entry.tx_rate.rate = getRate(mp->Entry[i].TxRate)*1000;
 			entry.tx_rate.mcs = getMCS(mp->Entry[i].TxRate);
-			entry.tx_rate.is_40mhz = GetBW(mp->Entry[i].TxRate.field.BW) > 2 ? 1 : 0;
+			entry.tx_rate.is_40mhz = GetBW(mp->Entry[i].TxRate.field.BW) == 4 ? 1 : 0;
+			if (
+			 !strcmp(GetPhyMode(mp->Entry[i].TxRate.field.MODE),"HTMIX")
+			   ||
+			 !strcmp(GetPhyMode(mp->Entry[i].TxRate.field.MODE),"HT_GF")
+			   ||
+			 !strcmp(GetPhyMode(mp->Entry[i].TxRate.field.MODE),"OFDM")
+			   ) 
+				{
+				entry.tx_rate.is_ht = 1;
+				} else {
+				entry.tx_rate.is_ht = 0;
+				}
+			if (!strcmp(GetPhyMode(mp->Entry[i].TxRate.field.MODE),"VHT")) {
+				entry.tx_rate.is_vht = 1; } else { entry.tx_rate.is_vht = 0; }
 			entry.tx_rate.is_short_gi = mp->Entry[i].TxRate.field.ShortGI ? 1 : 0;
+			entry.tx_rate.mhz = GetBW(mp->Entry[i].TxRate.field.BW)*10;
+
 			entry.rx_rate.rate = getRate(rx)*1000;
 			entry.rx_rate.mcs = getMCS(rx);
-			entry.rx_rate.is_40mhz = GetBW(rx.field.BW) > 2 ? 1 : 0;;
+			entry.rx_rate.is_40mhz = GetBW(rx.field.BW) == 4 ? 1 : 0;;
+			if (
+			 !strcmp(GetPhyMode(rx.field.MODE),"HTMIX")
+			   ||
+			 !strcmp(GetPhyMode(rx.field.MODE),"HT_GF")
+			   ||
+			 !strcmp(GetPhyMode(rx.field.MODE),"OFDM")
+			   )
+				{
+				entry.rx_rate.is_ht = 1;
+				} else {
+				entry.rx_rate.is_ht = 0;
+				}
+			if (!strcmp(GetPhyMode(rx.field.MODE), "VHT")) {
+				entry.rx_rate.is_vht = 1; } else { entry.rx_rate.is_vht = 0; }
 			entry.rx_rate.is_short_gi = rx.field.ShortGI ? 1 : 0;
+			entry.rx_rate.mhz = GetBW(rx.field.BW)*10;
 			
 			memcpy(&buf[i*sizeof(entry)], &entry, sizeof(entry));
 		}
@@ -848,6 +880,12 @@ static char * mt76x2e_sysfs_ifname_file(const char *ifname, const char *path)
 	return rv;
 }
 
+static int mt76x2e_get_htmodelist(const char *ifname, int *buf)
+{
+	/* Stub */
+	return -1;
+}
+
 static int mt76x2e_get_hardware_id(const char *ifname, char *buf)
 {
 	char *data;
@@ -909,6 +947,7 @@ const struct iwinfo_ops mt76x2e_ops = {
 	.quality_max      = mt76x2e_get_quality_max,
 	.mbssid_support   = mt76x2e_get_mbssid_support,
 	.hwmodelist       = mt76x2e_get_hwmodelist,
+	.htmodelist       = mt76x2e_get_htmodelist,
 	.mode             = mt76x2e_get_mode,
 	.ssid             = mt76x2e_get_ssid,
 	.bssid            = mt76x2e_get_bssid,

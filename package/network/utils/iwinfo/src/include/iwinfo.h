@@ -37,17 +37,20 @@
 #define IWINFO_CIPHER_WEP104 (1 << 5)
 #define IWINFO_CIPHER_AESOCB (1 << 6)
 #define IWINFO_CIPHER_CKIP   (1 << 7)
+#define IWINFO_CIPHER_COUNT  8
 
 #define IWINFO_KMGMT_NONE    (1 << 0)
 #define IWINFO_KMGMT_8021x   (1 << 1)
 #define IWINFO_KMGMT_PSK     (1 << 2)
+#define IWINFO_KMGMT_COUNT   3
 
 #define IWINFO_AUTH_OPEN     (1 << 0)
 #define IWINFO_AUTH_SHARED   (1 << 1)
+#define IWINFO_AUTH_COUNT    2
 
-extern const char *IWINFO_CIPHER_NAMES[];
-extern const char *IWINFO_KMGMT_NAMES[];
-extern const char *IWINFO_AUTH_NAMES[];
+extern const char *IWINFO_CIPHER_NAMES[IWINFO_CIPHER_COUNT];
+extern const char *IWINFO_KMGMT_NAMES[IWINFO_KMGMT_COUNT];
+extern const char *IWINFO_AUTH_NAMES[IWINFO_AUTH_COUNT];
 
 
 enum iwinfo_opmode {
@@ -66,11 +69,28 @@ enum iwinfo_opmode {
 extern const char *IWINFO_OPMODE_NAMES[];
 
 
+enum iwinfo_htmode {
+	IWINFO_HTMODE_HT20       = (1 << 0),
+	IWINFO_HTMODE_HT40       = (1 << 1),
+	IWINFO_HTMODE_VHT20      = (1 << 2),
+	IWINFO_HTMODE_VHT40      = (1 << 3),
+	IWINFO_HTMODE_VHT80      = (1 << 4),
+	IWINFO_HTMODE_VHT80_80   = (1 << 5),
+	IWINFO_HTMODE_VHT160     = (1 << 6),
+
+	IWINFO_HTMODE_COUNT      = 7
+};
+
+extern const char *IWINFO_HTMODE_NAMES[IWINFO_HTMODE_COUNT];
 struct iwinfo_rate_entry {
 	uint32_t rate;
 	int8_t mcs;
 	uint8_t is_40mhz:1;
 	uint8_t is_short_gi:1;
+	uint8_t is_ht:1;
+	uint8_t is_vht:1;
+	uint8_t mhz;
+	uint8_t nss;
 };
 
 struct iwinfo_assoclist_entry {
@@ -82,6 +102,17 @@ struct iwinfo_assoclist_entry {
 	uint32_t tx_packets;
 	struct iwinfo_rate_entry rx_rate;
 	struct iwinfo_rate_entry tx_rate;
+	uint32_t rx_bytes;
+	uint32_t tx_bytes;
+	uint32_t tx_retries;
+	uint32_t tx_failed;
+	uint64_t t_offset;
+	uint8_t is_authorized:1;
+	uint8_t is_authenticated:1;
+	uint8_t is_preamble_short:1;
+	uint8_t is_wme:1;
+	uint8_t is_mfp:1;
+	uint8_t is_tdls:1;
 };
 
 struct iwinfo_txpwrlist_entry {
@@ -106,7 +137,7 @@ struct iwinfo_crypto_entry {
 
 struct iwinfo_scanlist_entry {
 	uint8_t mac[6];
-	uint8_t ssid[IWINFO_ESSID_MAX_SIZE+1];
+	char ssid[IWINFO_ESSID_MAX_SIZE+1];
 	enum iwinfo_opmode mode;
 	uint8_t channel;
 	uint8_t signal;
@@ -117,12 +148,12 @@ struct iwinfo_scanlist_entry {
 
 struct iwinfo_country_entry {
 	uint16_t iso3166;
-	uint8_t ccode[4];
+	char ccode[4];
 };
 
 struct iwinfo_iso3166_label {
 	uint16_t iso3166;
-	uint8_t  name[28];
+	char name[28];
 };
 
 struct iwinfo_hardware_id {
@@ -165,6 +196,7 @@ struct iwinfo_ops {
 	int (*quality_max)(const char *, int *);
 	int (*mbssid_support)(const char *, int *);
 	int (*hwmodelist)(const char *, int *);
+	int (*htmodelist)(const char *, int *);
 	int (*ssid)(const char *, char *);
 	int (*bssid)(const char *, char *);
 	int (*country)(const char *, char *);
@@ -177,11 +209,13 @@ struct iwinfo_ops {
 	int (*scanlist)(const char *, char *, int *);
 	int (*freqlist)(const char *, char *, int *);
 	int (*countrylist)(const char *, char *, int *);
+	int (*lookup_phy)(const char *, char *);
 	void (*close)(void);
 };
 
 const char * iwinfo_type(const char *ifname);
 const struct iwinfo_ops * iwinfo_backend(const char *ifname);
+const struct iwinfo_ops * iwinfo_backend_by_name(const char *name);
 void iwinfo_finish(void);
 
 extern const struct iwinfo_ops wext_ops;

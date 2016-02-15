@@ -313,12 +313,12 @@
 							tr.insertCell(-1).innerHTML = nowrap(String.format('%d <%:dBm%>', assoclist[j].noise));
 
 							tr.insertCell(-1).innerHTML = nowrap((assoclist[j].rx_mcs > -1)
-								? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[j].rx_rate / 1000, assoclist[j].rx_mcs, assoclist[j].rx_40mhz ? 40 : 20)
+								? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[j].rx_rate / 1000, assoclist[j].rx_mcs, assoclist[j].rx_mhz)
 								: String.format('%.1f <%:Mbit/s%>', assoclist[j].rx_rate / 1000)
 							);
 
 							tr.insertCell(-1).innerHTML = nowrap((assoclist[j].tx_mcs > -1)
-								? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[j].tx_rate / 1000, assoclist[j].tx_mcs, assoclist[j].tx_40mhz ? 40 : 20)
+								? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[j].tx_rate / 1000, assoclist[j].tx_mcs, assoclist[j].tx_mhz)
 								: String.format('%.1f <%:Mbit/s%>', assoclist[j].tx_rate / 1000)
 							);
 
