@@ -42,6 +42,10 @@
 #endif
 
 
+#ifdef USE_MT76X2E
+#define IWINFO_MT76X2E_META		"iwinfo.mt76x2e"
+#endif
+
 #define LUA_REG(type,op) \
 	{ #op, iwinfo_L_##type##_##op }
 

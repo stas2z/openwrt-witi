@@ -31,6 +31,10 @@ ifneq ($(filter nl80211,$(IWINFO_BACKENDS)),)
 	IWINFO_LIB_OBJ     += iwinfo_nl80211.o
 endif
 
+ifneq ($(filter mt76x2e,$(IWINFO_BACKENDS)),)
+	IWINFO_CFLAGS  += -DUSE_MT76X2E
+	IWINFO_LIB_OBJ += iwinfo_mt76x2e_scan.o iwinfo_mt76x2e.o
+endif
 
 %.o: %.c
 	$(CC) $(IWINFO_CFLAGS) $(FPIC) -c -o $@ $<

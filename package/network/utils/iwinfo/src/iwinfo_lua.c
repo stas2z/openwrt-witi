@@ -696,6 +696,36 @@ LUA_WRAP_STRUCT_OP(nl80211,mbssid_support)
 LUA_WRAP_STRUCT_OP(nl80211,hardware_id)
 #endif
 
+#ifdef USE_MT76X2E
+/* Mediatek MT76X2E */
+LUA_WRAP_INT_OP(mt76x2e,channel)
+LUA_WRAP_INT_OP(mt76x2e,frequency)
+LUA_WRAP_INT_OP(mt76x2e,frequency_offset)
+LUA_WRAP_INT_OP(mt76x2e,txpower)
+LUA_WRAP_INT_OP(mt76x2e,txpower_offset)
+LUA_WRAP_INT_OP(mt76x2e,bitrate)
+LUA_WRAP_INT_OP(mt76x2e,signal)
+LUA_WRAP_INT_OP(mt76x2e,noise)
+LUA_WRAP_INT_OP(mt76x2e,quality)
+LUA_WRAP_INT_OP(mt76x2e,quality_max)
+LUA_WRAP_STRING_OP(mt76x2e,ssid)
+LUA_WRAP_STRING_OP(mt76x2e,bssid)
+LUA_WRAP_STRING_OP(mt76x2e,country)
+LUA_WRAP_STRING_OP(mt76x2e,hardware_name)
+LUA_WRAP_STRING_OP(mt76x2e,phyname)
+LUA_WRAP_STRUCT_OP(mt76x2e,mode)
+LUA_WRAP_STRUCT_OP(mt76x2e,assoclist)
+LUA_WRAP_STRUCT_OP(mt76x2e,txpwrlist)
+LUA_WRAP_STRUCT_OP(mt76x2e,scanlist)
+LUA_WRAP_STRUCT_OP(mt76x2e,freqlist)
+LUA_WRAP_STRUCT_OP(mt76x2e,countrylist)
+LUA_WRAP_STRUCT_OP(mt76x2e,hwmodelist)
+LUA_WRAP_STRUCT_OP(mt76x2e,encryption)
+LUA_WRAP_STRUCT_OP(mt76x2e,mbssid_support)
+LUA_WRAP_STRUCT_OP(mt76x2e,hardware_id)
+#endif
+
+
 /* Wext */
 LUA_WRAP_INT_OP(wext,channel)
 LUA_WRAP_INT_OP(wext,frequency)
@@ -819,6 +849,38 @@ static const luaL_reg R_nl80211[] = {
 };
 #endif
 
+#ifdef USE_MT76X2E
+/* mt76x2e table */
+static const luaL_reg R_mt76x2e[] = {
+	LUA_REG(mt76x2e,channel),
+	LUA_REG(mt76x2e,frequency),
+	LUA_REG(mt76x2e,frequency_offset),
+	LUA_REG(mt76x2e,txpower),
+	LUA_REG(mt76x2e,txpower_offset),
+	LUA_REG(mt76x2e,bitrate),
+	LUA_REG(mt76x2e,signal),
+	LUA_REG(mt76x2e,noise),
+	LUA_REG(mt76x2e,quality),
+	LUA_REG(mt76x2e,quality_max),
+	LUA_REG(mt76x2e,mode),
+	LUA_REG(mt76x2e,ssid),
+	LUA_REG(mt76x2e,bssid),
+	LUA_REG(mt76x2e,country),
+	LUA_REG(mt76x2e,assoclist),
+	LUA_REG(mt76x2e,txpwrlist),
+	LUA_REG(mt76x2e,scanlist),
+	LUA_REG(mt76x2e,freqlist),
+	LUA_REG(mt76x2e,countrylist),
+	LUA_REG(mt76x2e,hwmodelist),
+	LUA_REG(mt76x2e,encryption),
+	LUA_REG(mt76x2e,mbssid_support),
+	LUA_REG(mt76x2e,hardware_id),
+	LUA_REG(mt76x2e,hardware_name),
+	LUA_REG(mt76x2e,phyname),
+	{ NULL, NULL }
+};
+#endif
+
 /* Wext table */
 static const luaL_reg R_wext[] = {
 	LUA_REG(wext,channel),
@@ -885,6 +947,15 @@ LUALIB_API int luaopen_iwinfo(lua_State *L) {
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 	lua_setfield(L, -2, "nl80211");
+#endif
+
+#ifdef USE_MT76X2E
+	luaL_newmetatable(L, IWINFO_MT76X2E_META);
+	luaL_register(L, NULL, R_common);
+	luaL_register(L, NULL, R_mt76x2e);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	lua_setfield(L, -2, "mt76x2e");
 #endif
 
 	luaL_newmetatable(L, IWINFO_WEXT_META);
