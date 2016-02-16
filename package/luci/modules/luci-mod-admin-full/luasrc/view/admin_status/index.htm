@@ -120,6 +120,26 @@
 			'</div>', pc, v, m, pc
 		);
 	}
+	function wifirate(bss, rx) {
+		var p = rx ? 'rx_' : 'tx_',
+		    s = '%.1f <%:Mbit/s%>, %d<%:MHz%>'
+					.format(bss[p+'rate'] / 1000, bss[p+'mhz']),
+		    ht = bss[p+'ht'], vht = bss[p+'vht'],
+			mhz = bss[p+'mhz'], nss = bss[p+'nss'],
+			mcs = bss[p+'mcs'], sgi = bss[p+'short_gi'];
+
+		if (ht || vht) {
+			if (vht) s += ', VHT-MCS %d'.format(mcs);
+			if (nss) s += ', VHT-NSS %d'.format(nss);
+			if (ht)  s += ', MCS %s'.format(mcs);
+			if (sgi)
+				s += ', SGI';
+				else
+				s += ', LGI';
+		}
+
+		return s;
+	}
 
 	var wifidevs = <%=luci.http.write_json(netdevs)%>;
 	var arptable = <%=luci.http.write_json(arpcache)%>;
@@ -405,19 +425,15 @@
 
 						for (var bssid in net.assoclist)
 						{
-							assoclist.push({
-								bssid:    bssid,
-								signal:   net.assoclist[bssid].signal,
-								noise:    net.assoclist[bssid].noise,
-								rx_rate:  net.assoclist[bssid].rx_rate,
-								rx_mcs:   net.assoclist[bssid].rx_mcs,
-								rx_mhz: net.assoclist[bssid].rx_mhz,
-								tx_rate:  net.assoclist[bssid].tx_rate,
-								tx_mcs:   net.assoclist[bssid].tx_mcs,
-								tx_mhz: net.assoclist[bssid].tx_mhz,
-								link:     net.link,
-								name:     net.name
-							});
+							var bss = net.assoclist[bssid];
+
+							bss.bssid  = bssid;
+							bss.link   = net.link;
+							bss.name   = net.name;
+							bss.ifname = net.ifname;
+							bss.radio  = dev.name;
+
+							assoclist.push(bss);
 						}
 					}
 
@@ -461,11 +477,9 @@
 						icon = "<%=resource%>/icons/signal-75-100.png";
 
 					tr.insertCell(-1).innerHTML = String.format(
-						'<img src="%s" title="<%:Signal%>: %d <%:dBm%> / <%:Noise%>: %d <%:dBm%>" />',
-						icon, assoclist[i].signal, assoclist[i].noise
+						'<span class="ifacebadge" title="%q"><img src="<%=resource%>/icons/wifi.png" /> %h</span>',
+						assoclist[i].radio, assoclist[i].ifname
 					);
-
-					tr.insertCell(-1).innerHTML = assoclist[i].bssid;
 
 					tr.insertCell(-1).innerHTML = String.format(
 						'<a href="%s">%s</a>',
@@ -473,18 +487,14 @@
 							'%h'.format(assoclist[i].name).nobr()
 					);
 
-					tr.insertCell(-1).innerHTML = String.format('%d <%:dBm%>', assoclist[i].signal).nobr();
-					tr.insertCell(-1).innerHTML = String.format('%d <%:dBm%>', assoclist[i].noise).nobr();
+					tr.insertCell(-1).innerHTML = assoclist[i].bssid;
 
-					tr.insertCell(-1).innerHTML = (assoclist[i].rx_mcs > -1)
-						? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[i].rx_rate / 1000, assoclist[i].rx_mcs, assoclist[i].rx_mhz).nobr()
-						: String.format('%.1f <%:Mbit/s%>', assoclist[i].rx_rate / 1000).nobr()
-					;
 
-					tr.insertCell(-1).innerHTML = (assoclist[i].tx_mcs > -1)
-						? String.format('%.1f <%:Mbit/s%>, MCS %d, %d<%:MHz%>', assoclist[i].tx_rate / 1000, assoclist[i].tx_mcs, assoclist[i].tx_mhz).nobr()
-						: String.format('%.1f <%:Mbit/s%>', assoclist[i].tx_rate / 1000).nobr()
-					;
+					tr.insertCell(-1).innerHTML = String.format(
+					'%d <%:dBm%> / %d <%:dBm%>',assoclist[i].signal, assoclist[i].noise
+					).nobr();
+
+					tr.insertCell(-1).innerHTML = wifirate(assoclist[i], true).nobr() + '<br />' + wifirate(assoclist[i], false).nobr();
 				}
 
 				if (ac.rows.length == 1)
@@ -636,7 +646,7 @@
 
 	<table class="cbi-section-table" id="lease6_status_table">
 		<tr class="cbi-section-table-titles">
-			<th class="cbi-section-table-cell"><%:Hostname%></th>
+			<th class="cbi-section-table-cell"><%:Host%></th>
 			<th class="cbi-section-table-cell"><%:IPv6-Address%></th>
 			<th class="cbi-section-table-cell"><%:DUID%></th>
 			<th class="cbi-section-table-cell"><%:Leasetime remaining%></th>
@@ -674,18 +684,16 @@
 <fieldset class="cbi-section">
 	<legend><%:Associated Stations%></legend>
 
-	<table class="cbi-section-table" id="wifi_assoc_table">
+	<table class="cbi-section-table valign-middle" id="wifi_assoc_table">
 		<tr class="cbi-section-table-titles">
 			<th class="cbi-section-table-cell">&#160;</th>
-			<th class="cbi-section-table-cell"><%:MAC-Address%></th>
 			<th class="cbi-section-table-cell"><%:Network%></th>
-			<th class="cbi-section-table-cell"><%:Signal%></th>
-			<th class="cbi-section-table-cell"><%:Noise%></th>
-			<th class="cbi-section-table-cell"><%:RX Rate%></th>
-			<th class="cbi-section-table-cell"><%:TX Rate%></th>
+			<th class="cbi-section-table-cell"><%:MAC-Address%></th>
+			<th class="cbi-section-table-cell"><%:Signal%> / <%:Noise%></th>
+			<th class="cbi-section-table-cell"><%:RX Rate%> / <%:TX Rate%></th>
 		</tr>
 		<tr class="cbi-section-table-row">
-			<td colspan="7"><em><br /><%:Collecting data...%></em></td>
+			<td colspan="6"><em><br /><%:Collecting data...%></em></td>
 		</tr>
 	</table>
 </fieldset>
