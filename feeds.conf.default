@@ -1,6 +1,6 @@
-src-link packages ./feeds/packages
-src-link routing ./feeds/routing
-src-link telephony ./feeds/telephony
-src-link management ./feeds/management
-src-link oldpackages ./feeds/oldpackages
+src-link packages1 ./feeds/packages
+src-link routing1 ./feeds/routing
+src-link telephony1 ./feeds/telephony
+src-link management1 ./feeds/management
+src-link oldpackages1 ./feeds/oldpackages
 
