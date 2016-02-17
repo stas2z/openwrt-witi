@@ -415,6 +415,8 @@ static inline int mt76x2e_freq2mhz(const struct iw_freq *in)
 
 int CH_HZ_ID_MAP_NUM = (sizeof(CH_HZ_ID_MAP)/sizeof(CH_FREQ_MAP));
 
+static int mt76x2e_get_assoclist(const char *ifname, char *buf, int *len);
+
 void mt76x2e_ch2freq(
     unsigned char Ch,
     double *pFreq)
@@ -569,78 +571,42 @@ static int mt76x2e_get_txpower(const char *ifname, int *buf)
 
 static int mt76x2e_get_signal(const char *ifname, int *buf)
 {
-	struct iwreq wrq;
-	struct iw_statistics stats;
+	int i, len;
+	char abuf[IWINFO_BUFSIZE];
+	struct iwinfo_assoclist_entry *e;
 
-	wrq.u.data.pointer = (caddr_t) &stats;
-	wrq.u.data.length  = sizeof(struct iw_statistics);
-	wrq.u.data.flags   = 1;
-
-	if(mt76x2e_ioctl(ifname, SIOCGIWSTATS, &wrq) >= 0)
-	{
-		*buf = (stats.qual.updated & IW_QUAL_DBM)
-			? (stats.qual.level - 0x100) : stats.qual.level;
-
-		return 0;
-	}
-
-	return -1;
+	i = mt76x2e_get_assoclist(ifname, abuf, &len);
+	if (i<=0)
+		return -1;
+	*buf = i - 127;
+	return 0;
 }
 
 static int mt76x2e_get_noise(const char *ifname, int *buf)
 {
-	struct iwreq wrq;
-	struct iw_statistics stats;
-
-	wrq.u.data.pointer = (caddr_t) &stats;
-	wrq.u.data.length  = sizeof(struct iw_statistics);
-	wrq.u.data.flags   = 1;
-
-	if(mt76x2e_ioctl(ifname, SIOCGIWSTATS, &wrq) >= 0)
-	{
-		*buf = (stats.qual.updated & IW_QUAL_DBM)
-			? (stats.qual.noise - 0x100) : stats.qual.noise;
-
-		return 0;
-	}
-
-	return -1;
+	*buf = 0;
+	return 0;
 }
 
 static int mt76x2e_get_quality(const char *ifname, int *buf)
 {
-	struct iwreq wrq;
-	struct iw_statistics stats;
+	int i, len;
+	char abuf[IWINFO_BUFSIZE];
+	struct iwinfo_assoclist_entry *e;
 
-	wrq.u.data.pointer = (caddr_t) &stats;
-	wrq.u.data.length  = sizeof(struct iw_statistics);
-	wrq.u.data.flags   = 1;
-
-	if(mt76x2e_ioctl(ifname, SIOCGIWSTATS, &wrq) >= 0)
-	{
-		*buf = stats.qual.qual;
-		return 0;
-	}
-
-	return -1;
+	i = 10 + mt76x2e_get_assoclist(ifname, abuf, &len);
+	if (i<=10)
+		return -1;
+	if (i > 100)
+	    i = 100;
+	*buf = i;
+	return 0;
 }
 
 static int mt76x2e_get_quality_max(const char *ifname, int *buf)
 {
-	struct iwreq wrq;
-	struct iw_range range;
-
-	wrq.u.data.pointer = (caddr_t) &range;
-	wrq.u.data.length  = sizeof(struct iw_range);
-	wrq.u.data.flags   = 0;
-
-	if(mt76x2e_ioctl(ifname, SIOCGIWRANGE, &wrq) >= 0)
-	{
-		*buf = range.max_qual.qual;
-		return 0;
-	}
-
-	return -1;
+	*buf = 100;
+	return 0;
 }
 
 #define RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT	(SIOCIWFIRSTPRIV + 0x1F)
@@ -648,7 +614,7 @@ static int mt76x2e_get_quality_max(const char *ifname, int *buf)
 static int mt76x2e_get_assoclist(const char *ifname, char *buf, int *len)
 {
 	struct	iwreq wrq;
-	int ret, i, rssi;
+	int ret, i, rssi, quality, maxrssi=-127;
 	RT_802_11_MAC_TABLE *mp;
 	char mac_table_data[4096];
 	struct iwinfo_assoclist_entry entry;
@@ -673,7 +639,8 @@ static int mt76x2e_get_assoclist(const char *ifname, char *buf, int *len)
 			memset(&entry, 0, sizeof(entry));
 			memcpy(entry.mac, mp->Entry[i].Addr, MAC_ADDR_LENGTH);
 			entry.signal = rssi;
-
+			if (maxrssi < rssi)
+			    maxrssi = rssi;
 			entry.tx_rate.rate = getRate(mp->Entry[i].TxRate)*1000;
 			entry.tx_rate.mcs = getMCS(mp->Entry[i].TxRate);
 			entry.tx_rate.is_40mhz = GetBW(mp->Entry[i].TxRate.field.BW) == 4 ? 1 : 0;
@@ -718,7 +685,8 @@ static int mt76x2e_get_assoclist(const char *ifname, char *buf, int *len)
 		}
 		*len = (i)*sizeof(entry);
 	}
-	return 0;
+	quality = (int) 127 + maxrssi;
+	return quality;
 }
 
 static int mt76x2e_get_txpwrlist(const char *ifname, char *buf, int *len)

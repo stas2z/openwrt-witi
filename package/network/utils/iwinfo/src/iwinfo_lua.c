@@ -298,7 +298,7 @@ static int iwinfo_L_assoclist(lua_State *L, int (*func)(const char *, char *, in
 	lua_newtable(L);
 	memset(rv, 0, sizeof(rv));
 
-	if (!(*func)(ifname, rv, &len))
+	if ((*func)(ifname, rv, &len) >= 0)
 	{
 		for (i = 0; i < len; i += sizeof(struct iwinfo_assoclist_entry))
 		{

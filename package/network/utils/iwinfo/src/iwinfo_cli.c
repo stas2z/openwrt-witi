@@ -673,7 +673,7 @@ static void print_assoclist(const struct iwinfo_ops *iw, const char *ifname)
 	char buf[IWINFO_BUFSIZE];
 	struct iwinfo_assoclist_entry *e;
 
-	if (iw->assoclist(ifname, buf, &len))
+	if (iw->assoclist(ifname, buf, &len) < 0)
 	{
 		printf("No information available\n");
 		return;
