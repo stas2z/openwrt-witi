@@ -34,6 +34,7 @@ reload_service() {
 
 stop_service() {
 	/sbin/wifi down
+	procd_kill network ''
 }
 
 service_running() {

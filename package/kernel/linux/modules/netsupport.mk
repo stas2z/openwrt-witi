@@ -631,7 +631,7 @@ define KernelPackage/pptp
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=PPtP support
   DEPENDS:=kmod-ppp +kmod-gre +kmod-pppox
-  KCONFIG:=CONFIG_PPTP
+  KCONFIG:=CONFIG_PPPOPPTP
   FILES:=$(LINUX_DIR)/drivers/net/ppp/pptp.ko
   AUTOLOAD:=$(call AutoProbe,pptp)
 endef

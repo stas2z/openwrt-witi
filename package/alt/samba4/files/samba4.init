@@ -11,6 +11,7 @@ smb_header() {
 	# resolve interfaces
 	. /lib/functions/network.sh
 	local interfaces=$(
+
 		local net
 		for net in $interface; do
 			local device
@@ -39,29 +40,10 @@ smb_header() {
 	    -e "s#|DESCRIPTION|#$description#g" \
 	    -e "s#|INTERFACES|#$interfaces#g" \
 	    -e "s#|CHARSET|#$charset#g" \
+	    -e "s/vfs ob/#vfs ob/g" \
 	    /etc/samba4/smb.conf.template > /tmp/etc/smb.conf
 
-
 	[ "$DISABLENB" == "1" ] && echo  >>/tmp/etc/smb.conf -e "\tdisable netbios = yes"
-
-	[ -f /etc/krb5.keytab ] && {
-		KLIST=`klist -k /etc/krb5.keytab`
-		REALM=${KLIST##*@}
-		echo  >>/tmp/etc/smb.conf -e "\tkerberos method = dedicated keytab"
-		echo  >>/tmp/etc/smb.conf -e "\tdedicated keytab file = /etc/krb5.keytab"
-		echo  >>/tmp/etc/smb.conf -e "\trealm = $REALM"
-		sed -i -e "s#workgroup = \(.*\)#workgroup = $REALM#g" /tmp/etc/smb.conf
-		workgroup=$REALM
-	}
-
-	[ -S /var/run/ldapi ] && {
-		echo  >>/tmp/etc/smb.conf -e "\tldapsam:trusted = yes"
-		echo  >>/tmp/etc/smb.conf -e "\tldapsam:editposix = yes"
-		echo  >>/tmp/etc/smb.conf -e "\tldap ssl = off"
-		echo  >>/tmp/etc/smb.conf -e "\tdomain logons = yes"
-		sed -i -e "s#passdb backend = \(.*\)#passdb backend = ldapsam:ldapi:///#g" \
-		       /tmp/etc/smb.conf
-	}
 
 	local homes
 	config_get_bool homes $1 homes 0
@@ -88,6 +70,7 @@ smb_add_share() {
 	local guest_ok
 	local create_mask
 	local dir_mask
+	local browseable
 
 	config_get name $1 name
 	config_get path $1 path
@@ -96,6 +79,7 @@ smb_add_share() {
 	config_get guest_ok $1 guest_ok
 	config_get create_mask $1 create_mask
 	config_get dir_mask $1 dir_mask
+	config_get browseable $1 browseable
 
 	[ -z "$name" -o -z "$path" ] && return
 
@@ -105,10 +89,20 @@ smb_add_share() {
 	[ -n "$guest_ok" ] && echo -e "\tguest ok = $guest_ok" >> /tmp/etc/smb.conf
 	[ -n "$create_mask" ] && echo -e "\tcreate mask = $create_mask" >> /tmp/etc/smb.conf
 	[ -n "$dir_mask" ] && echo -e "\tdirectory mask = $dir_mask" >> /tmp/etc/smb.conf
+	[ -n "$browseable" ] && echo -e "\tbrowseable = $browseable" >> /var/etc/smb.conf
+}
+
+init_config() {
+	config_load samba4
+	config_foreach smb_header samba
+	config_foreach smb_add_share sambashare
 }
 
 reload_service() {
-	restart_service
+	init_config
+
+	killall -HUP smbd
+	killall -HUP nmbd
 }
 
 service_triggers() {
@@ -116,19 +110,17 @@ service_triggers() {
 }
 
 start_service() {
-	config_load samba4
-	config_foreach smb_header samba
-	config_foreach smb_add_share sambashare
+	init_config
 
 	procd_open_instance
-	procd_set_param command /usr/sbin/smbd -D
+	procd_set_param command /usr/sbin/smbd -F
 	procd_set_param respawn
-	procd_close_instance 
+	procd_close_instance
 
 	[ "$DISABLENB" != "1" ] && {
-		procd_open_instance
-		procd_set_param command /usr/sbin/nmbd -D
-		procd_set_param respawn
-		procd_close_instance
+	procd_open_instance
+	procd_set_param command /usr/sbin/nmbd -F
+	procd_set_param respawn
+	procd_close_instance
 	}
 }

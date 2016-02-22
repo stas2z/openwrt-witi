@@ -108,17 +108,18 @@ typedef struct _RT_802_11_MAC_TABLE {
         RT_802_11_MAC_ENTRY Entry[MAX_NUMBER_OF_MAC];
 } RT_802_11_MAC_TABLE, *PRT_802_11_MAC_TABLE;
 
-//Head:Ch  SSID                             BSSID               Security               Siganl(%)W-Mode  ExtCH  NT WPS DPID     
 typedef struct _SITE_SURVEY 
 { 
 	char channel[4];
 	unsigned char ssid[33]; 
 	char bssid[20];
-	char security[23];
+	char encryption[23];
 	char signal[9];
-	char wmode[7];
+	char wmode[8];
 	char extch[7];
-	char bsstype[3];
+	char nt[3];
+//	char wps[4];
+//	char dpid[5];
 } SITE_SURVEY;
 
 typedef struct _SITE_SURVEY_ARRAY

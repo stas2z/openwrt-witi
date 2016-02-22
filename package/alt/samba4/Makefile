@@ -45,7 +45,8 @@ define Package/samba4-server
   TITLE:=Samba $(PKG_VERSION) SMB/CIFS server
   URL:=http://www.samba.org/
   VARIANT:=samba4-server
-  DEPENDS:=+USE_EGLIBC:librt +libattr +libiconv-full +libpopt +libuuid $(INTL_DEPENDS) +libacl +libreadline +libaio +libtirpc +wsdd +zlib
+  DEPENDS:=+USE_EGLIBC:librt +libpthread $(INTL_DEPENDS) $(ICONV_DEPENDS) +wsdd
+#+libacl +libattr
 endef
 
 define Package/samba4-client
@@ -53,7 +54,8 @@ define Package/samba4-client
   CATEGORY:=Network
   TITLE:=Samba $(PKG_VERSION) SMB/CIFS client
   URL:=http://www.samba.org/
-  DEPENDS:=+libreadline +libncurses +libattr +libtirpc +libacl +libaio +zlib +libiconv
+  DEPENDS:=+libphtread +libreadline +libncurses $(ICONV_DEPENDS)
+#+libacl +libattr
 endef
 
 define Package/samba4-server/config
@@ -78,15 +80,12 @@ define Package/luci-app-$(PKG_NAME)
   TITLE:=Samba 4
 endef
 
-TARGET_CFLAGS += \
-	-DMAX_DEBUG_LEVEL=$(CONFIG_PACKAGE_SAMBA4_MAX_DEBUG_LEVEL) \
-	-D_GNU_SOURCE \
-	-D__location__=\\\"\\\" \
-	-ffunction-sections -fdata-sections \
-
-TARGET_LDFLAGS += -Wl,--gc-sections -ltirpc -lattr $(INTL_LIBS)
+TARGET_CFLAGS += -DMAX_DEBUG_LEVEL=$(CONFIG_PACKAGE_SAMBA4_MAX_DEBUG_LEVEL) -D_GNU_SOURCE -D__location__=\\\"\\\" -ffunction-sections -fdata-sections
+TARGET_LDFLAGS += -Wl,--gc-sections $(INTL_LIBS)
 
 CONFIGURE_VARS += \
+	ac_cv_lib_attr_getxattr=no \
+	ac_cv_search_getxattr=no \
 	ac_cv_file__proc_sys_kernel_core_pattern=yes \
 	libreplace_cv_HAVE_C99_VSNPRINTF=yes \
 	libreplace_cv_HAVE_GETADDRINFO=yes \
@@ -120,14 +119,18 @@ CONFIGURE_VARS += \
 	samba_cv_HAVE_KERNEL_OPLOCKS_LINUX=yes \
 	samba_cv_HAVE_SECURE_MKSTEMP=yes \
 	samba_cv_HAVE_WRFILE_KEYTAB=no \
+	samba_cv_USE_SETREUID=yes \
 	samba_cv_USE_SETRESUID=yes \
 	samba_cv_USE_SETRESGID=yes \
 	samba_cv_USE_SETREUID=yes \
 	samba_cv_have_setresuid=yes \
+	samba_cv_have_setreuid=yes \
 	samba_cv_have_setresgid=yes \
 	samba_cv_linux_getgrouplist_ok=yes \
-	ac_cv_header_zlib_h=yes \
-	samba_cv_zlib_1_2_3=yes
+	ac_cv_header_zlib_h=no \
+	samba_cv_zlib_1_2_3=no \
+	ac_cv_path_PYTHON="" \
+	ac_cv_path_PYTHON_CONFIG=""
 CONFIGURE_ARGS += \
 	--exec-prefix=/usr \
 	--prefix=/ \
@@ -138,15 +141,18 @@ CONFIGURE_ARGS += \
 	--disable-static \
 	--disable-swat \
 	--disable-shared-libs \
+	--with-libiconv="$(ICONV_PREFIX)" \
+	--with-codepagedir=/etc/samba4 \
 	--with-configdir=/etc/samba4 \
 	--with-included-iniparser \
 	--with-included-popt \
 	--with-lockdir=/var/lock \
 	--with-logfilebase=/var/log \
+	--with-nmbdsocketdir=/var/nmbd \
 	--with-piddir=/var/run \
 	--with-privatedir=/etc/samba4 \
 	--with-sendfile-support \
-	--with-aio-support \
+	--without-acl-support \
 	--without-cluster-support \
 	--without-ads \
 	--without-krb5 \
@@ -158,11 +164,10 @@ CONFIGURE_ARGS += \
 	--without-libnetapi \
 	--without-libsmbclient \
 	--without-libsmbsharemodes \
-	--with-acl-support \
-	--with-quotas \
-	--with-syslog \
-	--with-shared-modules=pdb_tdbsam,pdb_wbc_sam,idmap_nss,nss_info_template,auth_winbind,auth_wbc,auth_domain,vfs \
-	--with-static-modules=vfs_default,vfs_dirsort,vfs_posixacl,vfs_daio_linux
+	--without-libtevent \
+	--without-libaddns \
+	--with-shared-modules=pdb_tdbsam,pdb_wbc_sam,idmap_nss,nss_info_template,auth_winbind,auth_wbc,auth_domain, vfs \
+	--with-static-modules=vfs_default,vfs_dirsort
 
 
 MAKE_FLAGS += DYNEXP= PICFLAG= MODULES=
@@ -190,8 +195,6 @@ define Package/samba4-server/install
 	ln -sf ../sbin/$(PKG_NAME)_multicall $(1)/usr/bin/smbcacls
 	ln -sf ../sbin/$(PKG_NAME)_multicall $(1)/usr/bin/nmblookup
 	ln -sf ../sbin/$(PKG_NAME)_multicall $(1)/usr/bin/testparm
-#	$(INSTALL_DIR) $(1)/etc/openldap/schema
-#	$(CP) $(PKG_BUILD_DIR)/examples/LDAP/samba.schema $(1)/etc/openldap/schema
 	$(INSTALL_DIR) $(1)/etc/samba4
 	ln -sf /tmp/etc/secrets.tdb $(1)/etc/samba4/secrets.tdb
 	ln -sf /tmp/etc/schannel_store.tdb $(1)/etc/samba4/schannel_store.tdb

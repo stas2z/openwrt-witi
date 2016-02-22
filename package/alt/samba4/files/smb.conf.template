@@ -27,9 +27,9 @@
 	smb passwd file = /etc/samba4/smbpasswd
 	socket options = TCP_NODELAY IPTOS_LOWDELAY
 	syslog = 2
-	use sendfile = yes
+	use sendfile = no
 	writeable = yes
-	vfs objects = posixacl
-	aio read size = 0
-	aio write size = 0
+#	vfs objects = posixacl
+#	aio read size = 0
+#	aio write size = 0
 

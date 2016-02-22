@@ -1,0 +1,38 @@
+--- a/cipher/Makefile.am	2015-09-29 23:44:57.559939290 +0300
++++ b/cipher/Makefile.am	2015-09-29 23:46:30.765937474 +0300
+@@ -102,3 +102,15 @@
+ 
+ tiger.lo: $(srcdir)/tiger.c
+ 	`echo $(LTCOMPILE) -c $(srcdir)/tiger.c | $(o_flag_munging) `
++
++des.o: $(srcdir)/des.c
++	`echo $(COMPILE) -c $(srcdir)/des.c | $(o_flag_munging) `
++
++des.lo: $(srcdir)/des.c
++	`echo $(LTCOMPILE) -c $(srcdir)/des.c | $(o_flag_munging) `
++
++camellia.o: $(srcdir)/camellia.c
++	`echo $(COMPILE) -c $(srcdir)/camellia.c | $(o_flag_munging) `
++
++camellia.lo: $(srcdir)/camellia.c
++	`echo $(LTCOMPILE) -c $(srcdir)/camellia.c | $(o_flag_munging) `
+--- a/cipher/Makefile.in.orig	2015-09-29 23:54:44.252927864 +0300
++++ a/cipher/Makefile.in	2015-09-29 23:55:37.228926833 +0300
+@@ -766,6 +766,17 @@
+ tiger.lo: $(srcdir)/tiger.c
+ 	`echo $(LTCOMPILE) -c $(srcdir)/tiger.c | $(o_flag_munging) `
+ 
++des.o: $(srcdir)/des.c
++	`echo $(COMPILE) -c $(srcdir)/des.c | $(o_flag_munging) `
++
++des.lo: $(srcdir)/des.c
++	`echo $(LTCOMPILE) -c $(srcdir)/des.c | $(o_flag_munging) `
++
++camellia.o: $(srcdir)/camellia.c
++	`echo $(COMPILE) -c $(srcdir)/camellia.c | $(o_flag_munging) `
++
++camellia.lo: $(srcdir)/camellia.c
++	`echo $(LTCOMPILE) -c $(srcdir)/camellia.c | $(o_flag_munging) `
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
+ .NOEXPORT:
