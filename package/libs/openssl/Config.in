@@ -19,12 +19,6 @@ config OPENSSL_WITH_SSL3
 config OPENSSL_ENGINE_CRYPTO
 	bool
 	prompt "Crypto acceleration support"
- 
-config OPENSSL_THREADS
-	bool
-	prompt "Threading support"
-	default y
-	select PACKAGE_libpthread
 
 config OPENSSL_ENGINE_DIGEST
 	bool
