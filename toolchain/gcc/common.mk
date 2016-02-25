@@ -26,6 +26,7 @@ PKG_VERSION:=$(firstword $(subst +, ,$(GCC_VERSION)))
 GCC_DIR:=$(PKG_NAME)-$(PKG_VERSION)
 
 ifeq ($(findstring linaro, $(CONFIG_GCC_VERSION)),linaro)
+    LINARO_RELEASE:=
     ifeq ($(CONFIG_GCC_VERSION),"4.6-linaro")
       PKG_REV:=4.6-2013.05
       PKG_VERSION:=4.6.4
@@ -48,9 +49,6 @@ else
   PKG_SOURCE_URL:=@GNU/gcc/gcc-$(PKG_VERSION)
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 
-  ifeq ($(PKG_VERSION),4.4.7)
-    PKG_MD5SUM:=295709feb4441b04e87dea3f1bab4281
-  endif
   ifeq ($(PKG_VERSION),4.6.3)
     PKG_MD5SUM:=773092fe5194353b02bb0110052a972e
   endif

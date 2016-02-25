@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2007-2010 OpenWrt.org
+# Copyright (C) 2007-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -15,6 +15,7 @@ export TAR FIND
 ifneq ($(__host_inc),1)
 __host_inc:=1
 
+export PATH:=$(TOPDIR)/staging_dir/host/bin:$(PATH)
 try-run = $(shell set -e; \
 	TMP_F="$(TMP_DIR)/try-run.$$$$.tmp"; \
 	if ($(1)) >/dev/null 2>&1; then echo "$(2)"; else echo "$(3)"; fi; \

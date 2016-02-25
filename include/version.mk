@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 OpenWrt.org
+# Copyright (C) 2012-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -23,25 +23,28 @@ REVISION:=$(shell $(TOPDIR)/scripts/getver.sh)
 VERSION_NUMBER:=$(call qstrip,$(CONFIG_VERSION_NUMBER))
 VERSION_NUMBER:=$(if $(VERSION_NUMBER),$(VERSION_NUMBER),$(REVISION))
 
-VERSION_CODE:=$(call qstrip,$(CONFIG_VERSION_NUMBER))
-VERSION_CODE:=$(if $(VERSION_CODE),$(VERSION_CODE),Barrier Calmer)
+VERSION_NUMBER:=$(call qstrip_escape,$(CONFIG_VERSION_NUMBER))
+VERSION_NUMBER:=$(if $(VERSION_NUMBER),$(VERSION_NUMBER),15.05)
 
-VERSION_NICK:=$(call qstrip,$(CONFIG_VERSION_NICK))
+VERSION_CODE:=$(call qstrip_escape,$(CONFIG_VERSION_NUMBER))
+VERSION_CODE:=$(if $(VERSION_CODE),$(VERSION_CODE),Chaos Calmer)
+
+VERSION_NICK:=$(call qstrip_escape,$(CONFIG_VERSION_NICK))
 VERSION_NICK:=$(if $(VERSION_NICK),$(VERSION_NICK),$(RELEASE))
 
-VERSION_REPO:=$(call qstrip,$(CONFIG_VERSION_REPO))
+VERSION_REPO:=$(call qstrip_escape,$(CONFIG_VERSION_REPO))
 VERSION_REPO:=$(if $(VERSION_REPO),$(VERSION_REPO),http://downloads.openwrt.org/%n/%v/%S/packages)
 
-VERSION_DIST:=$(call qstrip,$(CONFIG_VERSION_DIST))
+VERSION_DIST:=$(call qstrip_escape,$(CONFIG_VERSION_DIST))
 VERSION_DIST:=$(if $(VERSION_DIST),$(VERSION_DIST),OpenWrt)
 
-VERSION_MANUFACTURER:=$(call qstrip,$(CONFIG_VERSION_MANUFACTURER))
+VERSION_MANUFACTURER:=$(call qstrip_escape,$(CONFIG_VERSION_MANUFACTURER))
 VERSION_MANUFACTURER:=$(if $(VERSION_MANUFACTURER),$(VERSION_MANUFACTURER),OpenWrt)
 
-VERSION_PRODUCT:=$(call qstrip,$(CONFIG_VERSION_PRODUCT))
+VERSION_PRODUCT:=$(call qstrip_escape,$(CONFIG_VERSION_PRODUCT))
 VERSION_PRODUCT:=$(if $(VERSION_PRODUCT),$(VERSION_PRODUCT),Generic)
 
-VERSION_HWREV:=$(call qstrip,$(CONFIG_VERSION_HWREV))
+VERSION_HWREV:=$(call qstrip_escape,$(CONFIG_VERSION_HWREV))
 VERSION_HWREV:=$(if $(VERSION_HWREV),$(VERSION_HWREV),v0)
 
 define taint2sym
@@ -53,11 +56,12 @@ $(lastword $(subst :, ,$(1)))
 endef
 
 VERSION_TAINT_SPECS := \
-	-ALL:no-all \
+	-ALL_KMODS:no-all \
 	-IPV6:no-ipv6 \
-	+USE_EGLIBC:eglibc \
+	+USE_GLIBC:glibc \
 	+USE_MKLIBS:mklibs \
 	+BUSYBOX_CUSTOM:busybox \
+	+OVERRIDE_PKGS:override \
 
 VERSION_TAINTS := $(strip $(foreach taint,$(VERSION_TAINT_SPECS), \
 	$(if $(findstring +,$(taint)), \
@@ -83,3 +87,4 @@ VERSION_SED:=$(SED) 's,%U,$(VERSION_REPO),g' \
 	-e 's,%M,$(VERSION_MANUFACTURER),g' \
 	-e 's,%P,$(VERSION_PRODUCT),g' \
 	-e 's,%h,$(VERSION_HWREV),g'
+VERSION_SED_SCRIPT:=$(subst '\'','\'\\\\\'\'',$(VERSION_SED))

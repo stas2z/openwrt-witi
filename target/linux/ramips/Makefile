@@ -19,9 +19,9 @@ LINUX_VERSION:=$(LINUX_VER)-$(LINUX_COMMIT)
 include $(INCLUDE_DIR)/target.mk
 DEFAULT_PACKAGES += 
 
-ifeq ($(call qstrip,$(CONFIG_EXTERNAL_KERNEL_TREE))$(call qstrip,$(CONFIG_KERNEL_GIT_CLONE_URI)),)
+#ifeq ($(call qstrip,$(CONFIG_EXTERNAL_KERNEL_TREE))$(call qstrip,$(CONFIG_KERNEL_GIT_CLONE_URI)),)
 LINUX_SITE:=https://github.com/stas2z/linux-3.10-witi/archive/
-endif
+#endif
 LINUX_SOURCE=$(LINUX_VERSION).tar.gz
 
 define Target/Description
