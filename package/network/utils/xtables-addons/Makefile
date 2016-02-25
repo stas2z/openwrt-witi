@@ -9,16 +9,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=xtables-addons
-ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.7.0)),1)
-PKG_VERSION:=2.3
+PKG_VERSION:=2.5
 PKG_RELEASE:=1
-PKG_MD5SUM:=7d942729c365a549513511061f74c3e3
-else
-PKG_VERSION:=1.45
-PKG_RELEASE:=3
-PKG_MD5SUM:=802d2f556a5e545f44e4b69937bf8490
-PATCH_DIR:=./patches-1.x
-endif
+PKG_MD5SUM:=335663ece5fb17c7d0bb24dbdc697eb1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@SF/xtables-addons
@@ -28,6 +21,7 @@ PKG_BUILD_PARALLEL:=1
 PKG_CHECK_FORMAT_SECURITY:=0
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jow@openwrt.org>
+PKG_LICENSE:=GPL-2.0
 
 PKG_FIXUP:=autoreconf
 

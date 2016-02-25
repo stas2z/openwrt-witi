@@ -1,9 +1,0 @@
---- a/examples/json_script-example.c	2015-12-05 19:24:46.000000000 +0300
-+++ b/examples/json_script-example.c	2015-12-05 19:38:51.265654865 +0300
-@@ -2,5 +2,5 @@
- #include <stdlib.h>
- 
--#include <json.h>
-+#include <json/json.h>
- #include "blobmsg.h"
- #include "blobmsg_json.h"

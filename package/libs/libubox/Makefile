@@ -1,18 +1,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libubox
-PKG_VERSION:=2015-10-22
+PKG_VERSION:=2015-11-08
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://git.openwrt.org/project/libubox.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=682e071ef71f52125793aabb9e060343ea481443
+PKG_SOURCE_VERSION:=10429bccd0dc5d204635e110a7a8fae7b80d16cb
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MIRROR_MD5SUM:=
 CMAKE_INSTALL:=1
 
-PKG_LICENSE:=ISC BSD-3c
+PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
@@ -27,7 +27,7 @@ define Package/libubox
   CATEGORY:=Libraries
   TITLE:=Basic utility library
   ABI_VERSION:=$(PKG_VERSION)
-  DEPENDS:=+libpthread
+  DEPENDS:=
 endef
 
 define Package/libblobmsg-json

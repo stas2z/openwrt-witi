@@ -15,7 +15,7 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.zlib.net @SF/libpng
 PKG_MD5SUM:=44d667c142d7cda120332623eab69f40
 
-PKG_LICENSE:=ZLIB
+PKG_LICENSE:=Zlib
 PKG_LICENSE_FILES:=README
 
 include $(INCLUDE_DIR)/package.mk
@@ -25,7 +25,6 @@ define Package/zlib
   CATEGORY:=Libraries
   TITLE:=Library implementing the deflate compression method
   URL:=http://www.zlib.net/
-  DEPENDS:=+libpthread
 endef
 
 define Build/Configure

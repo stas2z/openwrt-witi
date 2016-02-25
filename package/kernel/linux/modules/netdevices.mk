@@ -129,6 +129,41 @@ endef
 $(eval $(call KernelPackage,et131x))
 
 
+define KernelPackage/gw16083
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Gateworks Ventana Ethernet Expansion Mezzanine driver
+  URL:=http://www.gateworks.com
+  FILES:=$(LINUX_DIR)/drivers/net/phy/gw16083.ko
+  KCONFIG:=CONFIG_GATEWORKS_GW16083
+  DEPENDS:=@TARGET_imx6 @PCI_SUPPORT +kmod-libphy +kmod-igb
+  AUTOLOAD:=$(call AutoLoad,36,gw16083)
+endef
+
+define KernelPackage/gw16083/description
+ This package contains the gw16083 kernel module for supporting the Gateworks
+ Ventana Ethernet Expansion Mezzanine.
+endef
+
+$(eval $(call KernelPackage,gw16083))
+
+
+define KernelPackage/phy-broadcom
+   SUBMENU:=$(NETWORK_DEVICES_MENU)
+   TITLE:=Broadcom Ethernet PHY driver
+   KCONFIG:=CONFIG_BROADCOM_PHY
+   DEPENDS:=+kmod-libphy
+   FILES:=$(LINUX_DIR)/drivers/net/phy/broadcom.ko
+   AUTOLOAD:=$(call AutoLoad,18,broadcom)
+endef
+
+define KernelPackage/phy-broadcom/description
+   Currently supports the BCM5411, BCM5421, BCM5461, BCM5464, BCM5481,
+   BCM5482 and BCM57780 PHYs.
+endef
+
+$(eval $(call KernelPackage,phy-broadcom))
+
+
 define KernelPackage/swconfig
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=switch configuration API
@@ -430,7 +465,7 @@ $(eval $(call KernelPackage,e1000))
 define KernelPackage/e1000e
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Intel(R) PRO/1000 PCIe cards kernel support
-  DEPENDS:=@PCIE_SUPPORT +(!LINUX_3_3&&!LINUX_3_6):kmod-ptp
+  DEPENDS:=@PCIE_SUPPORT +kmod-ptp
   KCONFIG:=CONFIG_E1000E
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/intel/e1000e/e1000e.ko
   AUTOLOAD:=$(call AutoProbe,e1000e)
@@ -790,3 +825,20 @@ define KernelPackage/vmxnet3/description
 endef
 
 $(eval $(call KernelPackage,vmxnet3))
+
+
+define KernelPackage/spi-ks8995
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Micrel/Kendin KS8995 Ethernet switch control
+  FILES:=$(LINUX_DIR)/drivers/net/phy/spi_ks8995.ko
+  KCONFIG:=CONFIG_MICREL_KS8995MA \
+	CONFIG_SPI=y \
+	CONFIG_SPI_MASTER=y
+  AUTOLOAD:=$(call AutoLoad,50,spi_ks8995)
+endef
+
+define KernelPackage/spi-ks8995/description
+  Kernel module for Micrel/Kendin KS8995 ethernet switch
+endef
+
+$(eval $(call KernelPackage,spi-ks8995))

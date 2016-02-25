@@ -17,6 +17,7 @@ PKG_MD5SUM:=fcec64c26a0f4f4901468f360029678f
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
+PKG_LICENSE:=GPL-2.0+
 
 PKG_BUILD_PARALLEL:=1
 
@@ -45,8 +46,9 @@ TARGET_CFLAGS += $(FPIC)
 MAKE_FLAGS += CFLAGS_O="$(TARGET_CFLAGS)"
 
 ifeq ($(CONFIG_i386)$(CONFIG_x86_64),)
-	TARGET_CFLAGS += -DLZO_CFG_NO_UNALIGNED=1
+  TARGET_CFLAGS += -DLZO_CFG_NO_UNALIGNED=1
 endif
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/lzo $(1)/usr/include/
