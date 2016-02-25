@@ -5,12 +5,9 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <strings.h>
-//#include <unistd.h>
-//#include <linux/autoconf.h>
-
+#include <sys/types.h>
 #include "hwnat_ioctl.h"
 #include "hwnat_api.h"
-//#include "util.h"
 
 void show_usage(void)
 {
