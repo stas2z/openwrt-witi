@@ -93,8 +93,8 @@ MAKE_FLAGS += \
 	OPT="$(TARGET_CFLAGS)" \
 	INSTALLSUID="install -m 4755" \
 	DESTDIR="$(PKG_INSTALL_DIR)" \
-	RPCGEN_PATH=$(STAGING_DIR)/host/bin/rpcgen \
-	RPCGEN=$(STAGING_DIR)/host/bin/rpcgen
+	RPCGEN_PATH=$(STAGING_DIR_HOST)/bin/rpcgen \
+	RPCGEN=$(STAGING_DIR_HOST)/bin/rpcgen
 
 HOST_CFLAGS += -Dlinux
 
@@ -125,8 +125,7 @@ define Host/Compile
 endef
 
 define Host/Install
-	$(INSTALL_DIR) $(STAGING_DIR)/host/bin
-	$(INSTALL_BIN) $(HOST_BUILD_DIR)/tools/rpcgen/rpcgen $(STAGING_DIR)/host/bin/rpcgen
+	$(INSTALL_BIN) $(HOST_BUILD_DIR)/tools/rpcgen/rpcgen $(STAGING_DIR_HOST)/bin/rpcgen
 endef
 
 define Package/nfs-kernel-server/install
