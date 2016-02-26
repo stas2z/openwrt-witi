@@ -219,6 +219,7 @@ choice
 	config LIBC_USE_GLIBC
 		bool "Use (e)glibc"
 		select USE_GLIBC
+		depends on !arc
 
 	config LIBC_USE_UCLIBC
 		select USE_UCLIBC
@@ -228,14 +229,12 @@ choice
 	config LIBC_USE_MUSL
 		select USE_MUSL
 		bool "Use musl"
-		depends on BROKEN
-		depends on !(mips64 || mips64el)
+		depends on !(arc || mips64 || mips64el)
 
 endchoice
 
 source "toolchain/glibc/Config.in"
 source "toolchain/uClibc/Config.in"
-source "toolchain/musl/Config.in"
 
 comment "Debuggers"
 	depends on TOOLCHAINOPTS
@@ -271,6 +270,7 @@ config USE_EXTERNAL_LIBC
 	bool
 	default y if EXTERNAL_TOOLCHAIN || NATIVE_TOOLCHAIN
 
+source "toolchain/binutils/Config.version"
 source "toolchain/gcc/Config.version"
 
 source "toolchain/glibc/Config.version"

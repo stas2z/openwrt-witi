@@ -48,6 +48,7 @@ ifeq ($(findstring linaro, $(CONFIG_GCC_VERSION)),linaro)
 else
   PKG_SOURCE_URL:=@GNU/gcc/gcc-$(PKG_VERSION)
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+endif
 
   ifeq ($(PKG_VERSION),4.6.3)
     PKG_MD5SUM:=773092fe5194353b02bb0110052a972e
@@ -61,7 +62,6 @@ else
   ifeq ($(PKG_VERSION),5.2.0)
     PKG_MD5SUM:=a51bcfeb3da7dd4c623e27207ed43467
   endif
-endif
 
 PATCH_DIR=../patches/$(GCC_VERSION)
 
@@ -97,6 +97,15 @@ ifdef CONFIG_USE_UCLIBC
   export glibcxx_cv_c99_math_tr1=no
 endif
 
+ifdef CONFIG_GCC_USE_GRAPHITE
+  ifdef CONFIG_GCC_VERSION_4_8
+    GRAPHITE_CONFIGURE=--with-cloog=$(REAL_STAGING_DIR_HOST)
+  else
+    GRAPHITE_CONFIGURE=--with-isl=$(REAL_STAGING_DIR_HOST)
+  endif
+else
+  GRAPHITE_CONFIGURE=--without-isl --without-cloog
+endif
 GCC_CONFIGURE:= \
 	SHELL="$(BASH)" \
 	$(if $(shell gcc --version 2>&1 | grep LLVM), \
@@ -121,13 +130,17 @@ GCC_CONFIGURE:= \
 		$(SOFT_FLOAT_CONFIG_OPTION) \
 		$(call qstrip,$(CONFIG_EXTRA_GCC_CONFIG_OPTIONS)) \
 		$(if $(CONFIG_mips64)$(CONFIG_mips64el),--with-arch=mips64 \
-			--with-abi=$(subst ",,$(CONFIG_MIPS64_ABI))) \
+			--with-abi=$(call qstrip,$(CONFIG_MIPS64_ABI))) \
 		--with-gmp=$(TOPDIR)/staging_dir/host \
 		--with-mpfr=$(TOPDIR)/staging_dir/host \
 		--with-mpc=$(TOPDIR)/staging_dir/host \
 		--disable-decimal-float
 ifneq ($(CONFIG_mips)$(CONFIG_mipsel),)
   GCC_CONFIGURE += --with-mips-plt
+endif
+
+ifndef GCC_VERSION_4_8
+  GCC_CONFIGURE += --with-diagnostics-color=auto-if-env
 endif
 
 ifneq ($(CONFIG_SSP_SUPPORT),)

@@ -21,10 +21,11 @@ choice
 		depends on BINUTILS_VERSION_LINARO
 		bool "gcc 5.1.0"
 
-	config GCC_USE_VERSION_5_2_0
-		select GCC_VERSION_5_2_0
-		depends on BINUTILS_VERSION_LINARO
-		bool "gcc 5.2.0"
+	config GCC_USE_VERSION_5
+		select GCC_VERSION_5
+		bool "gcc 5.x"
+		depends on !arc
+
 
 endchoice
 
@@ -35,7 +36,7 @@ config GCC_USE_GRAPHITE
 config GCC_USE_SYSTEM_PPL_CLOOG
 	bool
 	prompt "Use the system versions of PPL and CLooG"
-	depends on GCC_USE_GRAPHITE
+	depends on GCC_USE_GRAPHITE && GCC_VERSION_4_8
 	default n
 
 config EXTRA_GCC_CONFIG_OPTIONS
@@ -48,7 +49,8 @@ config EXTRA_GCC_CONFIG_OPTIONS
 config SSP_SUPPORT
 	bool
 	prompt "Enable Stack-Smashing Protection support" if TOOLCHAINOPTS
-	default n
+	depends on !USE_MUSL
+	default y if !USE_MUSL
 	help
 	    Enable Stack-Smashing Protection support
 

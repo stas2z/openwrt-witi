@@ -7,23 +7,25 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gdb
-PKG_REV:=7.6-2013.05
-PKG_VERSION_MAJOR:=7.6
-PKG_VERSION:=linaro-$(PKG_REV)
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_MD5SUM:=816290b91cff03912320089d353e8a12
-PKG_SOURCE_URL:=https://releases.linaro.org/archive/13.05/components/toolchain/gdb-linaro/
+PKG_VERSION:=7.10
 
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL:=@GNU/gdb
+PKG_MD5SUM:=2a35bac41fa8e10bf04f3a0dd7f7f363
+GDB_DIR:=$(PKG_NAME)-$(PKG_VERSION)
+
+PATCH_DIR:=./patches/$(PKG_VERSION)
+
+HOST_BUILD_DIR:=$(BUILD_DIR_TOOLCHAIN)/$(GDB_DIR)
 HOST_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/toolchain-build.mk
 
-define Host/Configure
-	(cd $(HOST_BUILD_DIR); \
-		gdb_cv_func_sigsetjmp=yes \
-		CFLAGS="-O2" \
-		$(HOST_BUILD_DIR)/configure \
+HOST_CONFIGURE_VARS += \
+	gdb_cv_func_sigsetjmp=yes
+
+HOST_CONFIGURE_ARGS = \
 		--prefix=$(TOOLCHAIN_DIR) \
 		--build=$(GNU_HOST_NAME) \
 		--host=$(GNU_HOST_NAME) \
@@ -33,8 +35,12 @@ define Host/Configure
 		--disable-tui --disable-gdbtk --without-x \
 		--without-included-gettext \
 		--enable-threads \
-	);
-endef
+	--with-expat \
+	--without-python \
+	--disable-binutils \
+	--disable-ld \
+	--disable-gas \
+	--disable-sim
 
 define Host/Install
 	mkdir -p $(TOOLCHAIN_DIR)/bin
