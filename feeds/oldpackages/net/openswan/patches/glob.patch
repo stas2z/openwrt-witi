@@ -1,0 +1,17 @@
+--- ./lib/libipsecconf/parser.l.orig	2016-02-13 06:47:41.000000000 +0300
++++ ./lib/libipsecconf/parser.l	2016-02-26 03:15:48.310529321 +0300
+@@ -29,4 +29,14 @@
+ #include <ctype.h>
+ 
++#if !defined(GLOB_ABORTED)
++#define GLOB_ABORTED GLOB_ABEND
++#endif
++#if !defined(GLOB_BRACE)
++#define GLOB_BRACE 0
++#endif
++#if !defined(GLOB_NOMAGIC)
++#define GLOB_NOMAGIC 0
++#endif
++
+ #include "ipsecconf/keywords.h"
+ #include "ipsecconf/parser.h"

@@ -1,0 +1,12 @@
+--- ./programs/pluto/adns.c.orig	2016-02-26 03:40:45.797683221 +0300
++++ ./programs/pluto/adns.c	2016-02-26 03:39:40.156676475 +0300
+@@ -176,7 +176,7 @@
+ #endif
+ 
+-#ifdef __UCLIBC__
++//#ifdef __UCLIBC__
+ #define OLD_RESOLVER 1
+-#endif
++//#endif
+ 
+ #ifdef OLD_RESOLVER

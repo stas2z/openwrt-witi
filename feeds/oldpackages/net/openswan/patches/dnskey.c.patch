@@ -1,0 +1,11 @@
+--- ./programs/pluto/dnskey.c.orig	2016-02-13 06:47:41.000000000 +0300
++++ ./programs/pluto/dnskey.c	2016-02-26 03:43:34.651700575 +0300
+@@ -1934,7 +1934,7 @@
+     }
+ 
+     /* now sort it */
+-    qsort_r(array, ai_count, sizeof(struct addrinfo *), ai_compare, NULL);
++    qsort(array, ai_count, sizeof(struct addrinfo *), ai_compare);
+ 
+     /* now put them back into the linked list */
+     ai = array[0];

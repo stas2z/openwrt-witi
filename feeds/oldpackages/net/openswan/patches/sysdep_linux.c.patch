@@ -1,0 +1,11 @@
+--- ./programs/pluto/sysdep_linux.c.orig	2016-02-13 06:47:41.000000000 +0300
++++ ./programs/pluto/sysdep_linux.c	2016-02-26 03:21:11.749562562 +0300
+@@ -134,7 +134,8 @@
+          * Any used by library routines (perhaps the resolver or syslog)
+          * will remain.
+          */
++typedef void (*__sighandler_t)(int);
+ 	__sighandler_t savesig;
+         FILE *f;
+ 
+ 	savesig = signal(SIGCHLD, SIG_DFL);

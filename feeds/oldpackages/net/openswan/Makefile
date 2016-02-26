@@ -8,16 +8,19 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=openswan
-PKG_VERSION:=2.6.46
+PKG_NAME:=Openswan
+PKG_VERSION:=2.6.47dr1
+#PKG_VERSION:=2.6.46
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.openswan.org/download
-PKG_MD5SUM:=b4a2a5326ac2cf23a78512a69d21fa6c
+#PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE:=v$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://github.com/xelerance/Openswan/archive
+#PKG_SOURCE_URL:=http://www.openswan.org/download
+#PKG_MD5SUM:=b4a2a5326ac2cf23a78512a69d21fa6c
 #da2e8b02ecc30a408cc5766767fef84f
 
-PKG_BUILD_PARALLEL:=1
+PKG_BUILD_PARALLEL:=0
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk

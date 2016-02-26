@@ -45,7 +45,7 @@ define Package/samba4-server
   TITLE:=Samba $(PKG_VERSION) SMB/CIFS server
   URL:=http://www.samba.org/
   VARIANT:=samba4-server
-  DEPENDS:=+USE_EGLIBC:librt +libpthread $(INTL_DEPENDS) $(ICONV_DEPENDS) +wsdd
+  DEPENDS:=+USE_EGLIBC:librt +libpthread $(ICONV_DEPENDS) +wsdd +libintl-full
 #+libacl +libattr
 endef
 
@@ -54,7 +54,7 @@ define Package/samba4-client
   CATEGORY:=Network
   TITLE:=Samba $(PKG_VERSION) SMB/CIFS client
   URL:=http://www.samba.org/
-  DEPENDS:=+libphtread +libreadline +libncurses $(ICONV_DEPENDS)
+  DEPENDS:=+libphtread +libreadline +libncurses $(ICONV_DEPENDS) +libintl-full
 #+libacl +libattr
 endef
 
@@ -80,8 +80,8 @@ define Package/luci-app-$(PKG_NAME)
   TITLE:=Samba 4
 endef
 
-TARGET_CFLAGS += -DMAX_DEBUG_LEVEL=$(CONFIG_PACKAGE_SAMBA4_MAX_DEBUG_LEVEL) -D_GNU_SOURCE -D__location__=\\\"\\\" -ffunction-sections -fdata-sections
-TARGET_LDFLAGS += -Wl,--gc-sections $(INTL_LIBS)
+TARGET_CFLAGS += -DMAX_DEBUG_LEVEL=$(CONFIG_PACKAGE_SAMBA4_MAX_DEBUG_LEVEL) -D_GNU_SOURCE -D__location__=\\\"\\\" -ffunction-sections -fdata-sections -lintl
+TARGET_LDFLAGS += -Wl,--gc-sections -lintl
 
 CONFIGURE_VARS += \
 	ac_cv_lib_attr_getxattr=no \
@@ -146,6 +146,7 @@ CONFIGURE_ARGS += \
 	--with-configdir=/etc/samba4 \
 	--with-included-iniparser \
 	--with-included-popt \
+	--with-included-gettext \
 	--with-lockdir=/var/lock \
 	--with-logfilebase=/var/log \
 	--with-nmbdsocketdir=/var/nmbd \
