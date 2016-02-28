@@ -19,7 +19,7 @@ PKG_MD5SUM:=83efba4722a9674b97437d1d99af79db
 PKG_BUILD_PARALLEL:=1
 HOST_BUILD_PARALLEL:=1
 PKG_BUILD_DEPENDS:=glib2/host libpthread zlib libintl libffi
-HOST_BUILD_DEPENDS:=libintl/host libiconv/host libffi/host
+HOST_BUILD_DEPENDS:=gettext-full/host libiconv/host libffi/host
 PKG_INSTALL:=1
 PKG_USE_MIPS16:=0
 
@@ -45,7 +45,8 @@ define Package/glib2/description
 endef
 
 HOST_CONFIGURE_ARGS += \
-	--disable-selinux
+	--disable-selinux \
+	--with-libiconv=gnu
 
 CONFIGURE_ARGS += \
 	--enable-shared \
@@ -53,12 +54,12 @@ CONFIGURE_ARGS += \
 	--enable-debug=no \
 	--disable-selinux \
 	--disable-fam \
-	$(if $(ICONV_FULL),--with-libiconv=gnu)
+	--with-libiconv=gnu
 
 CONFIGURE_VARS += \
 	glib_cv_stack_grows=no \
 	glib_cv_uscore=no \
-	ac_cv_path_GLIB_GENMARSHAL=$(STAGING_DIR_HOST)/bin/glib-genmarshal \
+	ac_cv_path_GLIB_GENMARSHAL=$(STAGING_DIR)/host/bin/glib-genmarshal \
 	ac_cv_func_mmap_fixed_mapped=yes \
 	ac_cv_func_posix_getpwuid_r=yes \
 	ac_cv_func_posix_getgrgid_r=yes
