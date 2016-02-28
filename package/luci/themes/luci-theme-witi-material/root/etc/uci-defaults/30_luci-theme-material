@@ -1,0 +1,7 @@
+#!/bin/sh
+uci batch <<-EOF
+	set luci.themes.Material=/luci-static/witi-material
+	set luci.main.mediaurlbase=/luci-static/witi-material
+	commit luci
+EOF
+exit 0
