@@ -154,6 +154,9 @@ anon_upload:depends("anonymous_enable",1)
 anon_mkdir=s:taboption("anonymous",Flag,"anon_mkdir_write_enable",translate("Anonymous can create folder"))
 anon_mkdir.rmempty=false
 anon_mkdir:depends("anonymous_enable",1)
+anon_other=s:taboption("anonymous",Flag,"anon_other_write_enable",translate("Anonymous can delete"))
+anon_other.rmempty=false
+anon_other:depends("anonymous_enable",1)
 anon_root=s:taboption("anonymous",Value,"anon_root",translate("Anonymous root"))
 anon_root.rmempty=false
 anon_max_rate=s:taboption("anonymous",Value,"anon_max_rate",translate("Speed limit"),translate("In KB/s. 0 means unlimited."))

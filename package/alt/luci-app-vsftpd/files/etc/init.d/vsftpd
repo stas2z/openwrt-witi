@@ -14,7 +14,7 @@ start() {
   local enabled ftpd_banner max_clients local_enable write_enable chown_uploads chroot_local_user local_umask
   local userlist_enable userlist_type anonymous_enable anon_upload_enable anon_mkdir_write_enable userlist
   local dirmessage_enable connect_from_port_20 idle_session_timeout data_connection_timeout async_abor_enable
-  local ascii ls_recurse_enable ascii_download ascii_upload
+  local ascii ls_recurse_enable ascii_download ascii_upload anon_other_write_enable
   local proctitle_enable xferlog_enable log_path chown_username listen_ipv6 pasv_enable pasv_min_port
   local pasv_max_port max_per_ip local_max_rate anon_max_rate
   config_get enabled                 main enabled
@@ -30,6 +30,7 @@ start() {
   config_get anonymous_enable        main anonymous_enable
   config_get anon_upload_enable      main anon_upload_enable
   config_get anon_mkdir_write_enable main anon_mkdir_write_enable
+  config_get anon_other_write_enable main anon_other_write_enable
   config_get dirmessage_enable       main dirmessage_enable
   config_get connect_from_port_20    main connect_from_port_20
   config_get idle_session_timeout    main idle_session_timeout
@@ -68,6 +69,12 @@ start() {
     anon_mkdir_write_enable="YES"
   else
     anon_mkdir_write_enable="NO"
+  fi
+
+  if [ $anon_other_write_enable -eq 1 ]; then
+    anon_other_write_enable="YES"
+  else
+    anon_other_write_enable="NO"
   fi
 
   if [ $local_enable -eq 1 ]; then
@@ -186,6 +193,7 @@ start() {
       -e "s#|ANONYMOUS_ENABLE|#$anonymous_enable#g" \
       -e "s#|ANON_UPLOAD_ENABLE|#$anon_upload_enable#g" \
       -e "s#|ANON_MKDIR_WRITE_ENABLE|#$anon_mkdir_write_enable#g" \
+      -e "s#|ANON_OTHER_WRITE_ENABLE|#$anon_other_write_enable#g" \
       -e "s#|ANON_ROOT|#$anon_root#g" \
       -e "s#|LOCAL_ENABLE|#$local_enable#g" \
       -e "s#|WRITE_ENABLE|#$write_enable#g" \
