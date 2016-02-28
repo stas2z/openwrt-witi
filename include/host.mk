@@ -10,7 +10,6 @@ ifeq ($(if $(TARGET_BUILD),,$(DUMP)),)
   -include $(TMP_DIR)/.host.mk
 endif
 
-export TAR FIND
 
 ifneq ($(__host_inc),1)
 __host_inc:=1
@@ -42,25 +41,11 @@ $(TMP_DIR)/.host.mk: $(TOPDIR)/include/host.mk
 		echo "HOST_OS:=$$HOST_OS" > $@; \
 		echo "HOST_ARCH:=$$HOST_ARCH" >> $@; \
 		echo "GNU_HOST_NAME:=$$GNU_HOST_NAME" >> $@; \
-		TAR=`which gtar 2>/dev/null`; \
-		[ -n "$$TAR" -a -x "$$TAR" ] || TAR=`which gnutar 2>/dev/null`; \
-		[ -n "$$TAR" -a -x "$$TAR" ] || TAR=`which tar 2>/dev/null`; \
-		echo "TAR:=$$TAR" >> $@; \
-		FIND=`which gfind 2>/dev/null`; \
-		[ -n "$$FIND" -a -x "$$FIND" ] || FIND=`which find 2>/dev/null`; \
-		echo "FIND:=$$FIND" >> $@; \
-		echo "BASH:=$(shell which bash)" >> $@; \
-		if $$FIND -L /tmp -maxdepth 0 >/dev/null 2>/dev/null; then \
-			echo "FIND_L=$$FIND -L \$$(1)" >>$@; \
+		if gfind -L /dev/null || find -L /dev/null; then \
+			echo "FIND_L=find -L \$$(1)" >> $@; \
 		else \
-			echo "FIND_L=$$FIND \$$(1) -follow" >> $@; \
-		fi; \
-		PATCH=`which gpatch 2>/dev/null`; \
-		[ -n "$$PATCH" -a -x "$$PATCH" ] || PATCH=`which patch 2>/dev/null`; \
-		echo "PATCH:=$$PATCH" >> $@; \
-		PYTHON=`which python2.7 2>/dev/null`; \
-		[ -n "$$PYTHON" -a -x "$$PYTHON" ] || PYTHON=`which python 2>/dev/null`; \
-		echo "PYTHON:=$$PYTHON" >> $@; \
-	)
+			echo "FIND_L=find \$$(1) -follow" >> $@; \
+		fi \
+	) >/dev/null 2>/dev/null
 
 endif

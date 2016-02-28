@@ -119,7 +119,7 @@ ifeq ($(DUMP),)
     endif
 
     DEPENDS:=$(call PKG_FIXUP_DEPENDS,$(1),$(DEPENDS))
-    IDEPEND_$(1):=$$(call filter_deps,$$(DEPENDS))
+    IDEPEND_$(1):= $$(call filter_deps,$$(DEPENDS)) 
     IDEPEND += $$(patsubst %,$(1):%,$$(IDEPEND_$(1)))
     $(FixupDependencies)
     $(FixupReverseDependencies)
@@ -186,7 +186,7 @@ $(_endef)
 
 	$(RSTRIP) $$(IDIR_$(1))
 	(cd $$(IDIR_$(1))/CONTROL; \
-	( \
+		( \
 			echo "$$$$CONTROL"; \
 			printf "Description: "; echo "$$$$DESCRIPTION" | sed -e 's,^[[:space:]]*, ,g'; \
 		) > control; \

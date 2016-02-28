@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2006-2011 OpenWrt.org
+# Copyright (C) 2006-2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -35,7 +35,7 @@ else
   endif
   KERNEL_BUILD_DIR ?= $(BUILD_DIR)/linux-$(BOARD)$(if $(SUBTARGET),_$(SUBTARGET))
   LINUX_DIR ?= $(KERNEL_BUILD_DIR)/linux-$(LINUX_VERSION)
-    LINUX_UAPI_DIR=uapi/
+  LINUX_UAPI_DIR=uapi/
   LINUX_VERMAGIC:=$(strip $(shell cat $(LINUX_DIR)/.vermagic 2>/dev/null))
   LINUX_VERMAGIC:=$(if $(LINUX_VERMAGIC),$(LINUX_VERMAGIC),unknown)
 
@@ -65,17 +65,19 @@ ifneq (,$(findstring uml,$(BOARD)))
   LINUX_KARCH=um
 else ifneq (,$(findstring $(ARCH), aarch64 aarch64_be))
   LINUX_KARCH := arm64
-else ifneq (,$(findstring $(ARCH), armeb))
+else ifneq (,$(findstring $(ARCH) , arceb ))
+  LINUX_KARCH := arc
+else ifneq (,$(findstring $(ARCH) , armeb ))
   LINUX_KARCH := arm
-else ifneq (,$(findstring $(ARCH), mipsel mips64 mips64el))
+else ifneq (,$(findstring $(ARCH) , mipsel mips64 mips64el ))
   LINUX_KARCH := mips
-else ifneq (,$(findstring $(ARCH), sh2 sh3 sh4))
+else ifneq (,$(findstring $(ARCH) , sh2 sh3 sh4 ))
   LINUX_KARCH := sh
-else ifneq (,$(findstring $(ARCH), i386 x86_64))
+else ifneq (,$(findstring $(ARCH) , i386 x86_64 ))
   LINUX_KARCH := x86
 else
   LINUX_KARCH := $(ARCH)
-  endif
+endif
 
 
 define KernelPackage/Defaults
@@ -90,9 +92,9 @@ define ModuleAutoLoad
 		mods="$$$$$$$$1"; \
 		boot="$$$$$$$$2"; \
 		shift 2; \
-		for mod in $$$$$$$$mods; do \
-				mkdir -p $(2)/etc/modules.d; \
-				echo "$$$$$$$$mod" >> $(2)/etc/modules.d/$(1); \
+		for mod in $(sort $$$$$$$$mods); do \
+			mkdir -p $(2)/etc/modules.d; \
+			echo "$$$$$$$$mod" >> $(2)/etc/modules.d/$(1); \
 		done; \
 		if [ -e $(2)/etc/modules.d/$(1) ]; then \
 			if [ "$$$$$$$$boot" = "1" ]; then \
@@ -107,9 +109,9 @@ define ModuleAutoLoad
 		mods="$$$$$$$$2"; \
 		boot="$$$$$$$$3"; \
 		shift 3; \
-		for mod in $$$$$$$$mods; do \
-				mkdir -p $(2)/etc/modules.d; \
-				echo "$$$$$$$$mod" >> $(2)/etc/modules.d/$$$$$$$$priority-$(1); \
+		for mod in $(sort $$$$$$$$mods); do \
+			mkdir -p $(2)/etc/modules.d; \
+			echo "$$$$$$$$mod" >> $(2)/etc/modules.d/$$$$$$$$priority-$(1); \
 		done; \
 		if [ -e $(2)/etc/modules.d/$$$$$$$$priority-$(1) ]; then \
 			if [ "$$$$$$$$boot" = "1" ]; then \
@@ -155,6 +157,7 @@ define KernelPackage
     DESCRIPTION:=$(DESCRIPTION)
     EXTRA_DEPENDS:=kernel (=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC))
     VERSION:=$(LINUX_VERSION)$(if $(PKG_VERSION),+$(PKG_VERSION))-$(if $(PKG_RELEASE),$(PKG_RELEASE),$(LINUX_RELEASE))
+    PACKAGE_SUBDIR:=$(if $(FEED),$(FEED),kernel)
     $(call KernelPackage/$(1))
     $(call KernelPackage/$(1)/$(BOARD))
   endef
@@ -179,21 +182,17 @@ $(call KernelPackage/$(1)/config)
   $(call KernelPackage/depends)
 
   ifneq ($(if $(filter-out %=y %=n %=m,$(KCONFIG)),$(filter m y,$(foreach c,$(filter-out %=y %=n %=m,$(KCONFIG)),$($(c)))),.),)
-    ifneq ($(if $(SDK),$(filter-out $(LINUX_DIR)/%.ko,$(FILES)),$(strip $(FILES))),)
+    ifneq ($(strip $(FILES)),)
       define Package/kmod-$(1)/install
 		  @for mod in $$(call version_filter,$$(FILES)); do \
-			if [ -e $$$$$$$$mod ]; then \
+			if grep -q "$$$$$$$${mod##$(LINUX_DIR)/}" "$(LINUX_DIR)/modules.builtin"; then \
+				echo "NOTICE: module '$$$$$$$$mod' is built-in."; \
+			elif [ -e $$$$$$$$mod ]; then \
 				mkdir -p $$(1)/$(MODULES_SUBDIR) ; \
 				$(CP) -L $$$$$$$$mod $$(1)/$(MODULES_SUBDIR)/ ; \
-			elif [ -e "$(LINUX_DIR)/modules.builtin" ]; then \
-				if grep -q "$$$$$$$${mod##$(LINUX_DIR)/}" "$(LINUX_DIR)/modules.builtin"; then \
-					echo "NOTICE: module '$$$$$$$$mod' is built-in."; \
-				else \
-					echo "ERROR: module '$$$$$$$$mod' is missing." >&2; \
-					exit 1; \
-				fi; \
 			else \
-				echo "WARNING: module '$$$$$$$$mod' missing and modules.builtin not available, assuming built-in." >&2; \
+				echo "ERROR: module '$$$$$$$$mod' is missing." >&2; \
+				exit 1; \
 			fi; \
 		  done;
 		  $(call ModuleAutoLoad,$(1),$$(1),$(AUTOLOAD))

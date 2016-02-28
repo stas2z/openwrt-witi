@@ -14,13 +14,7 @@ PKG_INSTALL_DIR ?= $(PKG_BUILD_DIR)/ipkg-install
 PKG_MD5SUM ?= unknown
 PKG_BUILD_PARALLEL ?=
 PKG_USE_MIPS16 ?= 0
-PKG_CHECK_FORMAT_SECURITY ?= 0
-PKG_CC_STACKPROTECTOR_REGULAR ?= 1
-PKG_CC_STACKPROTECTOR_STRONG ?= 1
-PKG_FORTIFY_SOURCE_1 ?= 1
-PKG_FORTIFY_SOURCE_2 ?= 1
-PKG_RELRO_PARTIAL ?= 1
-PKG_RELRO_FULL ?= 1
+PKG_IREMAP ?= 1
 
 ifneq ($(CONFIG_PKG_BUILD_USE_JOBSERVER),)
   MAKE_J:=$(if $(MAKE_JOBSERVER),$(MAKE_JOBSERVER) -j)
@@ -40,42 +34,14 @@ ifdef CONFIG_USE_MIPS16
     TARGET_CFLAGS += -mips16 -minterlink-mips16
   endif
 endif
-ifdef CONFIG_PKG_CHECK_FORMAT_SECURITY
-ifeq ($(strip $(PKG_CHECK_FORMAT_SECURITY)),1)
-  TARGET_CFLAGS += -Wformat -Werror=format-security
-endif
-endif
-ifdef CONFIG_PKG_CC_STACKPROTECTOR_REGULAR
-  ifeq ($(strip $(PKG_CC_STACKPROTECTOR_REGULAR)),1)
-    TARGET_CFLAGS += -fstack-protector
-  endif
-endif
-ifdef CONFIG_PKG_CC_STACKPROTECTOR_STRONG
-  ifeq ($(strip $(PKG_CC_STACKPROTECTOR_STRONG)),1)
-    TARGET_CFLAGS += -fstack-protector-strong
-  endif
-endif
-ifdef CONFIG_PKG_FORTIFY_SOURCE_1
-  ifeq ($(strip $(PKG_FORTIFY_SOURCE_1)),1)
-    TARGET_CFLAGS += -D_FORTIFY_SOURCE=1
-  endif
-endif
-ifdef CONFIG_PKG_FORTIFY_SOURCE_2
-  ifeq ($(strip $(PKG_FORTIFY_SOURCE_2)),1)
-    TARGET_CFLAGS += -D_FORTIFY_SOURCE=2
-  endif
-endif
-ifdef CONFIG_PKG_RELRO_PARTIAL
-  ifeq ($(strip $(PKG_RELRO_PARTIAL)),1)
-    TARGET_CFLAGS += -Wl,-z,relro
-  endif
-endif
-ifdef CONFIG_PKG_RELRO_FULL
-  ifeq ($(strip $(PKG_RELRO_FULL)),1)
-    TARGET_CFLAGS += -Wl,-z,now -Wl,-z,relro
-  endif
+ifeq ($(strip $(PKG_IREMAP)),1)
+  IREMAP_CFLAGS = $(call iremap,$(PKG_BUILD_DIR),$(notdir $(PKG_BUILD_DIR)))
+  TARGET_CFLAGS += $(IREMAP_CFLAGS)
 endif
 
+
+
+include $(INCLUDE_DIR)/hardening.mk
 include $(INCLUDE_DIR)/prereq.mk
 include $(INCLUDE_DIR)/host.mk
 include $(INCLUDE_DIR)/unpack.mk
@@ -90,6 +56,7 @@ find_library_dependencies = $(wildcard $(patsubst %,$(STAGING_DIR)/pkginfo/%.ver
 		) \
 	))))
 
+PKG_DIR_NAME:=$(lastword $(subst /,$(space),$(CURDIR)))
 STAMP_NO_AUTOREBUILD=$(wildcard $(PKG_BUILD_DIR)/.no_autorebuild)
 PREV_STAMP_PREPARED:=$(if $(STAMP_NO_AUTOREBUILD),$(wildcard $(PKG_BUILD_DIR)/.prepared*))
 ifneq ($(PREV_STAMP_PREPARED),)
@@ -101,9 +68,9 @@ endif
 STAMP_CONFIGURED=$(PKG_BUILD_DIR)/.configured$(if $(DUMP),,_$(call confvar,$(PKG_CONFIG_DEPENDS)))
 STAMP_CONFIGURED_WILDCARD=$(patsubst %_$(call confvar,$(PKG_CONFIG_DEPENDS)),%_*,$(STAMP_CONFIGURED))
 STAMP_BUILT:=$(PKG_BUILD_DIR)/.built
-STAMP_INSTALLED:=$(STAGING_DIR)/stamp/.$(PKG_NAME)$(if $(BUILD_VARIANT),.$(BUILD_VARIANT),)_installed
+STAMP_INSTALLED:=$(STAGING_DIR)/stamp/.$(PKG_DIR_NAME)$(if $(BUILD_VARIANT),.$(BUILD_VARIANT),)_installed
 
-STAGING_FILES_LIST:=$(PKG_NAME)$(if $(BUILD_VARIANT),.$(BUILD_VARIANT),).list
+STAGING_FILES_LIST:=$(PKG_DIR_NAME)$(if $(BUILD_VARIANT),.$(BUILD_VARIANT),).list
 define CleanStaging
 	rm -f $(STAMP_INSTALLED)
 	@-(\
@@ -124,7 +91,6 @@ ifneq ($(wildcard $(PKG_BUILD_DIR)/.source_dir),)
   QUILT:=1
 endif
 
-PKG_DIR_NAME:=$(lastword $(subst /,$(space),$(CURDIR)))
 PKG_INSTALL_STAMP:=$(PKG_INFO_DIR)/$(PKG_DIR_NAME).$(if $(BUILD_VARIANT),$(BUILD_VARIANT),default).install
 
 include $(INCLUDE_DIR)/download.mk
@@ -229,28 +195,28 @@ define Build/DefaultTargets
 
   $(STAMP_INSTALLED) : export PATH=$$(TARGET_PATH_PKG)
   $(STAMP_INSTALLED): $(STAMP_BUILT)
-	rm -rf $(TMP_DIR)/stage-$(PKG_NAME)
-	mkdir -p $(TMP_DIR)/stage-$(PKG_NAME)/host $(STAGING_DIR)/packages $(STAGING_DIR_HOST)/packages
+	rm -rf $(TMP_DIR)/stage-$(PKG_DIR_NAME)
+	mkdir -p $(TMP_DIR)/stage-$(PKG_DIR_NAME)/host $(STAGING_DIR)/packages $(STAGING_DIR_HOST)/packages
 	$(foreach hook,$(Hooks/InstallDev/Pre),\
-		$(call $(hook),$(TMP_DIR)/stage-$(PKG_NAME),$(TMP_DIR)/stage-$(PKG_NAME)/host)$(sep)\
+		$(call $(hook),$(TMP_DIR)/stage-$(PKG_DIR_NAME),$(TMP_DIR)/stage-$(PKG_DIR_NAME)/host)$(sep)\
 	)
-	$(call Build/InstallDev,$(TMP_DIR)/stage-$(PKG_NAME),$(TMP_DIR)/stage-$(PKG_NAME)/host)
+	$(call Build/InstallDev,$(TMP_DIR)/stage-$(PKG_DIR_NAME),$(TMP_DIR)/stage-$(PKG_DIR_NAME)/host)
 	$(foreach hook,$(Hooks/InstallDev/Post),\
-		$(call $(hook),$(TMP_DIR)/stage-$(PKG_NAME),$(TMP_DIR)/stage-$(PKG_NAME)/host)$(sep)\
+		$(call $(hook),$(TMP_DIR)/stage-$(PKG_DIR_NAME),$(TMP_DIR)/stage-$(PKG_DIR_NAME)/host)$(sep)\
 	)
 	if [ -f $(STAGING_DIR)/packages/$(STAGING_FILES_LIST) ]; then \
 		$(SCRIPT_DIR)/clean-package.sh \
 			"$(STAGING_DIR)/packages/$(STAGING_FILES_LIST)" \
 			"$(STAGING_DIR)"; \
 	fi
-	if [ -d $(TMP_DIR)/stage-$(PKG_NAME) ]; then \
-		(cd $(TMP_DIR)/stage-$(PKG_NAME); find ./ > $(TMP_DIR)/stage-$(PKG_NAME).files); \
+	if [ -d $(TMP_DIR)/stage-$(PKG_DIR_NAME) ]; then \
+		(cd $(TMP_DIR)/stage-$(PKG_DIR_NAME); find ./ > $(TMP_DIR)/stage-$(PKG_DIR_NAME).files); \
 		$(call locked, \
-			mv $(TMP_DIR)/stage-$(PKG_NAME).files $(STAGING_DIR)/packages/$(STAGING_FILES_LIST) && \
-			$(CP) $(TMP_DIR)/stage-$(PKG_NAME)/* $(STAGING_DIR)/; \
+			mv $(TMP_DIR)/stage-$(PKG_DIR_NAME).files $(STAGING_DIR)/packages/$(STAGING_FILES_LIST) && \
+			$(CP) $(TMP_DIR)/stage-$(PKG_DIR_NAME)/* $(STAGING_DIR)/; \
 		,staging-dir); \
 	fi
-	rm -rf $(TMP_DIR)/stage-$(PKG_NAME)
+	rm -rf $(TMP_DIR)/stage-$(PKG_DIR_NAME)
 	touch $$@
 
   ifdef Build/InstallDev
@@ -267,7 +233,7 @@ define Build/DefaultTargets
 endef
 
 define Build/IncludeOverlay
-  $(eval -include $(wildcard $(TOPDIR)/overlay/*/$(PKG_NAME).mk))
+  $(eval -include $(wildcard $(TOPDIR)/overlay/*/$(PKG_DIR_NAME).mk))
   define Build/IncludeOverlay
   endef
 endef
@@ -350,6 +316,5 @@ clean: FORCE
 
 dist:
 	$(Build/Dist)
-   
 distcheck:
-	$(Build/DistCheck) 
+	$(Build/DistCheck)

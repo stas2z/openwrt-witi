@@ -17,6 +17,7 @@ define Package/Default
   CONFIGFILE:=
   SECTION:=opt
   CATEGORY:=Extra packages
+  PACKAGE_SUBDIR:=$(FEED)
   DEPENDS:=
   MDEPENDS:=
   CONFLICTS:=
@@ -70,7 +71,7 @@ EXTRA_CXXFLAGS = $(EXTRA_CFLAGS)
 ifeq ($(CONFIG_BUILD_NLS),y)
     DISABLE_NLS:=
 else
-DISABLE_NLS:=--disable-nls
+    DISABLE_NLS:=--disable-nls
 endif
 
 CONFIGURE_PREFIX:=/usr

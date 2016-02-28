@@ -13,7 +13,7 @@ DOWNLOAD_RDEP=$(STAMP_PREPARED) $(HOST_STAMP_PREPARED)
 define dl_method
 $(strip \
   $(if $(2),$(2), \
-    $(if $(filter @GNOME/% @GNU/% @KERNEL/% @SF/% @SAVANNAH/% ftp://% http://% https://% file://%,$(1)),default, \
+    $(if $(filter @APACHE/% @GNOME/% @GNU/% @KERNEL/% @SF/% @SAVANNAH/% ftp://% http://% https://% file://%,$(1)),default, \
       $(if $(filter git://%,$(1)),git, \
         $(if $(filter svn://%,$(1)),svn, \
           $(if $(filter cvs://%,$(1)),cvs, \
@@ -44,11 +44,11 @@ define DownloadMethod/unknown
 endef
 
 define DownloadMethod/default
-	$(SCRIPT_DIR)/download.pl "$(DL_DIR)" "$(FILE)" "$(MD5SUM)" $(foreach url,$(URL),"$(url)")
+	$(SCRIPT_DIR)/download.pl "$(DL_DIR)" "$(FILE)" "$(MD5SUM)" "$(URL_FILE)" $(foreach url,$(URL),"$(url)")
 endef
 
 define wrap_mirror
-	$(if $(if $(MIRROR),$(filter-out x,$(MIRROR_MD5SUM))),@$(SCRIPT_DIR)/download.pl "$(DL_DIR)" "$(FILE)" "$(MIRROR_MD5SUM)" || ( $(1) ),$(1))
+$(if $(if $(MIRROR),$(filter-out x,$(MIRROR_MD5SUM))),$(SCRIPT_DIR)/download.pl "$(DL_DIR)" "$(FILE)" "$(MIRROR_MD5SUM)" "" || ( $(1) ),$(1))
 endef
 
 define DownloadMethod/cvs
@@ -157,6 +157,7 @@ Validate/darcs=VERSION SUBDIR
 define Download/Defaults
   URL:=
   FILE:=
+  URL_FILE:=
   PROTO:=
   MD5SUM:=
   SUBDIR:=
@@ -181,6 +182,6 @@ define Download
 
   $(DL_DIR)/$(FILE):
 	mkdir -p $(DL_DIR)
-	$(if $(DownloadMethod/$(call dl_method,$(URL),$(PROTO))),$(DownloadMethod/$(call dl_method,$(URL),$(PROTO))),$(DownloadMethod/unknown))
+	$(call locked,$(if $(DownloadMethod/$(call dl_method,$(URL),$(PROTO))),$(DownloadMethod/$(call dl_method,$(URL),$(PROTO))),$(DownloadMethod/unknown)),$(FILE))
 
 endef
