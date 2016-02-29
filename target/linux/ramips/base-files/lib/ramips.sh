@@ -19,6 +19,9 @@ ramips_board_detect() {
 	*"MQmaker WiTi board")
 		name="witi"
 		;;
+	*"MQ-WITI")
+		name="witi"
+		;;
 	*"MQmaker WiTi")
 		name="witi"
 		;;
