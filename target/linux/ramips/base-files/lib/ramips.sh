@@ -16,7 +16,7 @@ ramips_board_detect() {
 	*"7Links PX-4885")
 		name="px4885"
 		;;
-	*"MQ-WITI")
+	*"MQmaker WiTi board")
 		name="witi"
 		;;
 	*"MQmaker WiTi")
