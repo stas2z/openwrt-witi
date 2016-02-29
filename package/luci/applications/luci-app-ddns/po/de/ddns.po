@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: luci-app-ddns\n"
-"POT-Creation-Date: 2015-05-08 21:29+0100\n"
-"PO-Revision-Date: 2015-05-08 21:47+0100\n"
+"Project-Id-Version: luci-app-ddns 2.4.0-1\n"
+"POT-Creation-Date: 2016-01-30 11:07+0100\n"
+"PO-Revision-Date: 2016-01-30 11:07+0100\n"
 "Last-Translator: Christian Schoenebeck <christian.schoenebeck@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.7.5\n"
+"X-Generator: Poedit 1.8.4\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: .\n"
@@ -55,20 +55,30 @@ msgstr "'Bind' an ein bestimmtes Netzwerk wird nicht unterstützt"
 
 msgid ""
 "BusyBox's nslookup and Wget do not support to specify the IP version to use "
-"for communication with DDNS Provider."
+"for communication with DDNS Provider!"
 msgstr ""
 "BusyBox's nslookup und Wget unterstützen nicht die IP Version für die "
-"Kommunikation festzulegen."
+"Kommunikation festzulegen!"
 
 msgid ""
-"BusyBox's nslookup does not support to specify to use TCP instead of default "
-"UDP when requesting DNS server"
+"BusyBox's nslookup and hostip do not support to specify to use TCP instead "
+"of default UDP when requesting DNS server!"
 msgstr ""
-"BusyBox's nslookup unterstützt es nicht das TCP-Protokoll für DNS Anfragen "
-"anstelle des standardmäßigen UDP-Protokolls."
+"BusyBox's nslookup und hostip unterstützen es nicht das TCP-Protokoll für "
+"DNS Anfragen anstelle des standardmäßigen UDP-Protokolls zu verwenden!"
+
+msgid ""
+"BusyBox's nslookup in the current compiled version does not handle given DNS "
+"Servers correctly!"
+msgstr ""
+"BusyBox nslookup in der aktuellen compilierten Version kann gegebenen DNS-"
+"Server nicht korrekt verarbeiten!"
 
 msgid "Casual users should not change this setting"
 msgstr "Standard Benutzer sollten diese Einstellung nicht ändern."
+
+msgid "Change provider"
+msgstr "Anbieter wechseln"
 
 msgid "Check Interval"
 msgstr "Prüfinterval"
@@ -124,6 +134,12 @@ msgstr "Eigenes Update-Skript"
 
 msgid "DDNS Autostart disabled"
 msgstr "DDNS Autostart deaktiviert"
+
+msgid "DDNS Client Configuration"
+msgstr "DDNS Client Konfiguration"
+
+msgid "DDNS Client Documentation"
+msgstr "DDNS Client Dokumentation"
 
 msgid "DDNS Service provider"
 msgstr "DDNS-Dienstanbieter"
@@ -195,6 +211,9 @@ msgstr ""
 
 msgid "Disabled"
 msgstr "Deaktiviert"
+
+msgid "Domain"
+msgstr "Domäne"
 
 msgid "Dynamic DNS"
 msgstr "Dynamisches DNS"
@@ -284,8 +303,10 @@ msgstr "HTTPS nicht unterstützt"
 msgid "Hints"
 msgstr "Hinweise"
 
-msgid "Hostname/Domain"
-msgstr "Rechnername/Domäne"
+msgid "Hostname/FQDN to validate, if IP update happen or necessary"
+msgstr ""
+"Hostname/FQDN um zu überprüfen, ob eine Aktualisierung stattgefunden hat "
+"oder notwendig ist"
 
 msgid "IP address source"
 msgstr "IP-Adressquelle"
@@ -324,6 +345,11 @@ msgstr ""
 "Wenn deaktiviert kann die Aktualisierung nicht gestartet werden.<br />Weder "
 "über das LuCI Web Interface noch von der Geräte-Konsole"
 
+msgid "If using secure communication you should verify server certificates!"
+msgstr ""
+"Wenn Sie sichere Kommunikation verwenden, sollten Sie Serverzertifikate "
+"überprüfen!"
+
 msgid ""
 "If you want to send updates for IPv4 and IPv6 you need to define two "
 "separate Configurations i.e. 'myddns_ipv4' and 'myddns_ipv6'"
@@ -339,6 +365,13 @@ msgstr ""
 
 msgid "Info"
 msgstr "Informationen"
+
+msgid ""
+"Install ca-certificates package or needed certificates by hand into /etc/ssl/"
+"certs default directory"
+msgstr ""
+"Installieren Sie das ca-certificate Paket oder die benötigten Zertifikate "
+"von Hand in das Standardverzeichnis /etc/ssl/certs"
 
 msgid "Interface"
 msgstr "Schnittstelle"
@@ -385,6 +418,12 @@ msgstr "Protokoll in Datei schreiben"
 msgid "Log to syslog"
 msgstr "Systemprotokoll verwenden"
 
+msgid "Lookup Hostname"
+msgstr "Nachschlage-Hostname"
+
+msgid "NOT installed"
+msgstr "NICHT installiert"
+
 msgid ""
 "Neither GNU Wget with SSL nor cURL installed to select a network to use for "
 "communication."
@@ -410,6 +449,9 @@ msgstr "Nie"
 
 msgid "Next Update"
 msgstr "Nächste Aktualisierung"
+
+msgid "No certificates found"
+msgstr "Keine Zertifikate gefunden"
 
 msgid "No data"
 msgstr "Keine Daten"
@@ -454,6 +496,21 @@ msgstr ""
 msgid "On Error the script will stop execution after given number of retrys"
 msgstr "Das Skript wird nach der gegebenen Anzahl von Fehlversuchen beendet."
 
+msgid "OpenWrt Wiki"
+msgstr "OpenWrt Wiki"
+
+msgid "Optional Encoded Parameter"
+msgstr "Optionaler codierten Parameter"
+
+msgid "Optional Parameter"
+msgstr "Optionaler Parameter"
+
+msgid "Optional: Replaces [PARAMENC] in Update-URL (URL-encoded)"
+msgstr "Optional: Ersetzt [PARAMENC] in der Update-URL (URL-codiert)"
+
+msgid "Optional: Replaces [PARAMOPT] in Update-URL (NOT URL-encoded)"
+msgstr "Optional: Ersetzt [PARAMENC] in der Update-URL (NICHT URL-codiert)"
+
 msgid "Overview"
 msgstr "Übersicht"
 
@@ -484,17 +541,20 @@ msgstr "Prozess ID"
 msgid "Read / Reread log file"
 msgstr "Protokolldatei (neu) einlesen"
 
+msgid "Really change DDNS provider?"
+msgstr "Wirklich DDNS-Anbieter wechseln?"
+
 msgid "Registered IP"
 msgstr "Registrierte IP"
 
 msgid "Replaces [DOMAIN] in Update-URL"
 msgstr "Ersetzt [DOMAIN] in der Update-URL"
 
-msgid "Replaces [PASSWORD] in Update-URL"
-msgstr "Ersetzt [PASSWORD] in der Update-URL"
+msgid "Replaces [PASSWORD] in Update-URL (URL-encoded)"
+msgstr "Ersetzt [PASSWORD] in der Update-URL (URL-codiert)"
 
-msgid "Replaces [USERNAME] in Update-URL"
-msgstr "Ersetzt [USERNAME] in der Update-URL"
+msgid "Replaces [USERNAME] in Update-URL (URL-encoded)"
+msgstr "Ersetzt [USERNAME] in der Update-URL (URL-codiert)"
 
 msgid "Run once"
 msgstr "Einmalig ausführen"
@@ -507,6 +567,9 @@ msgstr "Zeige mehr"
 
 msgid "Software update required"
 msgstr "Softwareaktualisierung nötig"
+
+msgid "Specifying a DNS-Server is not supported"
+msgstr "Die Angabe eines DNS-Server wird nicht unterstützt"
 
 msgid "Start"
 msgstr "Start"
@@ -528,7 +591,7 @@ msgstr ""
 "Optionen."
 
 msgid "The default setting of '0' will retry infinite."
-msgstr "Der Standard-Wert von '0' wird es endlosen erneut versuchen."
+msgstr "Beim Standard-Wert von '0' wird es endlos erneut versucht."
 
 msgid "There is no service configured."
 msgstr "Kein Dienst konfiguriert"
@@ -575,6 +638,9 @@ msgstr ""
 msgid "Username"
 msgstr "Benutzername"
 
+msgid "Using specific DNS Server not supported"
+msgstr "Verwendung spezifischer DNS-Server wird nicht unterstützt"
+
 msgid "Verify"
 msgstr "überprüfen"
 
@@ -602,6 +668,18 @@ msgid ""
 msgstr ""
 "Schreibt Meldungen ins Systemprotokoll. Kritische Fehler werden immer in das "
 "Systemprotokoll geschrieben."
+
+msgid "You should install BIND host or hostip package for DNS requests."
+msgstr ""
+"Sie sollten das Programmpakete BIND host oder hostip für DNS Anfragen "
+"installieren."
+
+msgid ""
+"You should install BIND host or hostip package, if you need to specify a DNS "
+"server to detect your registered IP."
+msgstr ""
+"Sie sollten das BIND host oder hostIP Paket installieren, wenn Sie einen DNS-"
+"Server angeben müssen um Ihre registrierte IP zu ermitteln."
 
 msgid "You should install BIND host package for DNS requests."
 msgstr ""
@@ -661,8 +739,8 @@ msgstr "Stunden"
 msgid "installed"
 msgstr "installiert"
 
-msgid "invalid - Sample"
-msgstr "ungültig - Beispiel"
+msgid "invalid FQDN / required - Sample"
+msgstr "ungültige FQDN / Pflichtfeld - Beispiel"
 
 msgid "minimum value '0'"
 msgstr "Minimum Wert '0'"
