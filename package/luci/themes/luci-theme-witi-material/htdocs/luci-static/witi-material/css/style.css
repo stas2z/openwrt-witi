@@ -133,8 +133,8 @@ header, .main {
 }
 
 header {
-    height: 4rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, .26);
+    height: 3rem;
+    box-shadow: 0 1px 7px rgba(0, 0, 0, .26);
     transition: box-shadow .2s;
     float: left;
     position: fixed;
@@ -236,21 +236,21 @@ footer > a {
 }
 
 header {
-    background: #CC1100;
-    color: white;
+    background: white;
+    color: #CC2200;
 }
 
 header > .container {
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem 0 1rem;
+    margin-top: 0.1rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
 }
 
 header > .container > .brand {
-    font-size: 1.4rem;
-    color: white;
+    font-size: 1.3rem;
+    color: black;
     text-decoration: none;
     cursor: default;
-    vertical-align: text-bottom;
+    vertical-align: bottom;
 }
 
 .warning {
@@ -260,12 +260,12 @@ header > .container > .brand {
 
 .errorbox,
 .alert-message {
-    margin: 2rem 0 0 0;
-    padding: 2rem;
+    margin: 0rem 0 0 0;
+    padding: 0.5rem;
     border: 0;
     font-weight: normal;
     font-style: normal;
-    line-height: 1;
+    line-height: 2;
     font-family: inherit;
     min-width: inherit;
     overflow: auto;
@@ -799,6 +799,10 @@ form.inline + form.inline,
 td > .ifacebadge {
     background-color: #F0F0F0;
     font-size: 0.9rem;
+}
+
+.ifacebadge > br {
+    content: '';
 }
 
 .ifacebadge > img {
