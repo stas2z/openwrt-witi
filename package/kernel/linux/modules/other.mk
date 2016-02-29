@@ -13,9 +13,9 @@ WATCHDOG_DIR:=watchdog
 define KernelPackage/6lowpan
   SUBMENU:=$(OTHER_MENU)
   TITLE:=6LoWPAN shared code
-  KCONFIG:=CONFIG_6LOWPAN
-  FILES:=$(LINUX_DIR)/net/6lowpan/6lowpan.ko
-  AUTOLOAD:=$(call AutoProbe,6lowpan)
+  KCONFIG:=CONFIG_6LOWPAN_IPHC
+  FILES:=$(LINUX_DIR)/net/ieee802154/6lowpan_iphc.ko
+  AUTOLOAD:=$(call Autoprobe,6lowpan_iphc)
 endef
 
 define KernelPackage/6lowpan/description
@@ -637,6 +637,7 @@ define KernelPackage/mtdtests
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MTD subsystem tests
   KCONFIG:=CONFIG_MTD_TESTS
+  DEPENDS:=+kmod-nand
   FILES:=\
 	$(LINUX_DIR)/drivers/mtd/tests/mtd_nandecctest.ko \
 	$(LINUX_DIR)/drivers/mtd/tests/mtd_oobtest.ko \
@@ -655,6 +656,39 @@ endef
 $(eval $(call KernelPackage,mtdtests))
 
 
+define KernelPackage/nand
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=NAND flash support
+  KCONFIG:=CONFIG_MTD_NAND \
+	CONFIG_MTD_NAND_IDS \
+	CONFIG_MTD_NAND_ECC
+  FILES:= \
+	$(LINUX_DIR)/drivers/mtd/nand/nand_ids.ko \
+	$(LINUX_DIR)/drivers/mtd/nand/nand_ecc.ko \
+	$(LINUX_DIR)/drivers/mtd/nand/nand.ko
+  AUTOLOAD:=$(call AutoLoad,20,nand_ids nand_ecc nand)
+endef
+
+define KernelPackage/nand/description
+ Kernel module for NAND support
+endef
+
+$(eval $(call KernelPackage,nand))
+
+
+define KernelPackage/nandsim
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=NAND simulator
+  DEPENDS:=+kmod-nand
+  KCONFIG:=CONFIG_MTD_NAND_NANDSIM
+  FILES:=$(LINUX_DIR)/drivers/mtd/nand/nandsim.ko
+endef
+
+define KernelPackage/nandsim/description
+ Kernel module for NAND flash simulation.
+endef
+
+$(eval $(call KernelPackage,nandsim))
 
 define KernelPackage/serial-8250
   SUBMENU:=$(OTHER_MENU)
@@ -667,7 +701,7 @@ define KernelPackage/serial-8250
 	CONFIG_SERIAL_8250_SHARE_IRQ=y \
 	CONFIG_SERIAL_8250_DETECT_IRQ=n \
 	CONFIG_SERIAL_8250_RSA=n
-  FILES:=$(LINUX_DIR)/drivers/tty/serial/8250/8250.ko
+  FILES:=$(LINUX_DIR)/drivers/tty/serial/8250/8250$(if $(call kernel_patchver_ge,3.7),$(if $(call kernel_patchver_le,3.8),_core)).ko
 endef
 
 define KernelPackage/serial-8250/description
@@ -725,9 +759,9 @@ define KernelPackage/zram
 	CONFIG_PGTABLE_MAPPING=n \
 	CONFIG_ZSMALLOC_STAT=n \
 	CONFIG_ZRAM_LZ4_COMPRESS=y
-  FILES:=\
-	$(LINUX_DIR)/mm/zsmalloc.ko \
-	$(LINUX_DIR)/drivers/block/zram/zram.ko
+  FILES:= \
+	$(LINUX_DIR)/drivers/staging/zsmalloc/zsmalloc.ko \
+	$(LINUX_DIR)/drivers/staging/zram/zram.ko
   AUTOLOAD:=$(call AutoLoad,20,zsmalloc zram)
 endef
 
@@ -942,7 +976,7 @@ define KernelPackage/echo
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Line Echo Canceller
   KCONFIG:=CONFIG_ECHO
-  FILES:=$(LINUX_DIR)/drivers/misc/echo/echo.ko
+  FILES:=$(LINUX_DIR)/drivers/staging/echo/echo.ko
   AUTOLOAD:=$(call AutoLoad,50,echo)
 endef
 

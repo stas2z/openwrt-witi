@@ -315,8 +315,7 @@ define KernelPackage/usb-ohci
 	CONFIG_USB_OHCI_HCD_OMAP3=y \
 	CONFIG_USB_OHCI_HCD_PLATFORM=y
   FILES:= \
-	$(LINUX_DIR)/drivers/usb/host/ohci-hcd.ko \
-	$(LINUX_DIR)/drivers/usb/host/ohci-platform.ko
+	$(LINUX_DIR)/drivers/usb/host/ohci-hcd.ko
   ifneq ($(wildcard $(LINUX_DIR)/drivers/usb/host/ohci-at91.ko),)
     FILES+=$(LINUX_DIR)/drivers/usb/host/ohci-at91.ko
   endif
@@ -419,14 +418,18 @@ define KernelPackage/usb2
 	CONFIG_USB_EHCI_MXC=y \
 	CONFIG_USB_OCTEON_EHCI=y \
 	CONFIG_USB_EHCI_HCD_ORION=y \
+	CONFIG_USB_EHCI_HCD_PLATFORM=y
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.8.0)),1)
   FILES:= \
 	$(LINUX_DIR)/drivers/usb/host/ehci-hcd.ko \
 	$(LINUX_DIR)/drivers/usb/host/ehci-platform.ko
   ifneq ($(wildcard $(LINUX_DIR)/drivers/usb/host/ehci-orion.ko),)
     FILES+=$(LINUX_DIR)/drivers/usb/host/ehci-orion.ko
   endif
-  ifneq ($(wildcard $(LINUX_DIR)/drivers/usb/host/ehci-atmel.ko),)
-    FILES+=$(LINUX_DIR)/drivers/usb/host/ehci-atmel.ko
+  AUTOLOAD:=$(call AutoLoad,40,ehci-hcd ehci-platform ehci-orion,1)
+else
+  FILES:=$(LINUX_DIR)/drivers/usb/host/ehci-hcd.ko
+  AUTOLOAD:=$(call AutoLoad,40,ehci-hcd,1)
 endif
   AUTOLOAD:=$(call AutoLoad,40,ehci-hcd ehci-platform ehci-orion ehci-atmel,1)
   $(call AddDepends/usb)

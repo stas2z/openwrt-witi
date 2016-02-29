@@ -17,8 +17,7 @@ SOUNDCORE_LOAD ?= \
 	snd-timer \
 	snd-pcm \
 	snd-mixer-oss \
-	snd-pcm-oss \
-	snd-compress
+	snd-pcm-oss
 
 SOUNDCORE_FILES ?= \
 	$(LINUX_DIR)/sound/soundcore.ko \
@@ -29,14 +28,31 @@ SOUNDCORE_FILES ?= \
 	$(LINUX_DIR)/sound/core/snd-timer.ko \
 	$(LINUX_DIR)/sound/core/snd-pcm.ko \
 	$(LINUX_DIR)/sound/core/oss/snd-mixer-oss.ko \
-	$(LINUX_DIR)/sound/core/oss/snd-pcm-oss.ko \
-	$(LINUX_DIR)/sound/core/snd-compress.ko
+	$(LINUX_DIR)/sound/core/oss/snd-pcm-oss.ko
 
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.3.0)),1)
+SOUNDCORE_LOAD += \
+	snd-compress
+
+SOUNDCORE_FILES += \
+	$(LINUX_DIR)/sound/core/snd-compress.ko
+endif
+
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.12.0)),1)
 SOUNDCORE_LOAD += \
 	$(if $(CONFIG_SND_DMAENGINE_PCM),snd-pcm-dmaengine)
 
 SOUNDCORE_FILES += \
 	$(if $(CONFIG_SND_DMAENGINE_PCM),$(LINUX_DIR)/sound/core/snd-pcm-dmaengine.ko)
+endif
+
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),lt,3.14.0)),1)
+SOUNDCORE_LOAD += \
+	snd-page-alloc
+
+SOUNDCORE_FILES += \
+	$(LINUX_DIR)/sound/core/snd-page-alloc.ko
+endif
 
 define KernelPackage/sound-core
   SUBMENU:=$(SOUND_MENU)
@@ -134,6 +150,20 @@ endef
 $(eval $(call KernelPackage,sound-i8x0))
 
 
+define KernelPackage/sound-cs5535audio
+  TITLE:=CS5535 PCI Controller
+  DEPENDS:=+kmod-ac97
+  KCONFIG:=CONFIG_SND_CS5535AUDIO
+  FILES:=$(LINUX_DIR)/sound/pci/cs5535audio/snd-cs5535audio.ko
+  AUTOLOAD:=$(call AutoLoad,36,snd-cs5535audio)
+  $(call AddDepends/sound)
+endef
+
+define KernelPackage/sound-cs5535audio/description
+ Support for the integrated AC97 sound device on olpc
+endef
+
+$(eval $(call KernelPackage,sound-cs5535audio))
 define KernelPackage/sound-soc-core
   TITLE:=SoC sound support
   DEPENDS:=+kmod-regmap +kmod-ac97
@@ -163,6 +193,18 @@ $(eval $(call KernelPackage,sound-soc-ac97))
 
 define KernelPackage/sound-soc-imx
   TITLE:=IMX SoC support
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),lt,3.12.0)),1)
+  KCONFIG:=\
+	CONFIG_SND_IMX_SOC \
+	CONFIG_SND_SOC_IMX_AUDMUX \
+	CONFIG_SND_SOC_FSL_SSI \
+	CONFIG_SND_SOC_IMX_PCM
+  FILES:= \
+	$(LINUX_DIR)/sound/soc/fsl/snd-soc-imx-audmux.ko \
+	$(LINUX_DIR)/sound/soc/fsl/snd-soc-fsl-ssi.ko \
+	$(LINUX_DIR)/sound/soc/fsl/snd-soc-imx-pcm.ko
+  AUTOLOAD:=$(call AutoLoad,56,snd-soc-imx-audmux snd-soc-fsl-ssi snd-soc-imx-pcm)
+else
   KCONFIG:=\
 	CONFIG_SND_IMX_SOC \
 	CONFIG_SND_SOC_IMX_AUDMUX \
@@ -173,6 +215,7 @@ define KernelPackage/sound-soc-imx
 	$(LINUX_DIR)/sound/soc/fsl/snd-soc-fsl-ssi.ko \
 	$(LINUX_DIR)/sound/soc/fsl/imx-pcm-dma.ko
   AUTOLOAD:=$(call AutoLoad,56,snd-soc-imx-audmux snd-soc-fsl-ssi snd-soc-imx-pcm)
+endif
   DEPENDS:=@TARGET_imx6 +kmod-sound-soc-core
   $(call AddDepends/sound)
 endef
