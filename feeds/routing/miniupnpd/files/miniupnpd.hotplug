@@ -16,12 +16,12 @@
 local iface
 local ifname
 local tmpconf="/var/etc/miniupnpd.conf"
-local extiface=$(uci get upnpd.config.external_iface)
-local extzone=$(uci get upnpd.config.external_zone)
+local extiface=$(uci -q get upnpd.config.external_iface)
+local extzone=$(uci -q get upnpd.config.external_zone)
 
 . /lib/functions/network.sh
 
-for iface in $(uci get upnpd.config.internal_iface); do
+for iface in $(uci -q get upnpd.config.internal_iface); do
     network_get_device device $iface
     [ "$DEVICE" = "$device" ] && /etc/init.d/miniupnpd restart && exit 0
 done
