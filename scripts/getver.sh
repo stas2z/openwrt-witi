@@ -31,5 +31,5 @@ try_hg() {
 }
 
 try_version || try_svn || try_git || try_hg || REV="none"
-stamp=`date +%y%m%d%H`
+stamp=`TZ=UTC date +%y%m%d%H`
 echo "WITI-$stamp"
