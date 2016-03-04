@@ -42,7 +42,7 @@ define KernelPackage/mt76x2e_ap/install
     $(INSTALL_DIR) $(1)/usr/share/ ; \
     $(INSTALL_BIN) ./src/mt7602e.sh $(1)/lib/wifi/ ; \
     $(INSTALL_DATA) ./src/mt7602e.dat $(1)/etc/wireless/mt7602e/ ; \
-    $(INSTALL_DATA) ./src/7602_clamp $(1)/usr/share/ ; \
+    $(INSTALL_DATA) ./src/76*2_clamp $(1)/usr/share/ ; \
     $(INSTALL_DATA) ./src/mt7602e*.bin $(1)/etc/wireless/mt7602e/ ; \
     $(INSTALL_DATA) ./src/SingleSKU_CE.dat $(1)/etc/wireless/mt7602e/SingleSKU.dat ; \
     $(INSTALL_DATA) ./src/RT2860STA.dat $(1)/etc/wireless/mt7602e/RT2860STA.dat ; \
