@@ -69,15 +69,15 @@
 					break;
 			}
 
-			// lookup
-			if (data[j].lookup == "_nolookup_")
+			// domain
+			if (data[j].domain == "_nodomain_")
 				tr.insertCell(-1).innerHTML = '<em><%:config error%></em>';
 			else
-				tr.insertCell(-1).innerHTML = data[j].lookup;
+				tr.insertCell(-1).innerHTML = data[j].domain;
 
 			// registered IP
 			switch (data[j].reg_ip) {
-				case "_nolookup_":
+				case "_nodomain_":
 					tr.insertCell(-1).innerHTML = '<em><%:Config error%></em>';
 					break;
 				case "_nodata_":
@@ -132,7 +132,7 @@
 		<tr class="cbi-section-table-titles">
 			<th class="cbi-section-table-cell"><%:Configuration%></th>
 			<th class="cbi-section-table-cell"><%:Next Update%></th>
-			<th class="cbi-section-table-cell"><%:Lookup Hostname%></th>
+			<th class="cbi-section-table-cell"><%:Hostname/Domain%></th>
 			<th class="cbi-section-table-cell"><%:Registered IP%></th>
 			<th class="cbi-section-table-cell"><%:Network%></th>
 		</tr>

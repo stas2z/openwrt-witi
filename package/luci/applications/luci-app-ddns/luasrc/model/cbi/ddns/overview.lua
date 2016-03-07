@@ -1,24 +1,21 @@
--- Copyright 2014-2016 Christian Schoenebeck <christian dot schoenebeck at gmail dot com>
+-- Copyright 2014 Christian Schoenebeck <christian dot schoenebeck at gmail dot com>
 -- Licensed to the public under the Apache License 2.0.
 
 local NXFS = require "nixio.fs"
+local CTRL = require "luci.controller.ddns"	-- this application's controller
 local DISP = require "luci.dispatcher"
 local HTTP = require "luci.http"
 local SYS  = require "luci.sys"
-local CTRL = require "luci.controller.ddns"	-- this application's controller
 local DDNS = require "luci.tools.ddns"		-- ddns multiused functions
 
-local show_hints = not (DDNS.has_ipv6		-- IPv6 support
-		    and DDNS.has_ssl		-- HTTPS support
-		    and DDNS.has_proxy		-- Proxy support
-		    and DDNS.has_bindhost	-- DNS TCP support
-		    and DDNS.has_forceip	-- Force IP version
-		    and DDNS.has_dnsserver	-- DNS server support
-		    and DDNS.has_bindnet	-- Bind to network/interface
-		    and DDNS.has_cacerts	-- certificates installed at /etc/ssl/certs
+-- show hints ?
+show_hints = not (DDNS.check_ipv6()		-- IPv6 support
+		and DDNS.check_ssl()		-- HTTPS support
+		and DDNS.check_proxy()		-- Proxy support
+		and DDNS.check_bind_host()	-- DNS TCP support
 		)
-local not_enabled = not SYS.init.enabled("ddns")
-local need_update = not CTRL.service_ok()
+-- correct ddns-scripts version
+need_update = DDNS.ipkg_ver_compare(DDNS.ipkg_ver_installed("ddns-scripts"), "<<", CTRL.DDNS_MIN)
 
 -- html constants
 font_red = [[<font color="red">]]
@@ -28,8 +25,23 @@ bold_off = [[</strong>]]
 
 -- cbi-map definition -- #######################################################
 m = Map("ddns")
-m.title		= CTRL.app_title_main()
-m.description	= CTRL.app_description()
+
+-- first need to close <a> from cbi map template our <a> closed by template
+m.title	= [[</a><a href="javascript:alert(']]
+		.. translate("Version Information")
+		.. [[\n\nluci-app-ddns]]
+		.. [[\n\t]] .. translate("Version") .. [[:\t]] .. DDNS.ipkg_ver_installed("luci-app-ddns")
+		.. [[\n\nddns-scripts ]] .. translate("required") .. [[:]]
+		.. [[\n\t]] .. translate("Version") .. [[:\t]] .. CTRL.DDNS_MIN .. [[ ]] .. translate("or higher")
+		.. [[\n\nddns-scripts ]] .. translate("installed") .. [[:]]
+		.. [[\n\t]] .. translate("Version") .. [[:\t]] .. DDNS.ipkg_ver_installed("ddns-scripts")
+		.. [[\n\n]]
+	.. [[')">]]
+	.. translate("Dynamic DNS")
+
+m.description = translate("Dynamic DNS allows that your router can be reached with " ..
+			"a fixed hostname while having a dynamically changing " ..
+			"IP address.")
 
 m.on_after_commit = function(self)
 	if self.changed then	-- changes ?
@@ -48,8 +60,13 @@ a.template = "ddns/overview_status"
 
 -- SimpleSection definition -- #################################################
 -- show Hints to optimize installation and script usage
-if show_hints or need_update or not_enabled then
-
+-- only show if 	service not enabled
+--		or	no IPv6 support
+--		or	not GNU Wget and not cURL	(for https support)
+--		or	not GNU Wget but cURL without proxy support
+--		or	not BIND's host
+--		or	ddns-scripts package need update
+if show_hints or need_update or not SYS.init.enabled("ddns") then
 	s = m:section( SimpleSection, translate("Hints") )
 
 	-- ddns_scripts needs to be updated for full functionality
@@ -65,7 +82,7 @@ if show_hints or need_update or not_enabled then
 	end
 
 	-- DDNS Service disabled
-	if not_enabled then
+	if not SYS.init.enabled("ddns") then
 		local dv = s:option(DummyValue, "_not_enabled")
 		dv.titleref = DISP.build_url("admin", "system", "startup")
 		dv.rawhtml  = true
@@ -90,11 +107,11 @@ end
 -- TableSection definition -- ##################################################
 ts = m:section( TypedSection, "service",
 	translate("Overview"),
-	translate("Below is a list of configured DDNS configurations and their current state.")
-	.. "<br />"
-	.. translate("If you want to send updates for IPv4 and IPv6 you need to define two separate Configurations "
-		.. "i.e. 'myddns_ipv4' and 'myddns_ipv6'")
-	.. "<br />"
+	translate("Below is a list of configured DDNS configurations and their current state.") 
+	.. "<br />" 
+	.. translate("If you want to send updates for IPv4 and IPv6 you need to define two separate Configurations " 
+		.. "i.e. 'myddns_ipv4' and 'myddns_ipv6'") 
+	.. "<br />" 
 	.. [[<a href="]] .. DISP.build_url("admin", "services", "ddns", "global") .. [[">]]
 	.. translate("To change global settings click here") .. [[</a>]] )
 ts.sectionhead = translate("Configuration")
@@ -106,21 +123,21 @@ function ts.create(self, name)
 	HTTP.redirect( self.extedit:format(name) )
 end
 
--- Lookup_Host and registered IP -- #################################################
-dom = ts:option(DummyValue, "_lookupIP",
-	translate("Lookup Hostname") .. "<br />" .. translate("Registered IP") )
+-- Domain and registered IP -- #################################################
+dom = ts:option(DummyValue, "_domainIP",
+	translate("Hostname/Domain") .. "<br />" .. translate("Registered IP") )
 dom.template = "ddns/overview_doubleline"
 function dom.set_one(self, section)
-	local lookup = self.map:get(section, "lookup_host") or ""
-	if lookup ~= "" then
-		return lookup
+	local domain = self.map:get(section, "domain") or ""
+	if domain ~= "" then
+		return domain
 	else
 		return [[<em>]] .. translate("config error") .. [[</em>]]
 	end
 end
 function dom.set_two(self, section)
-	local lookup = self.map:get(section, "lookup_host") or ""
-	if lookup == "" then return "" end
+	local domain = self.map:get(section, "domain") or ""
+	if domain == "" then return "" end
 	local dnsserver = self.map:get(section, "dnsserver") or ""
 	local use_ipv6 = tonumber(self.map:get(section, "use_ipv6") or 0)
 	local force_ipversion = tonumber(self.map:get(section, "force_ipversion") or 0)
@@ -129,7 +146,7 @@ function dom.set_two(self, section)
 	if not NXFS.access(command, "rwx", "rx", "rx") then
 		NXFS.chmod(command, 755)
 	end
-	command = command .. [[ get_registered_ip ]] .. lookup .. [[ ]] .. use_ipv6 ..
+	command = command .. [[ get_registered_ip ]] .. domain .. [[ ]] .. use_ipv6 ..
 		[[ ]] .. force_ipversion .. [[ ]] .. force_dnstcp .. [[ ]] .. dnsserver
 	local ip = SYS.exec(command)
 	if ip == "" then ip = translate("no data") end
@@ -141,6 +158,9 @@ ena = ts:option( Flag, "enabled",
 	translate("Enabled"))
 ena.template = "ddns/overview_enabled"
 ena.rmempty = false
+function ena.parse(self, section)
+	DDNS.flag_parse(self, section)
+end
 
 -- show PID and next update
 upd = ts:option( DummyValue, "_update",

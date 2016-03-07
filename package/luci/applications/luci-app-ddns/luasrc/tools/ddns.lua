@@ -1,4 +1,4 @@
--- Copyright 2014-2016 Christian Schoenebeck <christian dot schoenebeck at gmail dot com>
+-- Copyright 2014 Christian Schoenebeck <christian dot schoenebeck at gmail dot com>
 -- Licensed to the public under the Apache License 2.0.
 
 module("luci.tools.ddns", package.seeall)
@@ -9,30 +9,6 @@ local OPKG = require "luci.model.ipkg"
 local UCI  = require "luci.model.uci"
 local SYS  = require "luci.sys"
 local UTIL = require "luci.util"
-
-local function _check_certs()
-	local _, v = NXFS.glob("/etc/ssl/certs/*.crt")
-	if ( v == 0 ) then _, v = NXFS.glob("/etc/ssl/certs/*.pem") end
-	return (v > 0)
-end
-
-has_wgetssl	= (SYS.call( [[which wget-ssl >/dev/null 2>&1]] ) == 0)	-- and true or nil
-has_curl	= (SYS.call( [[which curl >/dev/null 2>&1]] ) == 0)
-has_curlssl	= (SYS.call( [[$(which curl) -V 2>&1 | grep "Protocols:" | grep -qF "https"]] ) ~= 0)
-has_curlpxy	= (SYS.call( [[grep -i "all_proxy" /usr/lib/libcurl.so* >/dev/null 2>&1]] ) == 0)
-has_fetch	= (SYS.call( [[which uclient-fetch >/dev/null 2>&1]] ) == 0)
-has_fetchssl	= NXFS.access("/lib/libustream-ssl.so")
-has_bbwget	= (SYS.call( [[$(which wget) -V 2>&1 | grep -iqF "busybox"]] ) == 0)
-has_bindhost	= (SYS.call( [[which host >/dev/null 2>&1]] ) == 0)
-has_hostip	= (SYS.call( [[which hostip >/dev/null 2>&1]] ) == 0)
-has_nslookup	= (SYS.call( [[$(which nslookup) localhost 2>&1 | grep -qF "(null)"]] ) ~= 0)
-has_ipv6	= (NXFS.access("/proc/net/ipv6_route") and NXFS.access("/usr/sbin/ip6tables"))
-has_ssl		= (has_wgetssl or has_curlssl or (has_fetch and has_fetchssl))
-has_proxy	= (has_wgetssl or has_curlpxy or has_fetch or has_bbwget)
-has_forceip	= ((has_wgetssl or has_curl) and (has_bindhost or has_hostip))
-has_dnsserver	= (has_bindhost or has_hostip or has_nslookup)
-has_bindnet	= (has_wgetssl or has_curl)
-has_cacerts	= _check_certs()
 
 -- function to calculate seconds from given interval and unit
 function calc_seconds(interval, unit)
@@ -49,6 +25,42 @@ function calc_seconds(interval, unit)
 	else
 		return nil
 	end
+end
+
+-- check if IPv6 supported by OpenWrt
+function check_ipv6()
+	return NXFS.access("/proc/net/ipv6_route")
+	   and NXFS.access("/usr/sbin/ip6tables")
+end
+
+-- check if Wget with SSL support or cURL installed
+function check_ssl()
+	if (SYS.call([[ grep -i "\+ssl" /usr/bin/wget >/dev/null 2>&1 ]]) == 0) then
+		return true
+	else
+		return NXFS.access("/usr/bin/curl")
+	end
+end
+
+-- check if Wget with SSL or cURL with proxy support installed
+function check_proxy()
+	-- we prefere GNU Wget for communication
+	if (SYS.call([[ grep -i "\+ssl" /usr/bin/wget >/dev/null 2>&1 ]]) == 0) then
+		return true
+
+	-- if not installed cURL must support proxy
+	elseif NXFS.access("/usr/bin/curl") then
+		return (SYS.call([[ grep -i all_proxy /usr/lib/libcurl.so* >/dev/null 2>&1 ]]) == 0)
+
+	-- only BusyBox Wget is installed
+	else
+		return NXFS.access("/usr/bin/wget")
+	end
+end
+
+-- check if BIND host installed
+function check_bind_host()
+	return NXFS.access("/usr/bin/host")
 end
 
 -- convert epoch date to given format
@@ -84,6 +96,58 @@ function get_pid(section)
 	return pid
 end
 
+-- compare versions using "<=" "<" ">" ">=" "=" "<<" ">>"
+function ipkg_ver_compare(ver1, comp, ver2)
+	if not ver1 or not ver2
+	or not comp or not (#comp > 0) then return nil end
+	-- correct compare string
+	if comp == "<>" or comp == "><" or comp == "!=" or comp == "~=" then comp = "~="
+	elseif comp == "<=" or comp == "<" or comp == "=<" then comp = "<="
+	elseif comp == ">=" or comp == ">" or comp == "=>" then comp = ">="
+	elseif comp == "="  or comp == "==" then comp = "=="
+	elseif comp == "<<" then comp = "<"
+	elseif comp == ">>" then comp = ">"
+	else return nil end
+
+	local av1 = UTIL.split(ver1, "[%.%-]", nil, true)
+	local av2 = UTIL.split(ver2, "[%.%-]", nil, true)
+
+	for i = 1, math.max(table.getn(av1),table.getn(av2)), 1  do
+		local s1 = av1[i] or ""
+		local s2 = av2[i] or ""
+
+		-- first "not equal" found return true
+		if comp == "~=" and (s1 ~= s2) then return true end
+		-- first "lower" found return true
+		if (comp == "<" or comp == "<=") and (s1 < s2) then return true end
+		-- first "greater" found return true
+		if (comp == ">" or comp == ">=") and (s1 > s2) then return true end
+		-- not equal then return false
+		if (s1 ~= s2) then return false end
+	end
+
+	-- all equal and not compare greater or lower then true
+	return not (comp == "<" or comp == ">")
+end
+
+-- read version information for given package if installed
+function ipkg_ver_installed(pkg)
+	local version = nil
+	local control = io.open("/usr/lib/opkg/info/%s.control" % pkg, "r")
+	if control then
+		local ln
+		repeat
+			ln = control:read("*l")
+			if ln and ln:match("^Version: ") then
+				version = ln:gsub("^Version: ", "")
+				break
+			end
+		until not ln
+		control:close()
+	end
+	return version
+end
+
 -- replacement of build-in read of UCI option
 -- modified AbstractValue.cfgvalue(self, section) from cbi.lua
 -- needed to read from other option then current value definition
@@ -108,98 +172,24 @@ function read_value(self, section, option)
 	end
 end
 
--- replacement of build-in parse of "Value"
--- modified AbstractValue.parse(self, section, novld) from cbi.lua
--- validate is called if rmempty/optional true or false
--- before write check if forcewrite, value eq default, and more
-function value_parse(self, section, novld)
-	local fvalue = self:formvalue(section)
-	local fexist = ( fvalue and (#fvalue > 0) )	-- not "nil" and "not empty"
-	local cvalue = self:cfgvalue(section)
-	local rm_opt = ( self.rmempty or self.optional )
-	local eq_cfg					-- flag: equal cfgvalue
+-- replacement of build-in Flag.parse of cbi.lua
+-- modified to mark section as changed if value changes
+-- current parse did not do this, but it is done AbstaractValue.parse()
+function flag_parse(self, section)
+	local fexists = self.map:formvalue(
+		luci.cbi.FEXIST_PREFIX .. self.config .. "." .. section .. "." .. self.option)
 
-	-- If favlue and cvalue are both tables and have the same content
-	-- make them identical
-	if type(fvalue) == "table" and type(cvalue) == "table" then
-		eq_cfg = (#fvalue == #cvalue)
-		if eq_cfg then
-			for i=1, #fvalue do
-				if cvalue[i] ~= fvalue[i] then
-					eq_cfg = false
-				end
-			end
+	if fexists then
+		local fvalue = self:formvalue(section) and self.enabled or self.disabled
+		local cvalue = self:cfgvalue(section)
+		if fvalue ~= self.default or (not self.optional and not self.rmempty) then
+			self:write(section, fvalue)
+		else
+			self:remove(section)
 		end
-		if eq_cfg then
-			fvalue = cvalue
-		end
-	end
-
-	-- removed parameter "section" from function call because used/accepted nowhere
-	-- also removed call to function "transfer"
-	local vvalue, errtxt = self:validate(fvalue)
-
-	-- error handling; validate return "nil"
-	if not vvalue then
-		if novld then 		-- and "novld" set
-			return		-- then exit without raising an error
-		end
-
-		if fexist then		-- and there is a formvalue
-			self:add_error(section, "invalid", errtxt or self.title .. ": invalid")
-			return		-- so data are invalid
-		elseif not rm_opt then	-- and empty formvalue but NOT (rmempty or optional) set
-			self:add_error(section, "missing", errtxt or self.title .. ": missing")
-			return		-- so data is missing
-		elseif errtxt then
-			self:add_error(section, "invalid", errtxt)
-			return
-		end
---		error  ("\n option: " .. self.option ..
---			"\n fvalue: " .. tostring(fvalue) ..
---			"\n fexist: " .. tostring(fexist) ..
---			"\n cvalue: " .. tostring(cvalue) ..
---			"\n vvalue: " .. tostring(vvalue) ..
---			"\n vexist: " .. tostring(vexist) ..
---			"\n rm_opt: " .. tostring(rm_opt) ..
---			"\n eq_cfg: " .. tostring(eq_cfg) ..
---			"\n eq_def: " .. tostring(eq_def) ..
---			"\n novld : " .. tostring(novld) ..
---			"\n errtxt: " .. tostring(errtxt) )
-	end
-
-	-- lets continue with value returned from validate
-	eq_cfg  = ( vvalue == cvalue )					-- update equal_config flag
-	local vexist = ( vvalue and (#vvalue > 0) ) and true or false	-- not "nil" and "not empty"
-	local eq_def = ( vvalue == self.default )			-- equal_default flag
-
-	-- (rmempty or optional) and (no data or equal_default)
-	if rm_opt and (not vexist or eq_def) then
-		if self:remove(section) then		-- remove data from UCI
-			self.section.changed = true	-- and push events
-		end
-		return
-	end
-
-	-- not forcewrite and no changes, so nothing to write
-	if not self.forcewrite and eq_cfg then
-		return
-	end
-
-	-- we should have a valid value here
-	assert (vvalue, "\n option: " .. self.option ..
-			"\n fvalue: " .. tostring(fvalue) ..
-			"\n fexist: " .. tostring(fexist) ..
-			"\n cvalue: " .. tostring(cvalue) ..
-			"\n vvalue: " .. tostring(vvalue) ..
-			"\n vexist: " .. tostring(vexist) ..
-			"\n rm_opt: " .. tostring(rm_opt) ..
-			"\n eq_cfg: " .. tostring(eq_cfg) ..
-			"\n eq_def: " .. tostring(eq_def) ..
-			"\n errtxt: " .. tostring(errtxt) )
-
-	-- write data to UCI; raise event only on changes
-	if self:write(section, vvalue) and not eq_cfg then
+		if (fvalue ~= cvalue) then self.section.changed = true end
+	else
+		self:remove(section)
 		self.section.changed = true
 	end
 end

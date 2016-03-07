@@ -19,7 +19,7 @@
 			var section = data[i].section	// Section to handle
 			var cbx = document.getElementById("cbid.ddns." + section + ".enabled");		// Enabled
 			var btn = document.getElementById("cbid.ddns." + section + "._startstop");	// Start/Stop button
-			var rip = document.getElementById("cbid.ddns." + section + "._lookupIP.two");	// Registered IP
+			var rip = document.getElementById("cbid.ddns." + section + "._domainIP.two");	// Registered IP
 			var lup = document.getElementById("cbid.ddns." + section + "._update.one");	// Last Update
 			var nup = document.getElementById("cbid.ddns." + section + "._update.two");	// Next Update
 			if ( !(cbx && btn && rip && lup && nup) ) { return; }	// security check
@@ -76,12 +76,12 @@
 					break;
 			}
 
-			// lookup
-			// (data[i].lookup ignored here
+			// domain
+			// (data[i].domain ignored here
 
 			// registered IP
 			// rip.innerHTML = "Registered IP";
-			if (data[i].lookup == "_nolookup_")
+			if (data[i].domain == "_nodomain_")
 				rip.innerHTML = '';
 			else if (data[i].reg_ip == "_nodata_")
 				rip.innerHTML = '<em><%:No data%></em>';
