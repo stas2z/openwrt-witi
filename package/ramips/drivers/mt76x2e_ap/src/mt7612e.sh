@@ -17,7 +17,6 @@ disable_mt7612e() {
 
 enable_mt7612e() {
 	enable_ralink_wifi mt7612e mt76x2e
-	iwpriv rai0 set VgaClamp=`cat /usr/share/7612_clamp`
 }
 
 detect_mt7612e() {

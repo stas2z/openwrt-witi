@@ -1,15 +1,74 @@
 #!/bin/sh
 
-sleep 10 # wait a little bit
+logger -t services Services reload.
 
-#mknod /dev/gpio c 252 0
-btnd wps 18&
-mknod /dev/hwnat0 c 220 0
-hwnat -d 0 & #disabling annoying dmesg hwnat table messages
-hwnat -O 16383 16383 16383 & #HNAT Max entries allowed build when Free Entries
-hwnat -Z 2 & #Both direction offload
+############### usb3 ################
+usb3_name=$(find /etc/modules.d/ -name "*usb3")
+usb3_1=$(cat $usb3_name | grep -c 1);
+usb3_2=$(uci -q get platform.@usb3[0].disable | grep -c 1)
+echo "USB3 [$usb3_1:$usb3_2]..."
+if ! [ $usb3_1 -eq $usb3_2 ] ; then 
+	echo "USB3 restart." 
+	logger -t services Restarting USB3.
+	rmmod xhci_hcd;
+	find /lib/modules/ -name "xhci-hcd.ko" -exec insmod {} usb3_disable=$usb3_2 \;
+fi
+echo xhci-hcd usb3_disable=$usb3_2 > $usb3_name
+###############/usb3 ################
 
 
+############## stuff ################
+echo "Stuff..."
+if ! [ -e /dev/gpio ]; then
+	btnd wps `uci -q get platform.@stuff[0].wps` &
+else
+	if [ $(ps | grep btnd | grep -c `uci -q get platform.@stuff[0].wps`) -eq 0 ]; then
+		logger -t services WPS button GPIO change can be applied after reboot only.
+	fi
+fi
+##############/stuff ################
+
+############# greenap ###############
+echo "GreenAP..."
+while ifconfig ra0 | grep Device; do sleep 1;done
+iwpriv ra0 set GreenAP=`uci -q get platform.@greenap[0].ra0`
+
+while ifconfig rai0 | grep Device; do sleep 1;done
+iwpriv rai0 set GreenAP=`uci -q get platform.@greenap[0].rai0`
+#############/greenap ###############
+
+############## clamp ################
+echo "VgaClamp..."
+while ifconfig ra0 | grep Device; do sleep 1;done
+iwpriv ra0 set VgaClamp=`uci -q get platform.@vgaclamp[0].ra0`
+
+while ifconfig rai0 | grep Device; do sleep 1;done
+iwpriv rai0 set VgaClamp=`uci -q get platform.@vgaclamp[0].rai0`
+##############/clamp ################
+
+if ! [ "$RELOAD" == "true" ]; then
+        sleep 10 # wait a little bit
+fi
+
+############## hwnat ################
+echo "HW nat..."
+rmmod hw_nat
+if [ $(uci -q get platform.@hwnat[0].disable) -eq 0 ]; then
+        if insmod /lib/modules/ralink/hw_nat.ko; then
+                echo "HW nat module loaded."
+                logger -t services HW NAT module enabled.
+                if [ ! -e /dev/hwnat0 ]; then
+                        sleep 2;
+                        mknod /dev/hwnat0 c 220 0
+                fi
+                hwnat -d `uci -q get platform.@hwnat[0].debug` #debug level of hwnat table messages
+                hwnat -O `uci -q get platform.@hwnat[0].entries1` `uci -q get platform.@hwnat[0].entries3` `uci -q get platform.@hwnat[0].entries3` #HWNAT Max entries allowed build when Free Entries
+                hwnat -Z `uci -q get platform.@hwnat[0].direction` # Offload direction
+        fi
+fi
+##############/hwnat ################
+
+echo "Daemons hack..."
 ######## vsftpd workaround for "500: munmap" start fail ########
 if ls /etc/rc.d/*vsftpd*;              #only if it's enabled
     then

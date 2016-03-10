@@ -1,0 +1,23 @@
+
+config vgaclamp
+	option rai0 '0'
+	option ra0 '0'
+
+config usb3
+	option disable '0'
+
+config greenap
+	option ra0 '0'
+	option rai0 '0'
+
+config hwnat
+	option direction '2'
+	option entries1 '16384'
+	option entries2 '16384'
+	option entries3 '16384'
+	option debug '0'
+	option disable '0'
+
+config stuff
+	option wps '18'
+
