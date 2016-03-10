@@ -31,10 +31,10 @@ fi
 ############# greenap ###############
 echo "GreenAP..."
 while ifconfig ra0 | grep Device; do sleep 1;done
-iwpriv ra0 set GreenAP=`uci -q get platform.@greenap[0].ra0`
+iwpriv ra0 set GreenAP=`uci -q get platform.@greenap[0].ra0 | grep -c 1`
 
 while ifconfig rai0 | grep Device; do sleep 1;done
-iwpriv rai0 set GreenAP=`uci -q get platform.@greenap[0].rai0`
+iwpriv rai0 set GreenAP=`uci -q get platform.@greenap[0].rai0 | grep -c 1`
 #############/greenap ###############
 
 ############## clamp ################
