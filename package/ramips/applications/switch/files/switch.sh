@@ -66,7 +66,8 @@ config7530Gsw()
 
 setup_switch()
 {
-	config7530Gsw
+#	config7530Gsw
+	/lib/network/switchmgr init
 }
 
 reset_switch()

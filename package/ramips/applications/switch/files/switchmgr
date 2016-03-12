@@ -1,0 +1,262 @@
+#!/bin/sh
+
+retval= #global return value for subroutines
+portslist="0 1 2 3 4 5 6"
+
+BIT()
+{
+retval=$((1 << $1))
+}
+PCR() 
+{
+retval=$(( 0x2004 | $(( $1 << 8 )) ))
+}
+
+PVC() 
+{
+retval=$(( 0x2010 | $(( $1 << 8 )) ))
+}
+
+PPB() 
+{
+retval=$(( 0x2014 | $(( $1 << 8 )) ))
+}
+
+VTIM()
+{
+#retval=$(awk "BEGIN{print 0x100 + 4 * ($1 / 2)}") #floating math is wrong
+retval=$(( 0x100 + $(( 4 * $(( $1 / 2 )) )) ))
+}
+
+writereg()
+{
+local wreg=$(printf "0x%x" $1)
+local wval=$(printf "0x%x" $2)
+switch reg w $wreg $wval >> /dev/null
+echo "w: $wreg $wval"
+}
+readreg()
+{
+local wreg=$(printf "0x%x" $1)
+retval=$(( 0x$(switch reg r $wreg | sed "s/.*=//gi") ))
+#echo "r: $wreg=$(printf "0x%x" $retval)"
+}
+
+configswitch()
+{
+local vlan_enable=$(uci get network.@switch[0].enable_vlan | grep -c 1)
+
+if [ $vlan_enable -eq 0 ]; then
+	for i in $portslist; do
+		PCR $i;
+		writereg $retval 0x00ff0000
+	done
+        for i in $portslist; do
+	        PVC $i;
+	        writereg $retval 0x810000c0
+        done
+return 0
+fi
+local i=0
+for i in $portslist; do
+	PCR $i;
+	writereg $retval 0x00ff0003
+done
+
+i=0
+#getting list of tagged and untagged ports
+tagports=""
+untagports=""
+while [ "$(uci -q get network.@switch_vlan[$i])" == "switch_vlan" ]; do
+	vid=$(uci -q get network.@switch_vlan[$i].vlan)
+	taggedlist=$(uci -q get network.@switch_vlan[$i].ports | sed -e "s/[0-9][^t]//gi"  -e "s/t//gi")
+	untaggedlist=$(uci -q get network.@switch_vlan[$i].ports | sed -e "s/[0-9]t//gi")
+	echo "vlan $i: t[$taggedlist] u[$untaggedlist]"
+	for j in $portslist; do
+		if [ $(echo $taggedlist | grep -c $j) -ge 1 ]; then
+			if [ $(echo $tagports | grep -c $j) -eq 0 ]; then
+				tagports="$j $tagports"
+			fi
+		fi
+		if [ $(echo $untaggedlist | grep -c $j) -ge 1 ]; then
+			if [ $(echo $untagports | grep -c $j) -eq 0 ]; then
+				untagports="$j $untagports"
+			fi
+		fi
+	done
+	let i++
+done
+echo "list: t[$tagports] u[$untagports]"
+for i in $portslist; do
+	local val="0x81000000" 
+	if [ $(echo $tagports | grep -c $i) -eq 0 ]; then
+		if [ $(echo $untagports | grep -c $i) -ge 1 ]; then
+		val="0x810000c0"
+		fi
+	fi
+	PVC $i
+	writereg $retval $val
+done
+
+i=0
+while [ "$(uci -q get network.@switch_vlan[$i])" == "switch_vlan" ]; do
+	vid=$(uci -q get network.@switch_vlan[$i].vlan)
+
+	#vid of vlan
+	VTIM $vid;reg=$retval
+	readreg $reg;val=$retval
+
+	if [ $(( $vid % 2 )) -eq 0 ]; then
+		let "val &= 0xfff000"
+		let "val |= vid"
+	else
+		let "val &= 0xfff"
+		let "val |= (vid << 12)"
+	fi
+	writereg $reg $val
+
+	#vlan port membership
+	member=0; etags=0;
+	for j in $(uci -q get network.@switch_vlan[$i].ports | sed -e "s/t//gi"); do
+		let "member |= 1 << j"
+	done
+
+        for j in $(uci -q get network.@switch_vlan[$i].ports | sed -e "s/[0-9][^t]//gi"  -e "s/t//gi"); do
+                let "etags |= 1 << j"
+        done
+	echo $(printf "vlan %d: members: 0x%x,  etags: 0x%x" $vid $member $etags)
+	if [ $member -ne 0 ]; then
+		val=1
+		let "val |= member << 16"
+		let "val |= 1 << 30"
+		let "val |= 1 << 28"
+		writereg 0x94 $val
+	else
+		writereg 0x94 0x0
+	fi
+	
+	#egress mode
+	val=0
+	for j in $portslist; do
+		if [ $(( $etags & $(( 1 << $j )) )) -ne 0 ]; then
+			let "val |= 2 << (j * 2)"
+#		else
+#			let "val |= 0 << (j * 2)"
+		fi
+	done
+	writereg 0x98 $val
+
+	#write to vlan table
+	echo "write to vlan table"
+	val=$vid
+	let "val |= (1 << 31)"
+	let "val |= (1 << 12)"
+	writereg 0x90 $val
+	j=0
+	while [ $j -lt 20 ]; do
+		readreg 0x90
+		val=$retval
+		if [ $(( $val & $(( 1 << 31 )) )) -eq 0 ]; then break; fi
+#		usleep 1000
+		sleep 1
+		let j++
+	done 
+	if [ $j -eq 20 ]; then echo "vtcr timeout"; fi
+	let i++
+done
+#port default PVID
+
+for j in $portslist; do
+	pvid=1
+	i=-1
+	while [ "$(uci -q get network.@switch_vlan[$i])" == "switch_vlan" ]; do
+		vid=$(uci -q get network.@switch_vlan[$i].vlan)
+		if [ $(uci -q get network.@switch_vlan[$i].ports | grep -c $j) -ge 1 ]; then pvid=$vid; fi
+		let i--
+	done
+	echo "port $j: pvid $pvid"
+	PPB $j; reg=$retval;
+	readreg $reg
+	val=$retval
+	let "val &= ~0xfff"
+	let "val |= pvid"
+	writereg $reg $val
+	let j++
+done
+switch clear
+exit 0;
+}
+
+
+portlink()
+{
+num=$1
+reg=$(printf "0x3%d08" $num)
+if [ $num -lt 0 ] || [ $num -gt 6 ]; then echo "Wrong port number: $num!";exit 1; fi
+readreg $reg
+value=$retval
+duplex=$(( $(( $value >> 1 )) & 1 ))
+link=$(( $value & 1 ))
+speed=$(( $(( $value >> 2 )) & 3 ))
+
+if [ $speed -eq 0 ]; then speedstr="10baseT";fi
+if [ $speed -eq 1 ]; then speedstr="100baseTX";fi
+if [ $speed -eq 2 ] || [ $speed -eq 3 ]; then speedstr="1000baseT";fi
+if [ "$speedstr" == "" ]; then speedstr="Unknown";fi
+
+duplexstr="half-duplex"
+if [ $duplex -eq 1 ]; then duplexstr="full-duplex";fi
+if [ $link -eq 1 ]; then printf "Port $num:\n\tlink: port:$num link:up speed:$speedstr $duplexstr\n"; else printf "Port $num:\n\tlink: port:$num link:down\n"; fi
+}
+
+if [ "$1" == "portdump" ] || [ "$3" == "show" ]; then
+	for i in $portslist; do
+		portlink $i
+		echo
+	done
+	exit 0;
+fi
+if [ "$1" == "port" ]; then
+	portlink $2
+	exit 0;
+fi
+if [ "$1" == "init" ]; then
+	configswitch
+	exit 0;
+fi
+
+if [ "$1" == "list" ]; then
+	echo "Found: switch0 - mt7530" 
+	exit 0;
+fi
+
+if [ "$1" == "dev" ]; then
+#swconfig emu
+	echo "Found: switch0 - mt7530"
+	if [ "$3" == "apply" ]; then
+	configswitch
+	fi
+	if [ "$3" == "help" ]; then
+	cat << EOF
+switch0: mt7530(MT7530), ports: 7 (cpu @ 6), vlans: 4096
+     --switch
+	Attribute 1 (int): enable_vlan (Enable VLAN mode)
+	Attribute 2 (int): enable_vlan4k (Enable VLAN 4K mode)
+	Attribute 3 (none): apply (Activate changes in the hardware)
+	Attribute 4 (none): reset (Reset the switch)
+     --vlan
+	Attribute 1 (string): info (Get vlan information)
+	Attribute 2 (int): fid (Get/Set vlan FID)
+	Attribute 3 (ports): ports (VLAN port mapping)
+     --port
+	Attribute 1 (string): mib (Get MIB counters for port)
+	Attribute 2 (int): pvid (Primary VLAN ID)
+	Attribute 3 (string): link (Get port link information)
+EOF
+	fi
+exit 0;
+fi
+echo "Usage:"
+echo "$0 portdump - dumps all ports state"
+echo "$0 port n - dumps port 'n' state"
+echo "$0 init - init switch"
