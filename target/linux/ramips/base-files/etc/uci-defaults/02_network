@@ -47,8 +47,8 @@ EOF
 	ucidef_set_interface_wan "eth0.2"
 	ucidef_set_interface_wan2 "eth1"
 	ucidef_add_switch "switch0" "1" "1"
-	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 6t"
-	ucidef_add_switch_vlan "switch0" "2" "4 6t"
+	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 5t 6t"
+	ucidef_add_switch_vlan "switch0" "2" "4 5t 6t"
 }
 
 ramips_setup_interfaces()
