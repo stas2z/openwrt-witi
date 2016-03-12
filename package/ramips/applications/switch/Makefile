@@ -53,7 +53,7 @@ define Package/switch/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/switch $(1)/usr/bin
 	$(INSTALL_BIN) ./files/switch.sh $(1)/lib/network
 	$(INSTALL_BIN) ./files/switchmgr $(1)/lib/network
-	ln -sf $(1)/lib/network/switchmgr $(1)/sbin/swconfig
+	ln -sf /lib/network/switchmgr $(1)/sbin/swconfig
 endef
 
 
