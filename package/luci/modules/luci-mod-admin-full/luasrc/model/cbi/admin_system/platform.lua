@@ -11,24 +11,18 @@ local m, s, o, p, po, ps, h, g
 p = Map("platform", translate("Platform settings"), translate("Here you can configure several platform specific options."))
 p:chain("luci")
 
-s = p:section(TypedSection, "vgaclamp", translate("Radio Sensitivity"))
+s = p:section(TypedSection, "vgaclamp", translate("Radio RX sensitivity reduction"))
 s.anonymous = true
 s.addremove = false
 
-po = s:option(ListValue, "ra0", translate("2.4G radio RX sensitivity reduction"))
-po:value(0, translate("None"))
-po:value(1, translate("Tiny"))
-po:value(2, translate("Small"))
-po:value(3, translate("Medium"))
-po:value(4, translate("Heavy"))
+po = s:option(Value, "ra0", translate("2.4G radio (0 = OFF, 10 = MAX)"))
+po.optional    = true
+po.placeholder = 8
 po.default = 0
 
-po = s:option(ListValue, "rai0", translate("5G radio RX sensitivity reduction"))
-po:value(0, translate("None"))
-po:value(1, translate("Tiny"))
-po:value(2, translate("Small"))
-po:value(3, translate("Medium"))
-po:value(4, translate("Heavy"))
+po = s:option(Value, "rai0", translate("5G radio (0 = OFF, 10 = MAX)"))
+po.optional    = true
+po.placeholder = 8
 po.default = 0
 
 m = p:section(TypedSection, "greenap", translate("Enable Green AP mode"))
