@@ -37,7 +37,6 @@
 						'<strong><%:Mode%>:</strong> %s | ' +
 						'<strong><%:SSID%>:</strong> %h<br />' +
 						'<strong><%:BSSID%>:</strong> %s | ' +
-						'<strong><%:Encryption%>:</strong> %s<br />' +
 						'<strong><%:Channel%>:</strong> %d (%.3f <%:GHz%>) | ' +
 						'<strong><%:Tx-Power%>:</strong> %d <%:dBm%><br />' +
 						'<strong><%:Signal%>:</strong> %d <%:dBm%> | ' +
@@ -45,7 +44,6 @@
 						'<strong><%:Bitrate%>:</strong> %.1f <%:Mbit/s%> | ' +
 						'<strong><%:Country%>:</strong> %s',
 							iw.mode, iw.ssid, iw.bssid,
-							iw.encryption ? iw.encryption : '<%:None%>',
 							iw.channel, iw.frequency ? iw.frequency : 0,
 							iw.txpower, iw.signal, iw.noise,
 							iw.bitrate ? iw.bitrate : 0, iw.country
