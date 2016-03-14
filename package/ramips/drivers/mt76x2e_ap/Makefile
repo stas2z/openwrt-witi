@@ -15,7 +15,7 @@ define KernelPackage/mt76x2e_ap
   CATEGORY:=MTK Properties
   TITLE:=MTK MT76x2e 3.0.4.0P1 AP driver
   FILES:=$(LINUX_DIR)/drivers/net/wireless/ralink/mt76x2_ap/mt76x2e.ko
-  DEPENDS:=+kmod-cfg80211
+  DEPENDS:=+kmod-cfg80211 +uci2dat
   AUTOLOAD:=$(call AutoLoad,91,mt76x2e)
   SUBMENU:=Drivers
 endef

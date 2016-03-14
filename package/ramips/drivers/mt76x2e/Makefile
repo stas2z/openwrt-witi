@@ -46,7 +46,7 @@ define KernelPackage/mt76x2e
   CATEGORY:=MTK Properties
   TITLE:=MTK MT76x2e wifi AP 3.0.3.2 driver
   FILES:=$(PKG_BUILD_DIR)/build/mt76x2e.ko
-  DEPENDS:=+kmod-cfg80211
+  DEPENDS:=+kmod-cfg80211 +uci2dat
   AUTOLOAD:=$(call AutoLoad,91,mt76x2e)
   SUBMENU:=Drivers
   MENU:=1
