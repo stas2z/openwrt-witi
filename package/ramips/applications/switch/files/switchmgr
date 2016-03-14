@@ -28,6 +28,17 @@ VTIM()
 retval=$(( 0x100 + $(( 4 * $(( $1 / 2 )) )) ))
 }
 
+detect_ip1001()
+{
+if [ $(( $(mii_mgr -g -p 5 -r 2  | sed -e "s/.* = /0x/gi") )) -eq $((0x0243)) ]; then
+	if [ $(( $(mii_mgr -g -p 5 -r 3 | sed -e "s/.* = /0x/gi") & 0xfff0 )) -eq $((0x0D90)) ]; then
+		retval=1
+	else
+		retval=0
+	fi
+fi
+}
+
 writereg()
 {
 local wreg=$(printf "0x%x" $1)
@@ -124,7 +135,7 @@ while [ "$(uci -q get network.@switch_vlan[$i])" == "switch_vlan" ]; do
         for j in $(uci -q get network.@switch_vlan[$i].ports | sed -e "s/[0-9][^t]//gi"  -e "s/t//gi"); do
                 let "etags |= 1 << j"
         done
-	echo $(printf "vlan %d: members: 0x%x,  etags: 0x%x" $vid $member $etags)
+	printf "vlan %d: members: 0x%x,  etags: 0x%x\n" $vid $member $etags
 	if [ $member -ne 0 ]; then
 		val=1
 		let "val |= member << 16"
@@ -157,8 +168,8 @@ while [ "$(uci -q get network.@switch_vlan[$i])" == "switch_vlan" ]; do
 		readreg 0x90
 		val=$retval
 		if [ $(( $val & $(( 1 << 31 )) )) -eq 0 ]; then break; fi
-#		usleep 1000
-		sleep 1
+		usleep 1000
+#		sleep 1
 		let j++
 	done 
 	if [ $j -eq 20 ]; then echo "vtcr timeout"; fi
@@ -192,21 +203,52 @@ portlink()
 {
 num=$1
 reg=$(printf "0x3%d08" $num)
-if [ $num -lt 0 ] || [ $num -gt 6 ]; then echo "Wrong port number: $num!";exit 1; fi
-readreg $reg
-value=$retval
-duplex=$(( $(( $value >> 1 )) & 1 ))
-link=$(( $value & 1 ))
-speed=$(( $(( $value >> 2 )) & 3 ))
 
+if [ $num -lt 0 ] || [ $num -gt 6 ]; then echo "Wrong port number: $num!";exit 1; fi
+
+link=0
+value=0
+detect_ip1001
+if [ $(( $retval & ($num == 5) )) -eq 1 ]; then
+# P5 is ICPLUS IP1001 gphy
+	reg=$(( $(mii_mgr -g -p 5 -r 0  | sed -e "s/.* = /0x/gi") ))
+	reg2=$(( $(mii_mgr -g -p 5 -r 1  | sed -e "s/.* = /0x/gi") ))
+	reg3=$(( $(mii_mgr -g -p 5 -r 17  | sed -e "s/.* = /0x/gi") ))
+	speed=$(( ($reg3 >> 13 ) & 3 ))
+	link=$(( ($reg3 >> 15) & 1 ))
+	duplex=$(( ($reg3 >> 12) & 1 ))
+	auto=$(( ($reg2 & (1 << 5)) >> 5 ))
+	rxflow=0
+	txflow=0
+	value=$(($(printf "0x%x%x" $reg $reg3)))
+else
+#any other mt7530 port
+	readreg $reg
+	value=$retval
+	duplex=$(( $(( $value >> 1 )) & 1 ))
+	link=$(( $value & 1 ))
+	speed=$(( $(( $value >> 2 )) & 3 ))
+	rxflow=$(( $(( $value >> 5 )) & 1 ))
+	txflow=$(( $(( $value >> 4 )) & 1 ))
+	auto=0
+fi
 if [ $speed -eq 0 ]; then speedstr="10baseT";fi
 if [ $speed -eq 1 ]; then speedstr="100baseTX";fi
 if [ $speed -eq 2 ] || [ $speed -eq 3 ]; then speedstr="1000baseT";fi
 if [ "$speedstr" == "" ]; then speedstr="Unknown";fi
+rxflowstr="";txflowstr="";
+if [ $rxflow -eq 1 ]; then rxflowstr="rxflow "; fi
+if [ $txflow -eq 1 ]; then txflowstr="txflow "; fi
 
-duplexstr="half-duplex"
-if [ $duplex -eq 1 ]; then duplexstr="full-duplex";fi
-if [ $link -eq 1 ]; then printf "Port $num:\n\tlink: port:$num link:up speed:$speedstr $duplexstr\n"; else printf "Port $num:\n\tlink: port:$num link:down\n"; fi
+duplexstr="half-duplex "
+if [ $duplex -eq 1 ]; then duplexstr="full-duplex ";fi
+if [ $auto -eq 1 ]; then autostr="auto "; else autostr="";fi
+
+if [ $link -eq 1 ]; then
+	printf "Port %d:\n\tlink: port:%d link:up speed:%s %s%s%s%sraw:0x%x\n" $num $num "$speedstr" "$duplexstr" "$txflowstr" "$rxflowstr" "$autostr" "$value"
+else
+	printf "Port %d:\n\tlink: port:%d link:down raw:0x%x\n" $num $num $value
+fi
 }
 
 if [ "$1" == "portdump" ] || [ "$3" == "show" ]; then

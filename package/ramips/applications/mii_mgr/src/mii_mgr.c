@@ -10,9 +10,11 @@
 
 #include "ra_ioctl.h"
 
+#define MII_MGR_HELP	1
+
 void show_usage(void)
 {
-#ifndef CONFIG_RT2860V2_AP_MEMORY_OPTIMIZATION
+#if MII_MGR_HELP
     printf("mii_mgr -g -p [phy number] -r [register number]\n");
     printf("  Get: mii_mgr -g -p 3 -r 4\n\n");
     printf("mii_mgr -s -p [phy number] -r [register number] -v [0xvalue]\n");
@@ -40,8 +42,7 @@ int main(int argc, char *argv[])
 	}
 
     sk = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sk < 0)
-    {
+	if (sk < 0) {
         printf("Open socket failed\n");
         return -1;
     }
@@ -53,10 +54,8 @@ int main(int argc, char *argv[])
 	ifr2.ifr_data = &mii2;
 #endif
 
-    while ((opt = getopt(argc, argv, options)) != -1)
-    {
-        switch (opt)
-        {
+	while ((opt = getopt(argc, argv, options)) != -1) {
+		switch (opt) {
             case 'g':
                 method = RAETH_MII_READ;
                 break;
@@ -70,13 +69,10 @@ int main(int argc, char *argv[])
 #endif
                 break;
             case 'r':
-#if defined (CONFIG_RALINK_MT7621)
-                if(mii.phy_id == 31)
-                {
+#if defined (CONFIG_RALINK_MT7621) || defined (CONFIG_MT7530_GSW)
+				if(mii.phy_id == 31) {
                     mii.reg_num = strtol(optarg, NULL, 16);
-                }
-                else
-                {
+				} else {
                     mii.reg_num = strtol(optarg, NULL, 10);
                 }
 #else
@@ -123,13 +119,11 @@ int main(int argc, char *argv[])
 #endif
 	if ((method == RAETH_MII_READ) || (method == RAETH_MII_WRITE)){
     ret = ioctl(sk, method, &ifr);
-    if (ret < 0)
-    {
+		if (ret < 0) {
         printf("mii_mgr: ioctl error\n");
     }
-    else
-        switch (method)
-        {
+		else {
+			switch (method) {
             case RAETH_MII_READ:
                 printf("Get: phy[%d].reg[%d] = %04x\n",
                        mii.phy_id, mii.reg_num, mii.val_out);
@@ -139,6 +133,7 @@ int main(int argc, char *argv[])
                        mii.phy_id, mii.reg_num, mii.val_in);
                 break;
         }
+	}
 	}
     close(sk);
     return ret;

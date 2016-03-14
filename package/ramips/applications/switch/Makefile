@@ -22,6 +22,7 @@ define Package/switch
   CATEGORY:=MTK Properties
   TITLE:=Command to config switch [Padavan]
   SUBMENU:=Applications
+  DEPENDS:=+mii_mgr
 endef
 
 define Package/switch/description
@@ -51,6 +52,7 @@ define Package/switch/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_DIR) $(1)/lib/network
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/switch $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/phyval $(1)/usr/bin
 	$(INSTALL_BIN) ./files/switch.sh $(1)/lib/network
 	$(INSTALL_BIN) ./files/switchmgr $(1)/lib/network
 	ln -sf /lib/network/switchmgr $(1)/sbin/swconfig
