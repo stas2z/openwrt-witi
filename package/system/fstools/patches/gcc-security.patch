@@ -1,0 +1,15 @@
+X-Git-Url: http://git.openwrt.org//?p=project%2Ffstools.git;a=blobdiff_plain;f=block.c;h=c6d1b9049145a453205372b93016572b4c332d4a;hp=4c8dda92fefac06d2a515564bb8ed5c4f67536b3;hb=86ebc116da42168a1b57204c98747c6cccebdc68;hpb=0f4571b9e484f3b3504b872afd3a11be98571c03
+
+diff --git a/block.c b/block.c
+index 4c8dda9..c6d1b90 100644
+--- a/block.c
++++ b/block.c
+@@ -1311,7 +1311,7 @@ static int main_swapon(int argc, char **argv)
+ 				return -1;
+ 			}
+ 			while (getline(&lineptr, &s, fp) > 0)
+-				printf(lineptr);
++				printf("%s", lineptr);
+ 			if (lineptr)
+ 				free(lineptr);
+ 			fclose(fp);
