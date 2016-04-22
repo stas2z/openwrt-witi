@@ -1,7 +1,14 @@
 #!/bin/sh
 
 retval= #global return value for subroutines
-portslist="0 1 2 3 4 5 6"
+
+if [ $(cat /proc/cpuinfo | head -n1 | grep -c 7620) -eq 1 ]; then
+    portslist="0 1 2 3 4 5 6 7"
+fi
+
+if [ $(cat /proc/cpuinfo | head -n1 | grep -c 7621) -eq 1 ]; then
+    portslist="0 1 2 3 4 5 6"
+fi
 
 BIT()
 {
@@ -112,19 +119,29 @@ done
 i=0
 while [ "$(uci -q get network.@switch_vlan[$i])" == "switch_vlan" ]; do
 	vid=$(uci -q get network.@switch_vlan[$i].vlan)
+	if [ $(cat /proc/cpuinfo | head -n1 | grep -c 7620) -eq 1 ]; then
+		if [ $i -gt 15 ]; then
+		echo -e "\n\nMaximum VLAN entries [$i] count reached!";
+		    break
+		fi
+		#vid of vlan
+		VTIM $vid;reg=$retval
+		readreg $reg;val=$retval
 
-	#vid of vlan
-	VTIM $vid;reg=$retval
-	readreg $reg;val=$retval
-
-	if [ $(( $vid % 2 )) -eq 0 ]; then
-		let "val &= 0xfff000"
-		let "val |= vid"
+		if [ $(( $vid % 2 )) -eq 0 ]; then
+			let "val &= 0xfff000"
+			let "val |= vid"
+		else
+			let "val &= 0xfff"
+			let "val |= (vid << 12)"
+		fi
+		writereg $reg $val
 	else
-		let "val &= 0xfff"
-		let "val |= (vid << 12)"
+	    if [ $i -gt 4094 ]; then
+		echo -e "\n\nMaximum VLAN entries [$i] count reached!";
+		break
+	    fi
 	fi
-	writereg $reg $val
 
 	#vlan port membership
 	member=0; etags=0;
@@ -151,15 +168,19 @@ while [ "$(uci -q get network.@switch_vlan[$i])" == "switch_vlan" ]; do
 	for j in $portslist; do
 		if [ $(( $etags & $(( 1 << $j )) )) -ne 0 ]; then
 			let "val |= 2 << (j * 2)"
-#		else
-#			let "val |= 0 << (j * 2)"
+		else
+			let "val |= 0 << (j * 2)"
 		fi
 	done
 	writereg 0x98 $val
 
 	#write to vlan table
 	echo "write to vlan table"
-	val=$vid
+	if [ $(cat /proc/cpuinfo | head -n1 | grep -c 7620) -eq 1 ]; then
+		val=$i
+	else
+		val=$vid
+	fi
 	let "val |= (1 << 31)"
 	let "val |= (1 << 12)"
 	writereg 0x90 $val
@@ -279,8 +300,12 @@ if [ "$1" == "dev" ]; then
 	configswitch
 	fi
 	if [ "$3" == "help" ]; then
+	    if [ $(cat /proc/cpuinfo | head -n1 | grep -c 7620) -eq 1 ]; then
+		echo "switch0: mt7620(MT7620), ports: 8 (cpu @ 7), vlans: 4096"
+	    else
+		echo "switch0: mt7530(MT7530), ports: 7 (cpu @ 6), vlans: 4096"
+	    fi
 	cat << EOF
-switch0: mt7530(MT7530), ports: 7 (cpu @ 6), vlans: 4096
      --switch
 	Attribute 1 (int): enable_vlan (Enable VLAN mode)
 	Attribute 2 (int): enable_vlan4k (Enable VLAN 4K mode)
