@@ -103,7 +103,7 @@ define KernelPackage/mtk-mmc
 	CONFIG_MTK_MMC=m
   FILES:= \
     $(LINUX_DIR)/drivers/mmc/host/mmc-mtk/mtk_sd.ko
-  AUTOLOAD:=$(call AutoLoad,90,mtk_sd)
+  AUTOLOAD:=$(call AutoLoad,90,mtk_sd,1)
 endef
 
 define KernelPackage/mtk-mmc/description
