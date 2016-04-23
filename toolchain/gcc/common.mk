@@ -48,6 +48,9 @@ ifeq ($(findstring linaro, $(CONFIG_GCC_VERSION)),linaro)
 else
   PKG_SOURCE_URL:=@GNU/gcc/gcc-$(PKG_VERSION)
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+ifeq ($(PKG_VERSION),5.3.0)
+  PKG_MD5SUM:=c9616fd448f980259c31de613e575719
+endif
 endif
 
   ifeq ($(PKG_VERSION),4.6.3)
