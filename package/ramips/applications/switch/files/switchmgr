@@ -43,6 +43,8 @@ if [ $(( $(mii_mgr -g -p 5 -r 2  | sed -e "s/.* = /0x/gi") )) -eq $((0x0243)) ];
 	else
 		retval=0
 	fi
+else
+	retval=0
 fi
 }
 
@@ -225,7 +227,7 @@ portlink()
 num=$1
 reg=$(printf "0x3%d08" $num)
 
-if [ $num -lt 0 ] || [ $num -gt 6 ]; then echo "Wrong port number: $num!";exit 1; fi
+if [ $(echo $portslist | grep -c $num) -eq 0 ]; then echo "Wrong port number: $num!";exit 1; fi
 
 link=0
 value=0
