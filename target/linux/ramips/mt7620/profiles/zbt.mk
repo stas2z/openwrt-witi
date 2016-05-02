@@ -17,7 +17,7 @@ define Profile/we826
 endef
 
 define Profile/we826/Description
-	Default package set compatible with Witi boards.
+	Default package set compatible with ZBT WE826 board.
 endef
 
 $(eval $(call Profile,we826))
