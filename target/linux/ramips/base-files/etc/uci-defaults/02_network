@@ -141,7 +141,6 @@ ramips_setup_interfaces()
 	rt-n14u | \
 	wrtnode | \
 	ur-326n4g | \
-	we826 | \
 	zbt-wa05)
 		ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 		ucidef_add_switch "switch0" "1" "1"
@@ -163,6 +162,7 @@ ramips_setup_interfaces()
 
 	ar725w | \
 	rt-n15 | \
+	we826 | \
 	wl-351)
 		ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 		ucidef_add_switch "switch0" "1" "1"

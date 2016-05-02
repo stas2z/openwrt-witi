@@ -714,14 +714,54 @@ endif
 # MT7620 Profiles
 #
 
-
 Image/Build/Profile/MT7620=$(call BuildFirmware/Default16M/$(1),$(1),mt7620,MT7620)
+
 
 ifeq ($(SUBTARGET),mt7620)
 define Image/Build/Profile/Default
 	$(call Image/Build/Profile/MT7620,$(1))
 endef
 endif
+
+define BuildFirmware/zbt/initramfs
+	$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3))
+endef
+
+#############################################################################
+# $(1) = squashfs/initramfs
+# $(2) = lowercase board name
+# $(3) = dts file
+# $(4) = flash size
+# $(5) = firmware special strings
+define BuildFirmware/zbt/squashfs
+	$(call MkImageLzmaDtb,$(2),$(3),$(5))
+	$(eval sysupfile=$(call sysupname,$(1),$(2)))
+	$(eval factoryfile=$(call imgname,$(1),$(2))-factory.bin)
+	$(eval UBOOT="$(BIN_DIR)/uboot.bin")
+	cat $(KDIR)/vmlinux-$(2).uImage $(KDIR)/root.$(1) > $(sysupfile)
+	$(call prepare_generic_squashfs,$(sysupfile))
+
+	$(eval KERN_OFFSET=$(shell printf "%d" 0x50000))
+	if [ `stat -c%s "$(sysupfile)"` -gt `expr $(4) - $(KERN_OFFSET)` ]; then \
+		echo "Warning: $(sysupfile) is too big" >&2; \
+	else if [ -e $(UBOOT) ]; then \
+		dd if=$(UBOOT) bs=$(shell printf "%d" 0x30000) conv=sync > $(factoryfile); \
+		dd if=/dev/zero bs=$(shell printf "%d" 0x20000) count=1 conv=sync >> $(factoryfile); \
+		dd if=$(sysupfile) bs=512k conv=sync >> $(factoryfile); \
+	else \
+		echo "Error: $(UBOOT) not found" >&2; \
+	fi; fi
+endef
+
+Image/Build/Profile/MT7620=$(call BuildFirmware/Default16M/$(1),$(1),mt7620,MT7620)
+Image/Build/Profile/we826=$(call BuildFirmware/zbt/$(1),$(1),we826,WE826,$(ralink_default_fw_size_16M))
+
+ifeq ($(SUBTARGET),mt7620)
+define Image/Build/Profile/Default
+	$(call Image/Build/Profile/MT7620,$(1))
+endef
+endif
+Image/Build/Profile/we826=$(call BuildFirmware/zbt/$(1),$(1),we826,WE826,$(ralink_default_fw_size_16M))
 
 
 #
