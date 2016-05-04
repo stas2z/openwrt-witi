@@ -127,10 +127,10 @@ while [ "$(uci -q get network.@switch_vlan[$i])" == "switch_vlan" ]; do
 		    break
 		fi
 		#vid of vlan
-		VTIM $vid;reg=$retval
+		VTIM $i;reg=$retval
 		readreg $reg;val=$retval
 
-		if [ $(( $vid % 2 )) -eq 0 ]; then
+		if [ $(( $vid % 2 )) -ne 0 ]; then
 			let "val &= 0xfff000"
 			let "val |= vid"
 		else
