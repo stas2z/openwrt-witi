@@ -615,9 +615,29 @@ static int mt76x2e_get_assoclist(const char *ifname, char *buf, int *len)
     wrq.u.data.flags = 0;
 
     if (mt76x2e_ioctl(ifname, RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT, &wrq) >= 0) {
-
+	int count = 0;
         mp = (RT_802_11_MAC_TABLE *) wrq.u.data.pointer;
         for(i=0; i < mp->Num; i++) {
+	    char* s = ifname;
+	    char* p = s;
+	    char* end = s;
+	    long num;
+	    p--;    
+	    do {
+		p++;
+		num = strtol (p,&end,10);
+	    } while ( (p == end) && ( p < (s+strlen(s)) ) ) ;
+	    if ( p >= (s+strlen(s)) )
+		{
+		printf ("iwinfo debug: wrong ifname: %s\n", ifname);
+		break;
+		}
+//	    else
+//		printf ("iwinfo debug: ifname: %s, idx: %d",ifname, num);
+
+	    if ((int)mp->Entry[i].ApIdx != num)
+		continue;
+	    count++;
             rssi = -127;
             rssi = (int)mp->Entry[i].AvgRssi0;
             if ((int)mp->Entry[i].AvgRssi1 > rssi && mp->Entry[i].AvgRssi1 != 0)
@@ -680,7 +700,7 @@ static int mt76x2e_get_assoclist(const char *ifname, char *buf, int *len)
 
             memcpy(&buf[i*sizeof(entry)], &entry, sizeof(entry));
         }
-        *len = (i)*sizeof(entry);
+        *len = (count)*sizeof(entry);
     }
     quality = (int) 127 + maxrssi;
     return quality;
