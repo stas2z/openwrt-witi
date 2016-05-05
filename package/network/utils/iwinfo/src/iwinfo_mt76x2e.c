@@ -698,7 +698,7 @@ static int mt76x2e_get_assoclist(const char *ifname, char *buf, int *len)
             entry.rx_rate.is_short_gi = rx.field.ShortGI ? 1 : 0;
             entry.rx_rate.mhz = GetBW(rx.field.BW)*10;
 
-            memcpy(&buf[i*sizeof(entry)], &entry, sizeof(entry));
+            memcpy(&buf[(count-1)*sizeof(entry)], &entry, sizeof(entry));
         }
         *len = (count)*sizeof(entry);
     }
