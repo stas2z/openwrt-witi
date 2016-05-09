@@ -329,6 +329,11 @@ ramips_setup_macs()
 		[ -n "$wan2_mac" ] && ucidef_set_interface_macaddr wan2 $wan2_mac
 		;;
 
+	we826)
+		lan_mac=$(cat /sys/class/net/eth0/address)
+		wan_mac=$(macaddr_add "$lan_mac" 1)
+		;;
+
 	*)
 		lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
