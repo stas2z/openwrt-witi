@@ -21,7 +21,7 @@ enable_mt7612e() {
 
 detect_mt7612e() {
 #	detect_ralink_wifi mt7612e mt76x2e
-	ssid=WITI-5G-`ifconfig eth0 | grep HWaddr | cut -c 51- | sed 's/://g'`
+	ssid=`cat /tmp/sysinfo/model | sed -e 's/^.*[ -]//gi'`-5G-`ifconfig eth0 | grep HWaddr | cut -c 51- | sed 's/://g'`
 	cd /sys/module/
 	[ -d $module ] || return
 	[ -e /etc/config/wireless ] && return
