@@ -1,5 +1,4 @@
 config system
-	option hostname	MQ-WITI
 	option timezone	UTC
 
 config timeserver ntp
