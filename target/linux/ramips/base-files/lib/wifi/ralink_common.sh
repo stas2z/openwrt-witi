@@ -8,12 +8,15 @@ repair_wireless_uci() {
 
     ifn5g=0
     ifn2g=0
+    ifn5gs=0
+    ifn2gs=0
     for vif in $vifs; do
         local netif nettype device netif_new
         echo  "<<<<<<<<<<<<<<<<<" >>/tmp/wifi.log
         netif=`uci -q get ${vif}.ifname`
         nettype=`uci -q get ${vif}.network`
         device=`uci -q get ${vif}.device`
+        mode=`uci -q get ${vif}.mode`
         if [ "$device" == "" ]; then
             echo "device cannot be empty!!" >>/tmp/wifi.log
             return
@@ -21,22 +24,35 @@ repair_wireless_uci() {
         echo "device name $device!!" >>/tmp/wifi.log
         echo "netif $netif" >>/tmp/wifi.log
         echo "nettype $nettype" >>/tmp/wifi.log
+        echo "mode $mode" >>/tmp/wifi.log
     
         case "$device" in
             mt7620 | mt7602e | mt7603e | mt7628 | mt7688)
-                netif_new="ra"${ifn2g}
-                ifn2g=$(( $ifn2g + 1 ))
+                if [ "$mode" == "sta" ]; then
+                        netif_new="apcli"${ifn2gs}
+                        ifn2gs=$(( $ifn2gs + 1 ))
+                else
+                        netif_new="ra"${ifn2g}
+                        ifn2g=$(( $ifn2g + 1 ))
+                fi
                 ;;
             mt7610e | mt7612e )
-                netif_new="rai"${ifn5g}
-                ifn5g=$(( $ifn5g + 1 ))
+                if [ "$mode" == "sta" ]; then
+                        netif_new="apclii"${ifn5gs}
+                        ifn5gs=$(( $ifn5gs + 1 ))
+                else
+                        netif_new="ra"${ifn5g}
+                        ifn5g=$(( $ifn5g + 1 ))
+                fi
                 ;;
             * )
                 echo "device $device not recognized!! " >>/tmp/wifi.log
+                continue
                 ;;
         esac                    
     
         echo "ifn5g = ${ifn5g}, ifn2g = ${ifn2g}" >>/tmp/wifi.log
+        echo "ifn5gs = ${ifn5gs}, ifn2gs = ${ifn2gs}" >>/tmp/wifi.log
         echo "netif_new = ${netif_new}" >>/tmp/wifi.log
             
         if [ "$netif" == "" ]; then
@@ -220,7 +236,7 @@ enable_ralink_wifi() {
     for vif in $vifs; do
         config_get ifname $vif ifname
         config_get disabled $vif disabled
-	config_get radio $device radio
+        config_get radio $device radio
         ifconfig $ifname down
         echo "ifconfig $ifname down" >>/dev/null
         if [ "$disabled" == "1" ]; then
@@ -230,7 +246,7 @@ enable_ralink_wifi() {
             echo "ifconfig $ifname up" >>/dev/null
             ifconfig $ifname up
         fi
-	#Radio On/Off only support iwpriv command but dat file
+        #Radio On/Off only support iwpriv command but dat file
         [ "$radio" == "0" ] && iwpriv $ifname set RadioOn=0
         local net_cfg bridge
         net_cfg="$(find_net_config "$vif")"
@@ -239,7 +255,7 @@ enable_ralink_wifi() {
             config_set "$vif" bridge "$bridge"
             start_net "$ifname" "$net_cfg"
         }
-	chk8021x $device
+        chk8021x $device
         set_wifi_up "$vif" "$ifname"
     done
 }
@@ -287,6 +303,4 @@ config wifi-iface
 
 EOF
 }
-
-
 
