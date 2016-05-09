@@ -119,10 +119,10 @@ msgstr "<abbr title=\"μέγιστο\">Μεγ.</abbr> πλήθος ταυτόχ�
 msgid "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 msgstr ""
 
-msgid "ADSL"
+msgid "xDSL"
 msgstr ""
 
-msgid "ADSL Status"
+msgid "xDSL Status"
 msgstr ""
 
 msgid "AICCU (SIXXS)"
@@ -645,6 +645,9 @@ msgstr "Προεπιλογή %d"
 
 msgid "Default gateway"
 msgstr "Προεπιλεγμένη πύλη"
+
+msgid "Default is stateless + stateful"
+msgstr ""
 
 msgid "Default route"
 msgstr ""

@@ -114,10 +114,10 @@ msgstr "<abbr title=\"maximal\">最大</abbr>並發查詢數"
 msgid "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 msgstr "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 
-msgid "ADSL"
+msgid "xDSL"
 msgstr ""
 
-msgid "ADSL Status"
+msgid "xDSL Status"
 msgstr ""
 
 msgid "AICCU (SIXXS)"
@@ -621,6 +621,9 @@ msgstr "預設 %d"
 
 msgid "Default gateway"
 msgstr "預設匝道器"
+
+msgid "Default is stateless + stateful"
+msgstr ""
 
 msgid "Default route"
 msgstr ""

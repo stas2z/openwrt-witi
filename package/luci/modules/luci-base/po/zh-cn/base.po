@@ -114,11 +114,11 @@ msgstr "<abbr title=\"maximal\">最大</abbr>并发查询数"
 msgid "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 msgstr "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 
-msgid "ADSL"
-msgstr "ADSL"
+msgid "xDSL"
+msgstr "xDSL"
 
-msgid "ADSL Status"
-msgstr "ADSL状态"
+msgid "xDSL Status"
+msgstr "xDSL状态"
 
 msgid "AICCU (SIXXS)"
 msgstr ""
@@ -615,6 +615,9 @@ msgstr "默认%d"
 
 msgid "Default gateway"
 msgstr "默认网关"
+
+msgid "Default is stateless + stateful"
+msgstr ""
 
 msgid "Default route"
 msgstr "默认路由"

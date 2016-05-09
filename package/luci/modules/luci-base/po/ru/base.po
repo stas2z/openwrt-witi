@@ -122,10 +122,10 @@ msgstr ""
 msgid "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 msgstr "<abbr title='Парный: %s / Групповой: %s'>%s - %s</abbr>"
 
-msgid "ADSL"
+msgid "xDSL"
 msgstr ""
 
-msgid "ADSL Status"
+msgid "xDSL Status"
 msgstr ""
 
 msgid "AICCU (SIXXS)"
@@ -644,6 +644,9 @@ msgstr "По умолчанию %d"
 
 msgid "Default gateway"
 msgstr "Шлюз по умолчанию"
+
+msgid "Default is stateless + stateful"
+msgstr ""
 
 msgid "Default route"
 msgstr ""

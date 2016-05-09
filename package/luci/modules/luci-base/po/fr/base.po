@@ -120,10 +120,10 @@ msgstr "Maximum de requêtes concurrentes"
 msgid "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 msgstr "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 
-msgid "ADSL"
+msgid "xDSL"
 msgstr ""
 
-msgid "ADSL Status"
+msgid "xDSL Status"
 msgstr ""
 
 msgid "AICCU (SIXXS)"
@@ -648,6 +648,9 @@ msgstr "%d par défaut"
 
 msgid "Default gateway"
 msgstr "Passerelle par défaut"
+
+msgid "Default is stateless + stateful"
+msgstr ""
 
 msgid "Default route"
 msgstr ""
