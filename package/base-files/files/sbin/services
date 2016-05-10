@@ -46,7 +46,11 @@ while ifconfig rai0 | grep Device; do sleep 1;done
 iwpriv rai0 set VgaClamp=`uci -q get platform.@vgaclamp[0].rai0`
 ##############/clamp ################
 
-if ! [ "$RELOAD" == "true" ]; then
+if ! [ "$RELOAD" == "true" ]; then #first start
+	addrs="0 1 2 3 4"
+	for i in $addrs; do
+	    mii_mgr -s -p $i -r 0 -v 0x3300 #up all esw phy
+	done
         sleep 10 # wait a little bit
 fi
 
