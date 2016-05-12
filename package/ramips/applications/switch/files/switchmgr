@@ -10,6 +10,38 @@ if [ $(cat /proc/cpuinfo | head -n1 | grep -c 7621) -eq 1 ]; then
     portslist="0 1 2 3 4 5 6"
 fi
 
+link_up() {
+echo "Port: $1"
+state=$(mii_mgr -g -p $1 -r 0  | sed -e "s/.* = /0x/gi")
+echo "Get state: $state"
+let "state &= 0xf7ff"
+echo "Modded state: $(printf "0x%x" $state)"
+mii_mgr -s -p $1 -r 0 -v $(printf "0x%x" $state)
+mii_mgr -s -p $1 -r 0 -v 0x9000
+echo "Link up finished";echo
+}
+
+link_down() {
+echo "Port: $1"
+state=$(mii_mgr -g -p $1 -r 0  | sed -e "s/.* = /0x/gi")
+echo "Get state: $state"
+let "state |= 0x800"
+echo "Modded state: $(printf "0x%x" $state)"
+mii_mgr -s -p $1 -r 0 -v $(printf "0x%x" $state)
+echo "Link down finished";echo
+}
+
+reset_ports()
+{
+for port in `seq 0 4`; do
+    link_down $port
+done
+sleep 1
+for port in `seq 0 4`; do
+        link_up $port
+done
+}
+
 BIT()
 {
 retval=$((1 << $1))
@@ -64,6 +96,8 @@ retval=$(( 0x$(switch reg r $wreg | sed "s/.*=//gi") ))
 
 configswitch()
 {
+reset_ports
+
 local vlan_enable=$(uci get network.@switch[0].enable_vlan | grep -c 1)
 
 if [ $vlan_enable -eq 0 ]; then
