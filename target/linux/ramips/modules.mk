@@ -29,7 +29,7 @@ OTHER_MENU:=Other modules
 define KernelPackage/sdhci-mt7620
   SUBMENU:=Other modules
   TITLE:=MT7620 SDCI
-  DEPENDS:=@TARGET_ramips_mt7620 +kmod-sdhci
+  DEPENDS:=@TARGET_ramips_mt7620||@TARGET_ramips_mt7620n +kmod-sdhci
   KCONFIG:= \
 	CONFIG_MMC_SDHCI_MT7620
   FILES:= \
@@ -60,8 +60,12 @@ define KernelPackage/hw_nat
   SUBMENU:=Drivers
   TITLE:=MTK Hardware NAT
   KCONFIG:=CONFIG_RA_HW_NAT
-  DEPENDS:=@TARGET_ramips_mt7620||@TARGET_ramips_mt7621
+  DEPENDS:=@TARGET_ramips_mt7620||@TARGET_ramips_mt7620n||@TARGET_ramips_mt7621
+ifeq ($(CONFIG_RALINK_MT7621),y)
+  FILES:=$(LINUX_DIR)/net/nat/hw_nat_sdk/hw_nat.ko
+else
   FILES:=$(LINUX_DIR)/net/nat/hw_nat/hw_nat.ko
+endif
   AUTOLOAD:=$(call AutoProbe,hw_nat)
 endef
 
@@ -74,7 +78,7 @@ $(eval $(call KernelPackage,hw_nat))
 
 define KernelPackage/sound-mt7620
   TITLE:=MT7620 PCM/I2S Alsa Driver
-  DEPENDS:=@TARGET_ramips_mt7620 +kmod-sound-soc-core +kmod-regmap
+  DEPENDS:=@TARGET_ramips_mt7620||@TARGET_ramips_mt7620n +kmod-sound-soc-core +kmod-regmap
   KCONFIG:= \
 	CONFIG_SND_MT7620_SOC_I2S \
 	CONFIG_SND_MT7620_SOC_WM8960
